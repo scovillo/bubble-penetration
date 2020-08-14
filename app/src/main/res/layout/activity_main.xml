@@ -1,0 +1,100 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/black" tools:context="de.spicysources.bubblepenetration.MainActivity">
+
+    <FrameLayout
+            android:layout_width="fill_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/menuGLSurfaceViewHolder"
+            android:layout_alignParentStart="false" android:layout_alignParentLeft="false">
+
+    </FrameLayout>
+
+    <TextView
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/menu_title"
+        android:text="Bubble Penetration"
+        android:textColor="#ec5108ff"
+        android:textSize="24sp"
+        android:layout_alignParentTop="true"
+        android:layout_gravity="center_horizontal|top"
+        android:textAlignment="center" />
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:textAlignment="center"
+        android:gravity="center"
+        android:id="@+id/linearLayout"
+        android:layout_marginTop="16dp"
+        android:layout_centerHorizontal="true">
+
+        <Button
+            android:id="@+id/start_button"
+            android:text="@string/start_button_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="40sp"
+            android:onClick="startGame"
+            android:enabled="true"
+            android:alpha="0.8"
+            android:layout_marginTop="16dp" />
+
+        <Button
+            android:id="@+id/highscore_button"
+            android:text="@string/highscore_button_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="24sp"
+            android:onClick="showHighscores"
+            android:enabled="true"
+            android:alpha="0.7" />
+
+    </LinearLayout>
+
+    <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="@string/username"
+            android:id="@+id/menu_username"
+            android:layout_gravity="left|bottom"
+            android:textSize="24sp"
+            android:textColor="#ffffff"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentStart="true"
+            android:onClick="setName" android:layout_alignParentLeft="true"/>
+
+    <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right|bottom"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentBottom="true" android:layout_alignParentRight="true">
+
+        <CheckBox
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/music"
+                android:id="@+id/music_box"
+                android:textColor="#ffffff"
+                android:textSize="20sp"
+                android:checked="true"
+                android:onClick="setMusic"/>
+
+        <CheckBox
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="EFFECTS"
+                android:id="@+id/effects_box"
+                android:textColor="#ffffff"
+                android:textSize="20sp"
+                android:checked="true"/>
+    </LinearLayout>
+
+</RelativeLayout>

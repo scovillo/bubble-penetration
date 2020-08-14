@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/black">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/your_name"
+        android:id="@+id/your_name"
+        android:textAlignment="center"
+        android:textColor="@color/title"
+        android:textSize="48sp"
+        android:textStyle="bold|italic" />
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inputType="textPersonName"
+        android:text="@string/anonym"
+        android:ems="10"
+        android:id="@+id/username_field"
+        android:layout_gravity="center_horizontal"
+        android:textSize="36sp"
+        android:textColor="#ffffff"
+        android:textAlignment="center"
+        android:layout_marginTop="16dp" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/save"
+        android:id="@+id/save"
+        android:onClick="writeToFile"
+        android:textSize="30sp"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="16dp" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/cancel"
+        android:onClick="backToMenu"
+        android:textSize="30sp"
+        android:layout_alignParentEnd="true"
+        android:text="@string/cancel"
+        android:layout_gravity="center_horizontal" />
+
+</LinearLayout>

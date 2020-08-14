@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="de.spicysources.bubblepenetration.MainActivity"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/black"
+    android:clickable="false">
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/back_to_menu"
+        android:textSize="24dp"
+        android:background="@drawable/button"
+        android:id="@+id/highscore_back_button"
+        android:layout_gravity="center_horizontal"
+        android:textColor="@color/gold"
+        android:onClick="backToMenu"
+        android:clickable="true"
+        android:enabled="true" />
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Rank"
+            android:textColor="@color/white"
+            android:textSize="28dp"
+            android:textAlignment="center"
+            android:id="@+id/table_rank"
+            android:enabled="true" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Name"
+            android:id="@+id/table_name"
+            android:textColor="@color/white"
+            android:textSize="28dp"
+            android:textAlignment="center"
+            android:enabled="true" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Score"
+            android:id="@+id/table_score"
+            android:textColor="@color/white"
+            android:textSize="28dp"
+            android:textAlignment="center"
+            android:enabled="true" />
+    </LinearLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:textAlignment="center">
+        <TableLayout
+            android:id="@+id/highscore_table"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="16dp"
+            android:textAlignment="center">
+
+        </TableLayout>
+    </ScrollView>
+
+</LinearLayout>

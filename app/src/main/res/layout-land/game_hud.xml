@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/black" tools:context="de.spicysources.bubblepenetration.MainActivity"
+    android:weightSum="1"
+    android:baselineAligned="false"
+    android:id="@+id/SurfaceLayout">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/hud">
+
+        <TextView
+            android:text="timer"
+            android:textColor="@color/white"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/Timer"
+            android:textSize="22sp"
+            android:textAlignment="center"
+            android:layout_gravity="center_horizontal"
+            android:layout_row="0"
+            android:layout_column="3"
+            android:layout_alignParentTop="false"
+            android:layout_alignWithParentIfMissing="false"
+            android:layout_alignParentBottom="false"
+            android:layout_alignParentRight="false"
+            android:enabled="true" />
+
+        <FrameLayout
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:id="@+id/GLSurfaceViewHolder"
+            android:layout_gravity="center"
+            android:layout_column="2"
+            android:layout_row="3"
+            android:layout_alignParentStart="false"
+            android:layout_alignParentEnd="false"
+            android:layout_centerInParent="true"
+            android:layout_weight="1"
+            android:layout_marginLeft="22sp"
+            android:layout_marginRight="22sp">
+
+        </FrameLayout>
+
+        <TextView
+            android:text="score"
+            android:textColor="@color/white"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/Score"
+            android:textSize="22sp"
+            android:layout_gravity="center_horizontal|bottom"
+            android:textAlignment="center"
+            android:layout_row="1"
+            android:layout_column="2"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:enabled="true" />
+    </LinearLayout>
+
+</LinearLayout>

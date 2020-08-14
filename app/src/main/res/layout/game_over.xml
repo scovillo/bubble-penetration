@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="de.spicysources.bubblepenetration.MainActivity"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingLeft="16dp"
+    android:paddingRight="16dp"
+    android:paddingBottom="16dp"
+    android:paddingTop="32dp"
+    android:background="@color/black">
+
+    <TextView
+        android:id="@+id/game_over_textview"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/game_over_text"
+        android:textSize="48dp"
+        android:textColor="@color/title"
+        android:layout_gravity="center_horizontal"
+        android:textStyle="bold|italic" />
+
+    <TextView
+        android:id="@+id/your_score_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/game_over_score_label"
+        android:textSize="16dp"
+        android:textColor="@color/white"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="16dp"/>
+    <TextView
+        android:id="@+id/your_score_textview"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="0"
+        android:textSize="28dp"
+        android:textColor="@color/white"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="16dp" />
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:textAlignment="center">
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/back_to_menu"
+            android:id="@+id/gameover_back_button"
+            android:onClick="backToMenu"
+            android:textSize="20sp" />
+
+        <Button
+            android:id="@+id/highscore_gameover"
+            android:text="@string/highscore_button_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="20sp"
+            android:onClick="showHighscores"
+            android:layout_alignParentTop="true"
+            android:enabled="true"
+            android:alpha="0.7" />
+
+    </LinearLayout>
+
+</LinearLayout>
