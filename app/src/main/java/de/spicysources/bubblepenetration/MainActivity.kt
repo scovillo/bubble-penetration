@@ -1,339 +1,425 @@
-package de.spicysources.bubblepenetration;
+package de.spicysources.bubblepenetration
 
-import android.app.Activity;
-import android.content.ActivityNotFoundException;
-import android.content.Context;
-import android.content.Intent;
-import android.graphics.Color;
-import android.graphics.Typeface;
-import android.media.MediaPlayer;
-import android.net.Uri;
-import android.os.Bundle;
-import android.os.StrictMode;
-import android.util.Log;
-import android.view.Display;
-import android.view.View;
-import android.view.WindowManager;
-import android.widget.*;
-import de.spicysources.bubblepenetration.database.DataConnection;
-import de.spicysources.bubblepenetration.objects.GameObject;
+import android.app.Activity
+import android.content.ActivityNotFoundException
+import android.content.Context
+import android.content.Intent
+import android.graphics.Color
+import android.graphics.Typeface
+import android.media.MediaPlayer
+import android.net.Uri
+import android.os.Build
+import android.os.Bundle
+import android.os.StrictMode
+import android.os.StrictMode.ThreadPolicy
+import android.util.Log
+import android.view.Display
+import android.view.View
+import android.view.WindowManager
+import android.widget.*
+import de.spicysources.bubblepenetration.database.DataConnection
+import de.spicysources.bubblepenetration.objects.GameObject
+import java.io.*
 
-import java.io.*;
+class MainActivity : Activity() {
 
-public class MainActivity extends Activity {
+    private var blinkStep = 0.035f
+    private var readFromFile = false
+    private var musicMuted = false
+    private var effectsMuted = false
+    private var bubbleGLSurfaceView: BubbleGLSurfaceView? = null
+    private var menuGLSurfaceView: MenuGLSurfaceView? = null
+    private var mWindowManager: WindowManager? = null
+    private var mDisplay: Display? = null
+    private var timerText: TextView? = null
+    private var scoreText: TextView? = null
+    private var gameOverScore: TextView? = null
+    private var title: TextView? = null
+    private val filename = "bubblePenetration"
+    private var username: String = "anonym"
+    private var score: String? = null
+    private var musicPlayer: MediaPlayer? = null
 
-    private float blinkStep = 0.035f;
-    private boolean readFromFile = false, musicMuted = false, effectsMuted = false;
-    private BubbleGLSurfaceView bubbleGLSurfaceView;
-    private MenuGLSurfaceView menuGLSurfaceView;
-    private WindowManager mWindowManager;
-    private Display mDisplay;
-    private TextView timerText, scoreText, gameOverScore, title;
-    private String filename = "bubblePenetration", username = "anonym";
-    private String score;
-    private MediaPlayer musicPlayer;
-
-    public void startGame(View v) {
-        effectsMuted = !((CheckBox) findViewById(R.id.effects_box)).isChecked();
-        mWindowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
-        mDisplay = mWindowManager.getDefaultDisplay();
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-        setContentView(R.layout.game_hud);
-        menuGLSurfaceView = null;
-        bubbleGLSurfaceView = new BubbleGLSurfaceView(this, effectsMuted);
-        bubbleGLSurfaceView.context = this;
-        FrameLayout glSurfaceViewHolder = (FrameLayout) findViewById(R.id.GLSurfaceViewHolder);
-        if (glSurfaceViewHolder != null) {
-            glSurfaceViewHolder.addView(bubbleGLSurfaceView);
-        }
-        timerText = (TextView) findViewById(R.id.Timer);
-        scoreText = (TextView) findViewById(R.id.Score);
-        timerText.setTypeface(Typeface.createFromAsset(this.getAssets(), "fonts/PLUMP.ttf"));
-        scoreText.setTypeface(Typeface.createFromAsset(this.getAssets(), "fonts/PLUMP.ttf"));
-        startMusic();
+    fun startGame(v: View?) {
+        effectsMuted = !(findViewById<View>(R.id.effects_box) as CheckBox).isChecked
+        mWindowManager = getSystemService(Context.WINDOW_SERVICE) as WindowManager
+        mDisplay = mWindowManager!!.defaultDisplay
+        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        setContentView(R.layout.game_hud)
+        menuGLSurfaceView = null
+        bubbleGLSurfaceView = BubbleGLSurfaceView(this, effectsMuted)
+        val glSurfaceViewHolder = findViewById<View>(R.id.GLSurfaceViewHolder) as FrameLayout
+        glSurfaceViewHolder.addView(bubbleGLSurfaceView)
+        timerText = findViewById<View>(R.id.Timer) as TextView
+        scoreText = findViewById<View>(R.id.Score) as TextView
+        timerText!!.typeface = Typeface.createFromAsset(this.assets, "fonts/PLUMP.ttf")
+        scoreText!!.typeface = Typeface.createFromAsset(this.assets, "fonts/PLUMP.ttf")
+        startMusic()
     }
 
-    public void showHighscores(View v) {
-        setContentView(R.layout.highscores);
-        setNetwork();
-        TableLayout table = (TableLayout) findViewById(R.id.highscore_table);
-        ((Button) findViewById(R.id.highscore_back_button)).setTypeface(Typeface.createFromAsset(this.getAssets(), "fonts/PLUMP.ttf"));
-        ((TextView) findViewById(R.id.table_rank)).setTypeface(Typeface.createFromAsset(this.getAssets(), "fonts/PLUMP.ttf"));
-        ((TextView) findViewById(R.id.table_name)).setTypeface(Typeface.createFromAsset(this.getAssets(), "fonts/PLUMP.ttf"));
-        ((TextView) findViewById(R.id.table_score)).setTypeface(Typeface.createFromAsset(this.getAssets(), "fonts/PLUMP.ttf"));
-        // TODO: Server Connection
-        String[] data = new String[0]; //DataConnection.getHighscoreData(username);
-        for (int i = 1; i < data.length - 2; i += 3) {
-            TextView rank = generateHighscoreTextView();
-            rank.setText(data[i]);
-            rank.setTypeface(Typeface.createFromAsset(this.getAssets(), "fonts/PLUMP.ttf"));
-            TextView name = generateHighscoreTextView();
-            name.setText(data[i + 1]);
-            name.setTypeface(Typeface.createFromAsset(this.getAssets(), "fonts/PLUMP.ttf"));
-            TextView score = generateHighscoreTextView();
-            score.setText(data[i + 2]);
-            score.setTypeface(Typeface.createFromAsset(this.getAssets(), "fonts/PLUMP.ttf"));
-            TableRow row = new TableRow(this);
-            if (data[i].equals("1")) {
-                rank.setTextColor(getResources().getColor(Color.YELLOW));
-                name.setTextColor(getResources().getColor(Color.YELLOW));
-                score.setTextColor(getResources().getColor(Color.YELLOW));
+    fun showHighscores(v: View?) {
+        setContentView(R.layout.highscores)
+        setNetwork()
+        val table = findViewById<View>(R.id.highscore_table) as TableLayout
+        (findViewById<View>(R.id.highscore_back_button) as Button).typeface = Typeface.createFromAsset(
+            this.assets,
+            "fonts/PLUMP.ttf"
+        )
+        (findViewById<View>(R.id.table_rank) as TextView).typeface = Typeface.createFromAsset(
+            this.assets,
+            "fonts/PLUMP.ttf"
+        )
+        (findViewById<View>(R.id.table_name) as TextView).typeface = Typeface.createFromAsset(
+            this.assets,
+            "fonts/PLUMP.ttf"
+        )
+        (findViewById<View>(R.id.table_score) as TextView).typeface = Typeface.createFromAsset(
+            this.assets,
+            "fonts/PLUMP.ttf"
+        )
+        val data = DataConnection.getHighscoreData(username);
+        var i = 1
+        while (i < data.size - 2) {
+            val rank = generateHighscoreTextView()
+            rank.text = data[i]
+            rank.typeface = Typeface.createFromAsset(this.assets, "fonts/PLUMP.ttf")
+            val name = generateHighscoreTextView()
+            name.text = data[i + 1]
+            name.typeface = Typeface.createFromAsset(this.assets, "fonts/PLUMP.ttf")
+            val score = generateHighscoreTextView()
+            score.text = data[i + 2]
+            score.typeface = Typeface.createFromAsset(this.assets, "fonts/PLUMP.ttf")
+            val row = TableRow(this)
+            if (data[i] == "1") {
+                rank.setTextColor(resources.getColor(Color.YELLOW))
+                name.setTextColor(resources.getColor(Color.YELLOW))
+                score.setTextColor(resources.getColor(Color.YELLOW))
             }
-            if (data[i + 1].equals(username)) {
-                rank.setTextColor(Color.RED);
-                name.setTextColor(Color.RED);
-                score.setTextColor(Color.RED);
+            if (data[i + 1] == username) {
+                rank.setTextColor(Color.RED)
+                name.setTextColor(Color.RED)
+                score.setTextColor(Color.RED)
             }
-            row.addView(rank);
-            row.addView(name);
-            row.addView(score);
-            table.addView(row);
+            row.addView(rank)
+            row.addView(name)
+            row.addView(score)
+            table.addView(row)
+            i += 3
         }
     }
 
-    private TextView generateHighscoreTextView() {
-        TextView tv = new TextView(this);
-        tv.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT, 0.25f));
-        tv.setGravity(1);
-        tv.setTextColor(Color.WHITE);
-        tv.setTextSize(25);
-        tv.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
-        return tv;
+    private fun generateHighscoreTextView(): TextView {
+        val tv = TextView(this)
+        tv.layoutParams = TableRow.LayoutParams(
+            TableRow.LayoutParams.WRAP_CONTENT,
+            TableRow.LayoutParams.WRAP_CONTENT,
+            0.25f
+        )
+        tv.gravity = 1
+        tv.setTextColor(Color.WHITE)
+        tv.textSize = 25f
+        tv.textAlignment = View.TEXT_ALIGNMENT_CENTER
+        return tv
     }
 
-    public void backToMenu(View v) {
-        showMainMenu();
+    fun backToMenu(v: View?) {
+        showMainMenu()
     }
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        readFromFile();
-        if (!readFromFile)
-            setName();
-        else
-            showMainMenu();
-    }
-
-    private void showMainMenu() {
-        setContentView(R.layout.activity_main);
-        menuGLSurfaceView = new MenuGLSurfaceView(this);
-        FrameLayout glSurfaceViewHolder = (FrameLayout) findViewById(R.id.menuGLSurfaceViewHolder);
-        if (glSurfaceViewHolder != null) {
-            glSurfaceViewHolder.addView(menuGLSurfaceView);
-        }
-        if (username != null) {
-            ((TextView) findViewById(R.id.menu_username)).setText(username);
-            if (readFromFile) {
-                setNetwork();
-                DataConnection.getUsernameExists(username);
-            }
-        }
-        title = (TextView) findViewById(R.id.menu_title);
-        ((CheckBox) findViewById(R.id.effects_box)).setTypeface(Typeface.createFromAsset(this.getAssets(), "fonts/PLUMP.ttf"));
-        ((CheckBox) findViewById(R.id.music_box)).setTypeface(Typeface.createFromAsset(this.getAssets(), "fonts/PLUMP.ttf"));
-        ((TextView) findViewById(R.id.menu_title)).setTypeface(Typeface.createFromAsset(this.getAssets(), "fonts/PLUMP.ttf"));
-        ((TextView) findViewById(R.id.menu_username)).setTypeface(Typeface.createFromAsset(this.getAssets(), "fonts/PLUMP.ttf"));
-        ((Button) findViewById(R.id.start_button)).setTypeface(Typeface.createFromAsset(this.getAssets(), "fonts/PLUMP.ttf"));
-        ((Button) findViewById(R.id.highscore_button)).setTypeface(Typeface.createFromAsset(this.getAssets(), "fonts/PLUMP.ttf"));
-        if (musicMuted)
-            ((CheckBox) findViewById(R.id.music_box)).setChecked(false);
-        if (effectsMuted)
-            ((CheckBox) findViewById(R.id.effects_box)).setChecked(false);
-        startMusic();
-    }
-
-    public void setGameOverScreen(String score) {
-        bubbleGLSurfaceView = null;
-        timerText = null;
-        GameObject.speed = 1.0f;
-        setContentView(R.layout.game_over);
-        gameOverScore = (TextView) findViewById(R.id.your_score_textview);
-        gameOverScore.setText(score);
-        ((TextView) findViewById(R.id.game_over_textview)).setTypeface(Typeface.createFromAsset(this.getAssets(), "fonts/PLUMP.ttf"));
-        ((TextView) findViewById(R.id.your_score_textview)).setTypeface(Typeface.createFromAsset(this.getAssets(), "fonts/PLUMP.ttf"));
-        ((TextView) findViewById(R.id.your_score_label)).setTypeface(Typeface.createFromAsset(this.getAssets(), "fonts/PLUMP.ttf"));
-        ((Button) findViewById(R.id.highscore_gameover)).setTypeface(Typeface.createFromAsset(this.getAssets(), "fonts/PLUMP.ttf"));
-        ((Button) findViewById(R.id.bewerten_button)).setTypeface(Typeface.createFromAsset(this.getAssets(), "fonts/PLUMP.ttf"));
-        setNetwork();
-        boolean better = DataConnection.putHighscoreData(username, score);
-        if (better) {
-            ((TextView) findViewById(R.id.highscore_label)).setText("Great! check your new rank!");
-            ((TextView) findViewById(R.id.your_score_label)).setText("!!! New Highscore !!!");
-            ((TextView) findViewById(R.id.your_score_label)).setTextColor(Color.RED);
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        readFromFile()
+        if (!readFromFile) {
+            setName()
         } else {
-            ((TextView) findViewById(R.id.highscore_label)).setText("you were better...try again!");
-            ((TextView) findViewById(R.id.your_score_label)).setText("Your score");
-            ((TextView) findViewById(R.id.your_score_label)).setTextColor(Color.WHITE);
+            showMainMenu()
         }
-        ((TextView) findViewById(R.id.highscore_label)).setTypeface(Typeface.createFromAsset(this.getAssets(), "fonts/PLUMP.ttf"));
-        startMusic();
     }
 
-    public void setTimerText(String time) {
-        timerText.setText(time);
-    }
-
-    public void setScoreText(String score) {
-        scoreText.setText(score);
-    }
-
-    public void titleBlink() {
-        if (title != null && title.getAlpha() > 1 | title.getAlpha() < 0.25) {
-            blinkStep *= (-1);
+    private fun showMainMenu() {
+        setContentView(R.layout.activity_main)
+        menuGLSurfaceView = MenuGLSurfaceView(this)
+        val glSurfaceViewHolder = findViewById<View>(R.id.menuGLSurfaceViewHolder) as FrameLayout
+        glSurfaceViewHolder.addView(menuGLSurfaceView)
+        (findViewById<View>(R.id.menu_username) as TextView).text = username
+        if (readFromFile) {
+            setNetwork()
+            DataConnection.getUsernameExists(username)
         }
-        if (title != null)
-            title.setAlpha(title.getAlpha() + blinkStep);
+        title = findViewById<View>(R.id.menu_title) as TextView
+        (findViewById<View>(R.id.effects_box) as CheckBox).typeface = Typeface.createFromAsset(
+            this.assets,
+            "fonts/PLUMP.ttf"
+        )
+        (findViewById<View>(R.id.music_box) as CheckBox).typeface = Typeface.createFromAsset(
+            this.assets,
+            "fonts/PLUMP.ttf"
+        )
+        (findViewById<View>(R.id.menu_title) as TextView).typeface = Typeface.createFromAsset(
+            this.assets,
+            "fonts/PLUMP.ttf"
+        )
+        (findViewById<View>(R.id.menu_username) as TextView).typeface = Typeface.createFromAsset(
+            this.assets,
+            "fonts/PLUMP.ttf"
+        )
+        (findViewById<View>(R.id.start_button) as Button).typeface = Typeface.createFromAsset(
+            this.assets,
+            "fonts/PLUMP.ttf"
+        )
+        (findViewById<View>(R.id.highscore_button) as Button).typeface = Typeface.createFromAsset(
+            this.assets,
+            "fonts/PLUMP.ttf"
+        )
+        if (musicMuted) (findViewById<View>(R.id.music_box) as CheckBox).isChecked = false
+        if (effectsMuted) (findViewById<View>(R.id.effects_box) as CheckBox).isChecked = false
+        startMusic()
     }
 
-    public void timerBlink() {
-        if (timerText != null && timerText.getAlpha() > 1 | timerText.getAlpha() < 0.05) {
-            blinkStep *= (-1);
+    fun setGameOverScreen(score: String) {
+        bubbleGLSurfaceView = null
+        timerText = null
+        GameObject.speed = 1.0f
+        setContentView(R.layout.game_over)
+        gameOverScore = findViewById<View>(R.id.your_score_textview) as TextView
+        gameOverScore!!.text = score
+        (findViewById<View>(R.id.game_over_textview) as TextView).typeface = Typeface.createFromAsset(
+            this.assets,
+            "fonts/PLUMP.ttf"
+        )
+        (findViewById<View>(R.id.your_score_textview) as TextView).typeface = Typeface.createFromAsset(
+            this.assets,
+            "fonts/PLUMP.ttf"
+        )
+        (findViewById<View>(R.id.your_score_label) as TextView).typeface = Typeface.createFromAsset(
+            this.assets,
+            "fonts/PLUMP.ttf"
+        )
+        (findViewById<View>(R.id.highscore_gameover) as Button).typeface = Typeface.createFromAsset(
+            this.assets,
+            "fonts/PLUMP.ttf"
+        )
+        (findViewById<View>(R.id.bewerten_button) as Button).typeface = Typeface.createFromAsset(
+            this.assets,
+            "fonts/PLUMP.ttf"
+        )
+        setNetwork()
+        val better = DataConnection.putHighscoreData(username, score)
+        if (better) {
+            (findViewById<View>(R.id.highscore_label) as TextView).text = "Great! check your new rank!"
+            (findViewById<View>(R.id.your_score_label) as TextView).text = "!!! New Highscore !!!"
+            (findViewById<View>(R.id.your_score_label) as TextView).setTextColor(Color.RED)
+        } else {
+            (findViewById<View>(R.id.highscore_label) as TextView).text = "you were better...try again!"
+            (findViewById<View>(R.id.your_score_label) as TextView).text = "Your score"
+            (findViewById<View>(R.id.your_score_label) as TextView).setTextColor(Color.WHITE)
         }
-        if (timerText != null)
-            timerText.setAlpha(timerText.getAlpha() + blinkStep * 2);
+        (findViewById<View>(R.id.highscore_label) as TextView).setTypeface(
+            Typeface.createFromAsset(
+                this.assets,
+                "fonts/PLUMP.ttf"
+            )
+        )
+        startMusic()
     }
 
-    public void setTimerAlpha(float value) {
-        if (timerText != null)
-            timerText.setAlpha(value);
+    fun setTimerText(time: String?) {
+        timerText!!.text = time
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        startMusic();
+    fun setScoreText(score: String?) {
+        scoreText!!.text = score
     }
 
-    @Override
-    public void onPause() {
-        super.onPause();
-        GameObject.speed = 1.0f;
-        if (musicPlayer != null && musicPlayer.isPlaying())
-            musicPlayer.pause();
+    fun titleBlink() {
+        if (title != null && (title!!.alpha > 1 || title!!.alpha < 0.25f)) {
+            blinkStep *= -1f
+        }
+        if (title != null) {
+            title!!.alpha = title!!.alpha + blinkStep
+        }
     }
 
-    public void writeToFile(View v) {
-        setNetwork();
-        String data = ((EditText) findViewById(R.id.username_field)).getText().toString();
-        if (data.length() < 11) {
+    fun timerBlink() {
+        if (timerText != null && (timerText!!.alpha > 1 || timerText!!.alpha < 0.05f)) {
+            blinkStep *= -1f
+        }
+        if (timerText != null) {
+            timerText!!.alpha = timerText!!.alpha + blinkStep * 2
+        }
+    }
+
+    fun setTimerAlpha(value: Float) {
+        if (timerText != null) {
+            timerText!!.alpha = value
+        }
+    }
+
+    public override fun onResume() {
+        super.onResume()
+        startMusic()
+    }
+
+    public override fun onPause() {
+        super.onPause()
+        GameObject.speed = 1.0f
+        if (musicPlayer != null && musicPlayer!!.isPlaying) musicPlayer!!.pause()
+    }
+
+    fun writeToFile(v: View?) {
+        setNetwork()
+        val data =
+            (findViewById<View>(R.id.username_field) as EditText).text.toString()
+        if (data.length < 11) {
             if (!DataConnection.getUsernameExists(data)) {
                 try {
-                    OutputStreamWriter outputStreamWriter = new OutputStreamWriter(this.openFileOutput(filename, Context.MODE_PRIVATE));
-                    outputStreamWriter.write(data);
-                    outputStreamWriter.close();
-                    username = data;
-                } catch (IOException e) {
-                    Log.e("Exception", "File write failed: " + e.toString());
+                    val outputStreamWriter =
+                        OutputStreamWriter(openFileOutput(filename, Context.MODE_PRIVATE))
+                    outputStreamWriter.write(data)
+                    outputStreamWriter.close()
+                    username = data
+                } catch (e: IOException) {
+                    Log.e("Exception", "File write failed: $e")
                 }
-                showMainMenu();
-            } else
-                Toast.makeText(this, "username already exists!", Toast.LENGTH_SHORT).show();
-        } else
-            Toast.makeText(this, "sorry, maximal 10 letters!", Toast.LENGTH_SHORT).show();
+                showMainMenu()
+            } else Toast.makeText(this, "username already exists!", Toast.LENGTH_SHORT).show()
+        } else Toast.makeText(this, "sorry, maximal 10 letters!", Toast.LENGTH_SHORT).show()
     }
 
-    private void readFromFile() {
+    private fun readFromFile() {
         try {
-            InputStream inputStream = openFileInput(filename);
-
+            val inputStream: InputStream? = openFileInput(filename)
             if (inputStream != null) {
-                InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
-                BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
-                String receiveString = "";
-                StringBuilder stringBuilder = new StringBuilder();
-
-                while ((receiveString = bufferedReader.readLine()) != null) {
-                    stringBuilder.append(receiveString);
+                val inputStreamReader = InputStreamReader(inputStream)
+                val bufferedReader = BufferedReader(inputStreamReader)
+                var receiveString: String? = ""
+                val stringBuilder = StringBuilder()
+                while (bufferedReader.readLine().also { receiveString = it } != null) {
+                    stringBuilder.append(receiveString)
                 }
-
-                inputStream.close();
-                username = stringBuilder.toString();
-                readFromFile = true;
+                inputStream.close()
+                username = stringBuilder.toString()
+                readFromFile = true
             }
-        } catch (FileNotFoundException e) {
-            Log.e("login activity", "File not found: " + e.toString());
-        } catch (IOException e) {
-            Log.e("login activity", "Can not read file: " + e.toString());
+        } catch (e: FileNotFoundException) {
+            Log.e("login activity", "File not found: $e")
+        } catch (e: IOException) {
+            Log.e("login activity", "Can not read file: $e")
         }
     }
 
-    public void setHUDColor(float[] glCollectColor) {
-        int max = 255;
-        (findViewById(R.id.hud)).setBackgroundColor(Color.argb(
-                (int) (glCollectColor[3] * max), (int) (glCollectColor[0] * max),
-                (int) (glCollectColor[1] * max), (int) (glCollectColor[2] * max)));
+    fun setHUDColor(glCollectColor: FloatArray?) {
+        val max = 255
+        findViewById<View>(R.id.hud).setBackgroundColor(
+            Color.argb(
+                (glCollectColor!![3] * max).toInt(), (glCollectColor[0] * max).toInt(),
+                (glCollectColor[1] * max).toInt(), (glCollectColor[2] * max).toInt()
+            )
+        )
     }
 
-    private void startMusic() {
+    private fun startMusic() {
         if (musicPlayer == null) {
-            musicPlayer = MediaPlayer.create(this, R.raw.music);
-            musicPlayer.setLooping(true);
-            musicPlayer.setVolume(0.3f, 0.3f);
+            musicPlayer = MediaPlayer.create(this, R.raw.music)
+            musicPlayer!!.isLooping = true
+            musicPlayer!!.setVolume(0.3f, 0.3f)
         }
-        if (!musicPlayer.isPlaying() & !musicMuted)
-            musicPlayer.start();
+        if (!musicPlayer!!.isPlaying and !musicMuted) {
+            musicPlayer!!.start()
+        }
     }
 
-    public void setMusic(View v) {
-        musicMuted = !((CheckBox) findViewById(R.id.music_box)).isChecked();
+    fun setMusic(v: View?) {
+        musicMuted = !(findViewById<View>(R.id.music_box) as CheckBox).isChecked
         if (musicMuted) {
-            if (musicPlayer != null && musicPlayer.isPlaying())
-                musicPlayer.stop();
-            musicPlayer = null;
-        } else
-            startMusic();
-    }
-
-    public void setEffects(View v) {
-        effectsMuted = !((CheckBox) findViewById(R.id.effects_box)).isChecked();
-    }
-
-    public void setName(View v) {
-        setContentView(R.layout.set_username);
-        if (!findViewById(R.id.cancel).isEnabled()) {
-            findViewById(R.id.cancel).setEnabled(true);
-            findViewById(R.id.cancel).setVisibility(View.VISIBLE);
-        }
-        ((TextView) findViewById(R.id.your_name)).setTypeface(Typeface.createFromAsset(this.getAssets(), "fonts/PLUMP.ttf"));
-        ((TextView) findViewById(R.id.warning)).setTypeface(Typeface.createFromAsset(this.getAssets(), "fonts/PLUMP.ttf"));
-        ((Button) findViewById(R.id.save)).setTypeface(Typeface.createFromAsset(this.getAssets(), "fonts/PLUMP.ttf"));
-        ((Button) findViewById(R.id.cancel)).setTypeface(Typeface.createFromAsset(this.getAssets(), "fonts/PLUMP.ttf"));
-        ((EditText) findViewById(R.id.username_field)).setTypeface(Typeface.createFromAsset(this.getAssets(), "fonts/PLUMP.ttf"));
-        ((EditText) findViewById(R.id.username_field)).setText(username);
-    }
-
-    private void setName() {
-        setContentView(R.layout.set_username);
-        findViewById(R.id.cancel).setEnabled(false);
-        findViewById(R.id.cancel).setVisibility(View.INVISIBLE);
-        ((TextView) findViewById(R.id.your_name)).setTypeface(Typeface.createFromAsset(this.getAssets(), "fonts/PLUMP.ttf"));
-        ((TextView) findViewById(R.id.warning)).setTypeface(Typeface.createFromAsset(this.getAssets(), "fonts/PLUMP.ttf"));
-        ((Button) findViewById(R.id.save)).setTypeface(Typeface.createFromAsset(this.getAssets(), "fonts/PLUMP.ttf"));
-        ((Button) findViewById(R.id.cancel)).setTypeface(Typeface.createFromAsset(this.getAssets(), "fonts/PLUMP.ttf"));
-        ((EditText) findViewById(R.id.username_field)).setTypeface(Typeface.createFromAsset(this.getAssets(), "fonts/PLUMP.ttf"));
-        ((EditText) findViewById(R.id.username_field)).setText(username);
-    }
-
-    private void setNetwork() {
-        if (android.os.Build.VERSION.SDK_INT > 9) {
-            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-            StrictMode.setThreadPolicy(policy);
+            if (musicPlayer != null && musicPlayer!!.isPlaying) {
+                musicPlayer!!.stop()
+            }
+            musicPlayer = null
+        } else {
+            startMusic()
         }
     }
 
-    public void showGameover(String score) {
-        this.score = score;
-        setGameOverScreen(score);
+    fun setEffects(v: View?) {
+        effectsMuted = !(findViewById<View>(R.id.effects_box) as CheckBox).isChecked
     }
 
-    public void launchMarket(View v) {
-        Uri uri = Uri.parse("market://details?id=" + getPackageName());
-        Intent myAppLinkToMarket = new Intent(Intent.ACTION_VIEW, uri);
+    fun setName(v: View?) {
+        setContentView(R.layout.set_username)
+        if (!findViewById<View>(R.id.cancel).isEnabled) {
+            findViewById<View>(R.id.cancel).isEnabled = true
+            findViewById<View>(R.id.cancel).visibility = View.VISIBLE
+        }
+        (findViewById<View>(R.id.your_name) as TextView).typeface = Typeface.createFromAsset(
+            this.assets,
+            "fonts/PLUMP.ttf"
+        )
+        (findViewById<View>(R.id.warning) as TextView).typeface = Typeface.createFromAsset(
+            this.assets,
+            "fonts/PLUMP.ttf"
+        )
+        (findViewById<View>(R.id.save) as Button).typeface = Typeface.createFromAsset(
+            this.assets,
+            "fonts/PLUMP.ttf"
+        )
+        (findViewById<View>(R.id.cancel) as Button).typeface = Typeface.createFromAsset(
+            this.assets,
+            "fonts/PLUMP.ttf"
+        )
+        (findViewById<View>(R.id.username_field) as EditText).typeface = Typeface.createFromAsset(
+            this.assets,
+            "fonts/PLUMP.ttf"
+        )
+        (findViewById<View>(R.id.username_field) as EditText).setText(username)
+    }
+
+    private fun setName() {
+        setContentView(R.layout.set_username)
+        findViewById<View>(R.id.cancel).isEnabled = false
+        findViewById<View>(R.id.cancel).visibility = View.INVISIBLE
+        (findViewById<View>(R.id.your_name) as TextView).typeface = Typeface.createFromAsset(
+            this.assets,
+            "fonts/PLUMP.ttf"
+        )
+        (findViewById<View>(R.id.warning) as TextView).typeface = Typeface.createFromAsset(
+            this.assets,
+            "fonts/PLUMP.ttf"
+        )
+        (findViewById<View>(R.id.save) as Button).typeface = Typeface.createFromAsset(
+            this.assets,
+            "fonts/PLUMP.ttf"
+        )
+        (findViewById<View>(R.id.cancel) as Button).typeface = Typeface.createFromAsset(
+            this.assets,
+            "fonts/PLUMP.ttf"
+        )
+        (findViewById<View>(R.id.username_field) as EditText).typeface = Typeface.createFromAsset(
+            this.assets,
+            "fonts/PLUMP.ttf"
+        )
+        (findViewById<View>(R.id.username_field) as EditText).setText(username)
+    }
+
+    private fun setNetwork() {
+        if (Build.VERSION.SDK_INT > 9) {
+            val policy = ThreadPolicy.Builder().permitAll().build()
+            StrictMode.setThreadPolicy(policy)
+        }
+    }
+
+    fun showGameover(score: String) {
+        this.score = score
+        setGameOverScreen(score)
+    }
+
+    fun launchMarket(v: View?) {
+        val uri = Uri.parse("market://details?id=$packageName")
+        val myAppLinkToMarket = Intent(Intent.ACTION_VIEW, uri)
         try {
-            startActivity(myAppLinkToMarket);
-        } catch (ActivityNotFoundException e) {
-            Toast.makeText(this, " unable to find market app", Toast.LENGTH_LONG).show();
+            startActivity(myAppLinkToMarket)
+        } catch (e: ActivityNotFoundException) {
+            Toast.makeText(this, " unable to find market app", Toast.LENGTH_LONG).show()
         }
     }
 

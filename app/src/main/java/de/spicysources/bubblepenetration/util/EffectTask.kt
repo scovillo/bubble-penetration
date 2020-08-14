@@ -1,47 +1,43 @@
-package de.spicysources.bubblepenetration.util;
+package de.spicysources.bubblepenetration.util
 
-import android.content.Context;
-import android.media.MediaPlayer;
-import de.spicysources.bubblepenetration.R;
+import android.content.Context
+import android.media.MediaPlayer
+import de.spicysources.bubblepenetration.R
+import java.util.*
 
-import java.util.ArrayList;
-import java.util.HashMap;
+class EffectTask(private val context: Context, muted: Boolean) : Thread() {
 
-public class EffectTask extends Thread{
+    private var muted = false
+    private var ingame = true
+    private val sounds: ArrayList<Int>
+    private val effectPlayer: HashMap<Int, MediaPlayer>
 
-    private boolean muted = false, ingame = true;
-    private ArrayList<Integer> sounds;
-    private HashMap<Integer, MediaPlayer> effectPlayer;
-    private Context context;
-
-    public EffectTask(Context context, boolean muted){
-        this.context = context;
-        this.muted = muted;
-        sounds = new ArrayList<>();
-        effectPlayer = new HashMap<>();
-        effectPlayer.put(R.raw.blubb, MediaPlayer.create(context, R.raw.blubb));
-        effectPlayer.put(R.raw.fart, MediaPlayer.create(context, R.raw.fart));
-        effectPlayer.put(R.raw.star, MediaPlayer.create(context, R.raw.star));
-        effectPlayer.put(R.raw.alarm, MediaPlayer.create(context, R.raw.alarm));
+    init {
+        this.muted = muted
+        sounds = ArrayList()
+        effectPlayer = HashMap()
+        effectPlayer[R.raw.blubb] = MediaPlayer.create(context, R.raw.blubb)
+        effectPlayer[R.raw.fart] = MediaPlayer.create(context, R.raw.fart)
+        effectPlayer[R.raw.star] = MediaPlayer.create(context, R.raw.star)
+        effectPlayer[R.raw.alarm] = MediaPlayer.create(context, R.raw.alarm)
     }
 
-    @Override
-    public void run(){
-        while(ingame){
-            if(!sounds.isEmpty()&!muted){
-                if( effectPlayer.get(sounds.get(0)) == null )
-                    effectPlayer.put(sounds.get(0), MediaPlayer.create(context, sounds.get(0)));
-                effectPlayer.get(sounds.get(0)).start();
-                sounds.remove(0);
+    override fun run() {
+        while (ingame) {
+            if (sounds.isNotEmpty() and !muted) {
+                if (effectPlayer[sounds[0]] == null) effectPlayer[sounds[0]] = MediaPlayer.create(context, sounds[0])
+                effectPlayer[sounds[0]]!!.start()
+                sounds.removeAt(0)
             }
         }
     }
 
-    public void playSound(int index){
-        sounds.add(index);
+    fun playSound(index: Int) {
+        sounds.add(index)
     }
 
-    public void setIngame(boolean ingame){
-        this.ingame = ingame;
+    fun setIngame(ingame: Boolean) {
+        this.ingame = ingame
     }
+
 }

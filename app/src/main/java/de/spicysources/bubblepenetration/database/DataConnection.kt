@@ -1,83 +1,79 @@
-package de.spicysources.bubblepenetration.database;
+package de.spicysources.bubblepenetration.database
 
-import java.io.*;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.net.URLConnection;
+import java.io.*
+import java.net.HttpURLConnection
+import java.net.URL
 
-public class
+object DataConnection {
 
-DataConnection {
-
-    public static String[] getHighscoreData(String username){
-        String result = "";
+    fun getHighscoreData(username: String): Array<String> {
+        var result = ""
         try {
-            HttpURLConnection httpConn = getHttpPostConnection("http://188.68.55.198:8080/BubbleHighscores/GetHighscores");
-            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(httpConn.getOutputStream()));
-            writer.write(username+"\n");
-            writer.flush();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(httpConn.getInputStream()));
-            result = reader.readLine();
-            writer.close();
-            reader.close();
-        } catch (IOException e) {
-            e.printStackTrace();
+            val httpConn = getHttpPostConnection("http://188.68.55.198:8080/BubbleHighscores/GetHighscores")
+            val writer = BufferedWriter(OutputStreamWriter(httpConn!!.outputStream))
+            writer.write(username.trimIndent())
+            writer.flush()
+            val reader =
+                BufferedReader(InputStreamReader(httpConn.inputStream))
+            result = reader.readLine()
+            writer.close()
+            reader.close()
+        } catch (e: IOException) {
+            e.printStackTrace()
         }
-        return result.split("\\|");
+        return result.split("\\|").toTypedArray()
     }
 
-    public static boolean putHighscoreData(String name, String score){
-        String inputString = name+"|"+score+"\n";
-        boolean better = false;
+    fun putHighscoreData(name: String?, score: String): Boolean {
+        val inputString = "$name|$score\n"
+        var better = false
         try {
-            HttpURLConnection httpConn = getHttpPostConnection("http://188.68.55.198:8080/BubbleHighscores/PutHighscores");
-            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(httpConn.getOutputStream()));
-            writer.write(inputString);
-            writer.flush();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(httpConn.getInputStream()));
-            char result = (char)reader.read();
-            if(result == '1')
-                better = true;
-            writer.close();
-            reader.close();
-            httpConn.disconnect();
-        } catch (Exception e) {
-            e.printStackTrace();
+            val httpConn = getHttpPostConnection("http://188.68.55.198:8080/BubbleHighscores/PutHighscores")
+            val writer = BufferedWriter(OutputStreamWriter(httpConn!!.outputStream))
+            writer.write(inputString)
+            writer.flush()
+            val reader = BufferedReader(InputStreamReader(httpConn.inputStream))
+            val result = reader.read().toChar()
+            if (result == '1') better = true
+            writer.close()
+            reader.close()
+            httpConn.disconnect()
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
-        return better;
+        return better
     }
 
-    public static boolean getUsernameExists(String username){
-        boolean exists = false;
+    fun getUsernameExists(username: String): Boolean {
+        var exists = false
         try {
-            HttpURLConnection httpConn = getHttpPostConnection("http://188.68.55.198:8080/BubbleHighscores/CheckUsername");
-            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(httpConn.getOutputStream()));
-            writer.write(username+"\n");
-            writer.flush();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(httpConn.getInputStream()));
-            char result = (char)reader.read();
-            if(result == '1')
-                exists = true;
-            writer.close();
-            reader.close();
-            httpConn.disconnect();
-        } catch (IOException e) {
-            e.printStackTrace();
+            val httpConn = getHttpPostConnection("http://188.68.55.198:8080/BubbleHighscores/CheckUsername")
+            val writer = BufferedWriter(OutputStreamWriter(httpConn!!.outputStream))
+            writer.write(username.trimIndent())
+            writer.flush()
+            val reader = BufferedReader(InputStreamReader(httpConn.inputStream))
+            val result = reader.read().toChar()
+            if (result == '1') exists = true
+            writer.close()
+            reader.close()
+            httpConn.disconnect()
+        } catch (e: IOException) {
+            e.printStackTrace()
         }
-        return exists;
+        return exists
     }
 
-    private static HttpURLConnection getHttpPostConnection(String url){
-        HttpURLConnection httpConn = null;
+    private fun getHttpPostConnection(url: String): HttpURLConnection? {
+        var httpConn: HttpURLConnection? = null
         try {
-            URLConnection conn = new URL(url).openConnection();
-            httpConn = (HttpURLConnection)conn;
-            httpConn.setRequestMethod("POST");
-            httpConn.setDoOutput(true);
-            httpConn.connect();
-        } catch (IOException e) {
-            e.printStackTrace();
+            val conn = URL(url).openConnection()
+            httpConn = conn as HttpURLConnection
+            httpConn.requestMethod = "POST"
+            httpConn.doOutput = true
+            httpConn.connect()
+        } catch (e: IOException) {
+            e.printStackTrace()
         }
-        return httpConn;
+        return httpConn
     }
 }

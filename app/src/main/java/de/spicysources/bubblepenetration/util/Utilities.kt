@@ -1,19 +1,14 @@
-package de.spicysources.bubblepenetration.util;
+package de.spicysources.bubblepenetration.util
 
-public class Utilities {
-    public static float normalize(float[] vector) {
-        if(vector.length < 2 || vector.length > 3)
-            return 0.0f;	// invalid vector -> abort
-
-        float len = 0.0f;
-        for (float f : vector) {
-            len += f * f;
+object Utilities {
+    fun normalize(vector: FloatArray): Float {
+        if (vector.size < 2 || vector.size > 3) return 0.0f // invalid vector -> abort
+        var len = 0.0f
+        for (f in vector) {
+            len += f * f
         }
-        len = (float) Math.sqrt(len);
-
-        for(int i = 0; i < vector.length; i++)
-            vector[i] /= len;
-
-        return len;
+        len = Math.sqrt(len.toDouble()).toFloat()
+        for (i in vector.indices) vector[i] /= len
+        return len
     }
 }

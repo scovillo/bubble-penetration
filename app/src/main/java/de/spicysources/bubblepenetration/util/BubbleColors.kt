@@ -1,7 +1,5 @@
-package de.spicysources.bubblepenetration.util;
+package de.spicysources.bubblepenetration.util
 
-public enum BubbleColors {
-
+enum class BubbleColors {
     RED, GREEN, YELLOW, LIGHTBLUE, BLUE, ORANGE, PURPLE
-
 }

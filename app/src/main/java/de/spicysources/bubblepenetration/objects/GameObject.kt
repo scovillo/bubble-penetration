@@ -1,57 +1,50 @@
-package de.spicysources.bubblepenetration.objects;
+package de.spicysources.bubblepenetration.objects
 
-import android.opengl.Matrix;
+import android.opengl.Matrix
+import javax.microedition.khronos.opengles.GL10
 
-import javax.microedition.khronos.opengles.GL10;
-
-public abstract class GameObject {
+abstract class GameObject {
     // current transformation matrix
-    public float[] transformationMatrix;
+    var transformationMatrix: FloatArray
+
     // current velocity (x,y,z)
-    public float[] velocity;
+    var velocity: FloatArray
+
     // current y-rotation, positive is z to x direction; angle zero is z-axis
-    public float yRot;
-
-    public float scale = 1.0f;
-
-    public static float speed = 1.0f;	// alternative way to control speed, additional scaling factor
-
-    public GameObject() {
-        transformationMatrix = new float[16];
-        velocity = new float[3];
-        Matrix.setIdentityM(transformationMatrix, 0);
+    var yRot = 0f
+    var scale = 1.0f
+    abstract fun draw(gl: GL10)
+    abstract fun update(fracSec: Float)
+    fun setVelocity(vx: Float, vy: Float, vz: Float) {
+        velocity[0] = vx
+        velocity[1] = vy
+        velocity[2] = vz
     }
 
-    public abstract void draw(GL10 gl);
-
-    public abstract void update(float fracSec);
-
-    public void setVelocity(float vx, float vy, float vz) {
-        velocity[0] = vx;
-        velocity[1] = vy;
-        velocity[2] = vz;
+    fun setYRot() {
+        if (velocity[0] * velocity[0] + velocity[1] * velocity[1] + velocity[2] * velocity[2] > 1E-20
+        ) yRot = (Math.acos(
+            velocity[2] / Math.sqrt(
+                velocity[0] * velocity[0] + velocity[2] * velocity[2].toDouble()
+            )
+        ) * 180 / Math.PI).toFloat()
+        if (velocity[0] < 0) yRot = -yRot
     }
 
-    public void setYRot()
-    {
-        if(velocity[0]*velocity[0]+velocity[1]*velocity[1]+velocity[2]*velocity[2] > 1E-20)
-            yRot=(float)(Math.acos(velocity[2]/Math.sqrt(velocity[0]*velocity[0]+velocity[2]*velocity[2]))*180/Math.PI);
-        if(velocity[0]<0)
-            yRot=-yRot;
+    protected open fun updatePosition(fracSec: Float) {
+        Matrix.translateM(
+            transformationMatrix, 0, fracSec * velocity[0] * speed,
+            fracSec * velocity[1] * speed,
+            fracSec * velocity[2] * speed
+        )
     }
 
-    protected void updatePosition(float fracSec) {
-        Matrix.translateM(transformationMatrix, 0, fracSec*velocity[0] * speed,
-                fracSec*velocity[1] * speed,
-                fracSec*velocity[2] * speed);
+    fun setPosition(x: Float, y: Float, z: Float) {
+        Matrix.setIdentityM(transformationMatrix, 0)
+        Matrix.translateM(transformationMatrix, 0, x, y, z)
     }
 
-    public void setPosition(float x, float y, float z) {
-        Matrix.setIdentityM(transformationMatrix, 0);
-        Matrix.translateM(transformationMatrix, 0, x, y, z);
-    }
-
-	/*
+    /*
 	 * An OpenGL transformation matrix has the following format:
 	 * Values:    Indices:
 	 *   v v v x    0  4  8 12
@@ -61,29 +54,31 @@ public abstract class GameObject {
 	 * were done at the matrix, the values marked with x, y and z contain the
 	 * coordinates. With that in mind we can provide the following convenience
 	 * functions to provide easy access to those values */
+    var x: Float
+        get() = transformationMatrix[12]
+        set(x) {
+            transformationMatrix[12] = x
+        }
 
-    public float getX() {
-        return transformationMatrix[12];
+    var y: Float
+        get() = transformationMatrix[13]
+        set(y) {
+            transformationMatrix[13] = y
+        }
+
+    var z: Float
+        get() = transformationMatrix[14]
+        set(z) {
+            transformationMatrix[14] = z
+        }
+
+    companion object {
+        var speed = 1.0f // alternative way to control speed, additional scaling factor
     }
 
-    public float getY() {
-        return transformationMatrix[13];
-    }
-
-    public float getZ() {
-        return transformationMatrix[14];
-    }
-
-    public void setX(float x) {
-        transformationMatrix[12] = x;
-    }
-
-    public void setY(float y) {
-        transformationMatrix[13] = y;
-    }
-
-    public void setZ(float z) {
-        transformationMatrix[14] = z;
+    init {
+        transformationMatrix = FloatArray(16)
+        velocity = FloatArray(3)
+        Matrix.setIdentityM(transformationMatrix, 0)
     }
 }
-
