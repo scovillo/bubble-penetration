@@ -5,15 +5,15 @@ import android.media.MediaPlayer
 import de.spicysources.bubblepenetration.R
 import java.util.concurrent.ArrayBlockingQueue
 
-class EffectTask(private val context: Context, muted: Boolean) : Thread() {
+class EffectTask(private val context: Context) : Thread() {
 
-    private var muted = false
-    private var ingame = true
+    var isMuted = false
+    var ingame = true
+
     private val soundsToPlay = ArrayBlockingQueue<Int>(100)
     private val effectPlayer = HashMap<Int, MediaPlayer>()
 
     init {
-        this.muted = muted
         effectPlayer[R.raw.blubb] = MediaPlayer.create(context, R.raw.blubb)
         effectPlayer[R.raw.fart] = MediaPlayer.create(context, R.raw.fart)
         effectPlayer[R.raw.star] = MediaPlayer.create(context, R.raw.star)
@@ -24,7 +24,7 @@ class EffectTask(private val context: Context, muted: Boolean) : Thread() {
         soundsToPlay.clear()
         while (ingame) {
             val soundIndex = soundsToPlay.take()
-            if (!muted) {
+            if (!isMuted) {
                 if (effectPlayer[soundIndex] == null) {
                     effectPlayer[soundIndex] = MediaPlayer.create(context, soundIndex)
                 }
@@ -35,10 +35,6 @@ class EffectTask(private val context: Context, muted: Boolean) : Thread() {
 
     fun playSound(index: Int) {
         soundsToPlay.put(index)
-    }
-
-    fun setIngame(ingame: Boolean) {
-        this.ingame = ingame
     }
 
 }

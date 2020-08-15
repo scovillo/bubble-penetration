@@ -1,11 +1,15 @@
 package de.spicysources.bubblepenetration.screen
 
 import android.content.Context
+import android.graphics.Typeface
 import android.opengl.GLSurfaceView
 import android.opengl.GLU
 import android.view.MotionEvent
+import android.view.View
+import android.widget.TextView
 import de.spicysources.bubblepenetration.MainActivity
 import de.spicysources.bubblepenetration.R
+import de.spicysources.bubblepenetration.animation.BlinkAnimation
 import de.spicysources.bubblepenetration.objects.Bubble
 import de.spicysources.bubblepenetration.objects.GameObject
 import de.spicysources.bubblepenetration.util.BubbleColors
@@ -16,11 +20,14 @@ import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
 import javax.microedition.khronos.opengles.GL11
 
-class BubbleGLSurfaceView(context: Context, muted: Boolean) : GLSurfaceView(context) {
+class BubbleGLSurfaceView(context: Context) : GLSurfaceView(context) {
+
+    private val mainActivity = context as MainActivity
+    private val assets = context.assets
+    private val generator = Generator()
+    private val effectPlayer = EffectTask(context)
 
     private var alarmed = false
-    private val renderer  = BubbleRenderer()
-    private val generator = Generator()
     var boundaryTop = 0f
     var boundaryBottom = 0f
     var boundaryLeft = 0f
@@ -32,7 +39,8 @@ class BubbleGLSurfaceView(context: Context, muted: Boolean) : GLSurfaceView(cont
     private val gameObjects = ArrayList<GameObject>()
     private val objectsToBeRemoved = ArrayList<GameObject>()
     private val targetsToBeRemoved = ArrayList<GameObject>()
-
+    private val timerText: TextView
+    private val renderer: BubbleRenderer
     // game balance factors
     private val starScore = 5
     private val starTime = 5
@@ -40,13 +48,17 @@ class BubbleGLSurfaceView(context: Context, muted: Boolean) : GLSurfaceView(cont
     private val bubbleTime = 2
     private val increaseSpeed = 0.02f
 
-    // sound
-    private val effectPlayer = EffectTask(context, muted)
-
     init {
+        timerText = mainActivity.findViewById<View>(R.id.Timer) as TextView
+        timerText.typeface = Typeface.createFromAsset(this.assets, "fonts/PLUMP.ttf")
+        renderer = BubbleRenderer(timerText)
         setRenderer(renderer)
         renderMode = RENDERMODE_CONTINUOUSLY
         effectPlayer.start()
+    }
+
+    fun isMuted(value: Boolean) {
+        effectPlayer.isMuted = value
     }
 
     //Collect Bubbles
@@ -110,7 +122,7 @@ class BubbleGLSurfaceView(context: Context, muted: Boolean) : GLSurfaceView(cont
         return true
     }
 
-    private inner class BubbleRenderer : Renderer {
+    private inner class BubbleRenderer(timerText: TextView) : Renderer {
 
         private val modelViewScene = FloatArray(16)
         var lastFrameTime = System.currentTimeMillis()
@@ -119,6 +131,8 @@ class BubbleGLSurfaceView(context: Context, muted: Boolean) : GLSurfaceView(cont
             private set
         var unitsPerPixelZ = 0f
             private set
+
+        private val timerBlinkAnimation = BlinkAnimation(timerText)
 
         override fun onDrawFrame(gl: GL10) {
             // update time calculation
@@ -140,19 +154,20 @@ class BubbleGLSurfaceView(context: Context, muted: Boolean) : GLSurfaceView(cont
             collectColor = generator.generateCollectColor(collectColor, score)
             // refresh HUD
             (context as MainActivity?)!!.runOnUiThread {
-                if (alarmed) (context as MainActivity?)!!.timerBlink()
+                if (alarmed) {
+                    timerBlinkAnimation.update()
+                }
                 if (timer > 10) {
-                    (context as MainActivity?)!!.setTimerAlpha(1.0f)
+                    timerBlinkAnimation.stop()
                     alarmed = false
                 }
                 if (timer <= 0.0) {
-                    effectPlayer.setIngame(false)
-                    (context as MainActivity?)!!.showGameover("" + score)
+                    effectPlayer.ingame = false
+                    mainActivity.showGameover("" + score)
                 } else {
-                    (context as MainActivity?)!!.setTimerText("time: " + timeToTimeFormat(timer.toDouble(), 1))
-                    (context as MainActivity?)!!.setScoreText("score: $score")
-                    (context as MainActivity?)!!.setHUDColor(generator.getGLColor(collectColor))
-                    //((MainActivity)context).setPreviewBubble(collectColor);
+                    timerText.text = "time: " + timeToTimeFormat(timer.toDouble(), 1)
+                    mainActivity.setScoreText("score: $score")
+                    mainActivity.setHUDColor(generator.getGLColor(collectColor))
                 }
             }
             //update gameobjects

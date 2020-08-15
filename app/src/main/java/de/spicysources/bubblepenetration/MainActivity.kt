@@ -33,7 +33,6 @@ class MainActivity : Activity() {
     private var menuGLSurfaceView: MenuGLSurfaceView? = null
     private var mWindowManager: WindowManager? = null
     private var mDisplay: Display? = null
-    private var timerText: TextView? = null
     private var scoreText: TextView? = null
     private var gameOverScore: TextView? = null
     private var title: TextView? = null
@@ -49,13 +48,13 @@ class MainActivity : Activity() {
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         setContentView(R.layout.game_hud)
         menuGLSurfaceView = null
-        bubbleGLSurfaceView =
-            BubbleGLSurfaceView(this, effectsMuted)
+        bubbleGLSurfaceView = BubbleGLSurfaceView(this)
         val glSurfaceViewHolder = findViewById<View>(R.id.GLSurfaceViewHolder) as FrameLayout
         glSurfaceViewHolder.addView(bubbleGLSurfaceView)
-        timerText = findViewById<View>(R.id.Timer) as TextView
+        bubbleGLSurfaceView!!.isMuted(effectsMuted)
+
         scoreText = findViewById<View>(R.id.Score) as TextView
-        timerText!!.typeface = Typeface.createFromAsset(this.assets, "fonts/PLUMP.ttf")
+
         scoreText!!.typeface = Typeface.createFromAsset(this.assets, "fonts/PLUMP.ttf")
         startMusic()
     }
@@ -174,14 +173,17 @@ class MainActivity : Activity() {
             this.assets,
             "fonts/PLUMP.ttf"
         )
-        if (musicMuted) (findViewById<View>(R.id.music_box) as CheckBox).isChecked = false
-        if (effectsMuted) (findViewById<View>(R.id.effects_box) as CheckBox).isChecked = false
+        if (musicMuted) {
+            (findViewById<View>(R.id.music_box) as CheckBox).isChecked = false
+        }
+        if (effectsMuted) {
+            (findViewById<View>(R.id.effects_box) as CheckBox).isChecked = false
+        }
         startMusic()
     }
 
     fun setGameOverScreen(score: String) {
         bubbleGLSurfaceView = null
-        timerText = null
         GameObject.speed = 1.0f
         setContentView(R.layout.game_over)
         gameOverScore = findViewById<View>(R.id.your_score_textview) as TextView
@@ -226,9 +228,7 @@ class MainActivity : Activity() {
         startMusic()
     }
 
-    fun setTimerText(time: String?) {
-        timerText!!.text = time
-    }
+
 
     fun setScoreText(score: String?) {
         scoreText!!.text = score
@@ -243,21 +243,7 @@ class MainActivity : Activity() {
         }
     }
 
-    fun timerBlink() {
-        if (timerText != null && (timerText!!.alpha > 1 || timerText!!.alpha < 0.05f)) {
-            blinkStep *= -1f
-        }
-        if (timerText != null) {
-            timerText!!.alpha = timerText!!.alpha + blinkStep * 2
-        }
-    }
 
-
-    fun setTimerAlpha(value: Float) {
-        if (timerText != null) {
-            timerText!!.alpha = value
-        }
-    }
 
     public override fun onResume() {
         super.onResume()
