@@ -54,7 +54,7 @@
                 android:layout_height="wrap_content"
                 android:text="@string/save"
                 android:id="@+id/save"
-                android:onClick="writeToFile"
+                android:onClick="saveUsername"
                 android:textSize="24sp"
                 android:background="@drawable/button"
                 android:layout_gravity="center_horizontal"

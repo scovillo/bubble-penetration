@@ -1,4 +1,4 @@
-package de.spicysources.bubblepenetration.database
+package de.spicysources.bubblepenetration.data
 
 import java.io.*
 import java.net.HttpURLConnection

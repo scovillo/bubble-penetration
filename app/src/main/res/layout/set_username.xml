@@ -32,7 +32,7 @@
         android:layout_height="wrap_content"
         android:text="@string/save"
         android:id="@+id/save"
-        android:onClick="writeToFile"
+        android:onClick="saveUsername"
         android:textSize="30sp"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"

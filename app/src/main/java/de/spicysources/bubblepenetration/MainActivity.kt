@@ -10,35 +10,32 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.StrictMode
-import android.os.StrictMode.ThreadPolicy
-import android.util.Log
 import android.view.View
 import android.view.WindowManager
 import android.widget.*
-import de.spicysources.bubblepenetration.database.DataConnection
+import de.spicysources.bubblepenetration.data.DataConnection
+import de.spicysources.bubblepenetration.data.LocalFileStorage
 import de.spicysources.bubblepenetration.objects.GameObject
 import de.spicysources.bubblepenetration.screen.BubbleGLSurfaceView
 import de.spicysources.bubblepenetration.screen.MenuGLSurfaceView
 import de.spicysources.bubblepenetration.sound.MusicPlayer
-import java.io.*
 
 class MainActivity : Activity() {
 
-    private var readFromFile = false
     private var areSoundEffectsMuted = false
     private var bubbleGLSurfaceView: BubbleGLSurfaceView? = null
     private var menuGLSurfaceView: MenuGLSurfaceView? = null
     private var mWindowManager: WindowManager? = null
     private val musicPlayer = MusicPlayer(this)
+    private val localFileStorage = LocalFileStorage(this)
 
-    private val filename = "bubblePenetration"
-    private var username: String = "anonym"
+    private lateinit var username: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         musicPlayer.init()
-        readFromFile()
-        if (!readFromFile) {
+        username = localFileStorage.readFromFile()
+        if (username.isBlank()) {
             showUsernameScreen(false)
         } else {
             showMainMenu()
@@ -137,16 +134,12 @@ class MainActivity : Activity() {
         showMainMenu()
     }
 
-    private fun showMainMenu() {
+    fun showMainMenu() {
         setContentView(R.layout.activity_main)
         menuGLSurfaceView = MenuGLSurfaceView(this)
         val glSurfaceViewHolder = findViewById<View>(R.id.menuGLSurfaceViewHolder) as FrameLayout
         glSurfaceViewHolder.addView(menuGLSurfaceView)
         (findViewById<View>(R.id.menu_username) as TextView).text = username
-        if (readFromFile) {
-            setNetwork()
-            DataConnection.getUsernameExists(username)
-        }
         (findViewById<View>(R.id.effects_box) as CheckBox).typeface = Typeface.createFromAsset(
             this.assets,
             "fonts/PLUMP.ttf"
@@ -224,46 +217,6 @@ class MainActivity : Activity() {
         )
     }
 
-    fun writeToFile(view: View) {
-        setNetwork()
-        val data = (findViewById<View>(R.id.username_field) as EditText).text.toString()
-        if (data.length < 11) {
-            if (!DataConnection.getUsernameExists(data)) {
-                try {
-                    val outputStreamWriter = OutputStreamWriter(openFileOutput(filename, Context.MODE_PRIVATE))
-                    outputStreamWriter.write(data)
-                    outputStreamWriter.close()
-                    username = data
-                } catch (e: IOException) {
-                    Log.e("Exception", "File write failed: $e")
-                }
-                showMainMenu()
-            } else Toast.makeText(this, "username already exists!", Toast.LENGTH_SHORT).show()
-        } else Toast.makeText(this, "sorry, maximal 10 letters!", Toast.LENGTH_SHORT).show()
-    }
-
-    private fun readFromFile() {
-        try {
-            val inputStream: InputStream? = openFileInput(filename)
-            if (inputStream != null) {
-                val inputStreamReader = InputStreamReader(inputStream)
-                val bufferedReader = BufferedReader(inputStreamReader)
-                var receiveString: String? = ""
-                val stringBuilder = StringBuilder()
-                while (bufferedReader.readLine().also { receiveString = it } != null) {
-                    stringBuilder.append(receiveString)
-                }
-                inputStream.close()
-                username = stringBuilder.toString()
-                readFromFile = true
-            }
-        } catch (e: FileNotFoundException) {
-            Log.e("login activity", "File not found: $e")
-        } catch (e: IOException) {
-            Log.e("login activity", "Can not read file: $e")
-        }
-    }
-
     fun setMusic(view: View) {
         val isMusicMuted = !(findViewById<View>(R.id.music_box) as CheckBox).isChecked
         musicPlayer.isMuted = isMusicMuted
@@ -271,6 +224,25 @@ class MainActivity : Activity() {
 
     fun setEffects(view: View) {
         areSoundEffectsMuted = !(findViewById<View>(R.id.effects_box) as CheckBox).isChecked
+    }
+
+    fun saveUsername(view: View) {
+        val value = (findViewById<View>(R.id.username_field) as EditText).text.toString()
+        if (value.isBlank()) {
+            Toast.makeText(this, "sorry, username can not be empty!", Toast.LENGTH_SHORT).show()
+            return
+        }
+        if (value.length > 10) {
+            Toast.makeText(this, "sorry, maximal 10 letters!", Toast.LENGTH_SHORT).show()
+            return
+        }
+        if (DataConnection.getUsernameExists(value)) {
+            Toast.makeText(this, "username already exists!", Toast.LENGTH_SHORT).show()
+            return
+        }
+        username = value
+        localFileStorage.writeToFile(username)
+        showMainMenu()
     }
 
     fun showUsernameScreen(view: View) {
@@ -309,9 +281,9 @@ class MainActivity : Activity() {
         (findViewById<View>(R.id.username_field) as EditText).setText(username)
     }
 
-    private fun setNetwork() {
+    fun setNetwork() {
         if (Build.VERSION.SDK_INT > 9) {
-            val policy = ThreadPolicy.Builder().permitAll().build()
+            val policy = StrictMode.ThreadPolicy.Builder().permitAll().build()
             StrictMode.setThreadPolicy(policy)
         }
     }
