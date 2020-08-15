@@ -13,7 +13,6 @@ import android.os.Bundle
 import android.os.StrictMode
 import android.os.StrictMode.ThreadPolicy
 import android.util.Log
-import android.view.Display
 import android.view.View
 import android.view.WindowManager
 import android.widget.*
@@ -31,18 +30,14 @@ class MainActivity : Activity() {
     private var bubbleGLSurfaceView: BubbleGLSurfaceView? = null
     private var menuGLSurfaceView: MenuGLSurfaceView? = null
     private var mWindowManager: WindowManager? = null
-    private var mDisplay: Display? = null
-    private var gameOverScore: TextView? = null
 
     private val filename = "bubblePenetration"
     private var username: String = "anonym"
-    private var score: String? = null
     private var musicPlayer: MediaPlayer? = null
 
     fun startGame(view: View) {
         effectsMuted = !(findViewById<View>(R.id.effects_box) as CheckBox).isChecked
         mWindowManager = getSystemService(Context.WINDOW_SERVICE) as WindowManager
-        mDisplay = mWindowManager!!.defaultDisplay
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         setContentView(R.layout.game_hud)
         menuGLSurfaceView = null
@@ -175,11 +170,11 @@ class MainActivity : Activity() {
         startMusic()
     }
 
-    fun setGameOverScreen(score: String) {
+    fun showGameOverScreen(score: String) {
         bubbleGLSurfaceView = null
         GameObject.speed = 1.0f
         setContentView(R.layout.game_over)
-        gameOverScore = findViewById<View>(R.id.your_score_textview) as TextView
+        val gameOverScore = findViewById<View>(R.id.your_score_textview) as TextView
         gameOverScore!!.text = score
         (findViewById<View>(R.id.game_over_textview) as TextView).typeface = Typeface.createFromAsset(
             this.assets,
@@ -272,16 +267,6 @@ class MainActivity : Activity() {
         }
     }
 
-    fun setHUDColor(glCollectColor: FloatArray) {
-        val max = 255
-        findViewById<View>(R.id.hud).setBackgroundColor(
-            Color.argb(
-                (glCollectColor[3] * max).toInt(), (glCollectColor[0] * max).toInt(),
-                (glCollectColor[1] * max).toInt(), (glCollectColor[2] * max).toInt()
-            )
-        )
-    }
-
     private fun startMusic() {
         if (musicPlayer == null) {
             musicPlayer = MediaPlayer.create(this, R.raw.music)
@@ -309,7 +294,7 @@ class MainActivity : Activity() {
         effectsMuted = !(findViewById<View>(R.id.effects_box) as CheckBox).isChecked
     }
 
-    fun editUsername(view: View) {
+    fun showUsernameScreen(view: View) {
         showUsernameScreen(true)
     }
 
@@ -350,11 +335,6 @@ class MainActivity : Activity() {
             val policy = ThreadPolicy.Builder().permitAll().build()
             StrictMode.setThreadPolicy(policy)
         }
-    }
-
-    fun showGameover(score: String) {
-        this.score = score
-        setGameOverScreen(score)
     }
 
     fun launchMarket() {

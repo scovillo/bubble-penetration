@@ -1,6 +1,7 @@
 package de.spicysources.bubblepenetration.screen
 
 import android.content.Context
+import android.graphics.Color
 import android.graphics.Typeface
 import android.opengl.GLSurfaceView
 import android.opengl.GLU
@@ -166,11 +167,11 @@ class BubbleGLSurfaceView(context: Context) : GLSurfaceView(context) {
                 }
                 if (timer <= 0.0) {
                     effectPlayer.ingame = false
-                    mainActivity.showGameover("" + score)
+                    mainActivity.showGameOverScreen("" + score)
                 } else {
                     timerText.text = "time: " + timeToTimeFormat(timer.toDouble(), 1)
                     scoreText.text = "score: $score"
-                    mainActivity.setHUDColor(generator.getGLColor(collectColor))
+                    setHUDColor(generator.getGLColor(collectColor))
                 }
             }
             //update gameobjects
@@ -310,6 +311,17 @@ class BubbleGLSurfaceView(context: Context) : GLSurfaceView(context) {
         private fun timeToTimeFormat(time: Double, nachkommastellen: Int): Double {
             val factor = Math.pow(10.0, nachkommastellen.toDouble())
             return (time * factor).toInt().toDouble() / factor
+        }
+
+
+        private fun setHUDColor(glCollectColor: FloatArray) {
+            val max = 255
+            mainActivity.findViewById<View>(R.id.hud).setBackgroundColor(
+                Color.argb(
+                    (glCollectColor[3] * max).toInt(), (glCollectColor[0] * max).toInt(),
+                    (glCollectColor[1] * max).toInt(), (glCollectColor[2] * max).toInt()
+                )
+            )
         }
 
     }
