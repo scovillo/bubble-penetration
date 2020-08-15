@@ -19,6 +19,8 @@ import android.view.WindowManager
 import android.widget.*
 import de.spicysources.bubblepenetration.database.DataConnection
 import de.spicysources.bubblepenetration.objects.GameObject
+import de.spicysources.bubblepenetration.screen.BubbleGLSurfaceView
+import de.spicysources.bubblepenetration.screen.MenuGLSurfaceView
 import java.io.*
 
 class MainActivity : Activity() {
@@ -40,14 +42,15 @@ class MainActivity : Activity() {
     private var score: String? = null
     private var musicPlayer: MediaPlayer? = null
 
-    fun startGame(v: View?) {
+    fun startGame(view: View) {
         effectsMuted = !(findViewById<View>(R.id.effects_box) as CheckBox).isChecked
         mWindowManager = getSystemService(Context.WINDOW_SERVICE) as WindowManager
         mDisplay = mWindowManager!!.defaultDisplay
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         setContentView(R.layout.game_hud)
         menuGLSurfaceView = null
-        bubbleGLSurfaceView = BubbleGLSurfaceView(this, effectsMuted)
+        bubbleGLSurfaceView =
+            BubbleGLSurfaceView(this, effectsMuted)
         val glSurfaceViewHolder = findViewById<View>(R.id.GLSurfaceViewHolder) as FrameLayout
         glSurfaceViewHolder.addView(bubbleGLSurfaceView)
         timerText = findViewById<View>(R.id.Timer) as TextView
@@ -57,7 +60,7 @@ class MainActivity : Activity() {
         startMusic()
     }
 
-    fun showHighscores(v: View?) {
+    fun showHighscores(view: View) {
         setContentView(R.layout.highscores)
         setNetwork()
         val table = findViewById<View>(R.id.highscore_table) as TableLayout
@@ -122,7 +125,7 @@ class MainActivity : Activity() {
         return tv
     }
 
-    fun backToMenu(v: View?) {
+    fun backToMenu(view: View) {
         showMainMenu()
     }
 
@@ -130,7 +133,7 @@ class MainActivity : Activity() {
         super.onCreate(savedInstanceState)
         readFromFile()
         if (!readFromFile) {
-            setName()
+            showUsernameScreen(false)
         } else {
             showMainMenu()
         }
@@ -249,6 +252,7 @@ class MainActivity : Activity() {
         }
     }
 
+
     fun setTimerAlpha(value: Float) {
         if (timerText != null) {
             timerText!!.alpha = value
@@ -266,15 +270,13 @@ class MainActivity : Activity() {
         if (musicPlayer != null && musicPlayer!!.isPlaying) musicPlayer!!.pause()
     }
 
-    fun writeToFile(v: View?) {
+    fun writeToFile(view: View) {
         setNetwork()
-        val data =
-            (findViewById<View>(R.id.username_field) as EditText).text.toString()
+        val data = (findViewById<View>(R.id.username_field) as EditText).text.toString()
         if (data.length < 11) {
             if (!DataConnection.getUsernameExists(data)) {
                 try {
-                    val outputStreamWriter =
-                        OutputStreamWriter(openFileOutput(filename, Context.MODE_PRIVATE))
+                    val outputStreamWriter = OutputStreamWriter(openFileOutput(filename, Context.MODE_PRIVATE))
                     outputStreamWriter.write(data)
                     outputStreamWriter.close()
                     username = data
@@ -308,11 +310,11 @@ class MainActivity : Activity() {
         }
     }
 
-    fun setHUDColor(glCollectColor: FloatArray?) {
+    fun setHUDColor(glCollectColor: FloatArray) {
         val max = 255
         findViewById<View>(R.id.hud).setBackgroundColor(
             Color.argb(
-                (glCollectColor!![3] * max).toInt(), (glCollectColor[0] * max).toInt(),
+                (glCollectColor[3] * max).toInt(), (glCollectColor[0] * max).toInt(),
                 (glCollectColor[1] * max).toInt(), (glCollectColor[2] * max).toInt()
             )
         )
@@ -329,7 +331,7 @@ class MainActivity : Activity() {
         }
     }
 
-    fun setMusic(v: View?) {
+    fun setMusic(view: View) {
         musicMuted = !(findViewById<View>(R.id.music_box) as CheckBox).isChecked
         if (musicMuted) {
             if (musicPlayer != null && musicPlayer!!.isPlaying) {
@@ -341,43 +343,23 @@ class MainActivity : Activity() {
         }
     }
 
-    fun setEffects(v: View?) {
+    fun setEffects(view: View) {
         effectsMuted = !(findViewById<View>(R.id.effects_box) as CheckBox).isChecked
     }
 
-    fun setName(v: View?) {
-        setContentView(R.layout.set_username)
-        if (!findViewById<View>(R.id.cancel).isEnabled) {
-            findViewById<View>(R.id.cancel).isEnabled = true
-            findViewById<View>(R.id.cancel).visibility = View.VISIBLE
-        }
-        (findViewById<View>(R.id.your_name) as TextView).typeface = Typeface.createFromAsset(
-            this.assets,
-            "fonts/PLUMP.ttf"
-        )
-        (findViewById<View>(R.id.warning) as TextView).typeface = Typeface.createFromAsset(
-            this.assets,
-            "fonts/PLUMP.ttf"
-        )
-        (findViewById<View>(R.id.save) as Button).typeface = Typeface.createFromAsset(
-            this.assets,
-            "fonts/PLUMP.ttf"
-        )
-        (findViewById<View>(R.id.cancel) as Button).typeface = Typeface.createFromAsset(
-            this.assets,
-            "fonts/PLUMP.ttf"
-        )
-        (findViewById<View>(R.id.username_field) as EditText).typeface = Typeface.createFromAsset(
-            this.assets,
-            "fonts/PLUMP.ttf"
-        )
-        (findViewById<View>(R.id.username_field) as EditText).setText(username)
+    fun editUsername(view: View) {
+        showUsernameScreen(true)
     }
 
-    private fun setName() {
+    fun showUsernameScreen(isCancelEnabled: Boolean) {
         setContentView(R.layout.set_username)
-        findViewById<View>(R.id.cancel).isEnabled = false
-        findViewById<View>(R.id.cancel).visibility = View.INVISIBLE
+        if (isCancelEnabled) {
+            findViewById<View>(R.id.cancel).isEnabled = true
+            findViewById<View>(R.id.cancel).visibility = View.VISIBLE
+        } else {
+            findViewById<View>(R.id.cancel).isEnabled = false
+            findViewById<View>(R.id.cancel).visibility = View.INVISIBLE
+        }
         (findViewById<View>(R.id.your_name) as TextView).typeface = Typeface.createFromAsset(
             this.assets,
             "fonts/PLUMP.ttf"
@@ -413,7 +395,7 @@ class MainActivity : Activity() {
         setGameOverScreen(score)
     }
 
-    fun launchMarket(v: View?) {
+    fun launchMarket() {
         val uri = Uri.parse("market://details?id=$packageName")
         val myAppLinkToMarket = Intent(Intent.ACTION_VIEW, uri)
         try {

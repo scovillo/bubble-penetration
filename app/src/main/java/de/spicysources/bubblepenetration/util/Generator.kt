@@ -142,7 +142,7 @@ class Generator {
     }
 
     //Randomizes color to be collected
-    fun generateCollectColor(currentColor: BubbleColors?, score: Int): BubbleColors? {
+    fun generateCollectColor(currentColor: BubbleColors, score: Int): BubbleColors {
         var collectColor = currentColor
         // if time exceeds delay, change Color
         if (System.currentTimeMillis() >= timeFlag) {
@@ -156,8 +156,8 @@ class Generator {
         return collectColor
     }
 
-    fun getGLColor(color: BubbleColors?): FloatArray? {
-        return colorCast[color]
+    fun getGLColor(color: BubbleColors): FloatArray {
+        return colorCast[color]!!
     }
 
 }

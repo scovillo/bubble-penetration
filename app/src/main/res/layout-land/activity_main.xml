@@ -75,7 +75,7 @@
             android:textColor="#ffffff"
             android:layout_alignParentBottom="true"
             android:layout_alignParentStart="true"
-            android:onClick="setName"
+            android:onClick="editUsername"
             android:layout_marginLeft="8sp"
             android:layout_marginBottom="8sp"
             android:clickable="true"

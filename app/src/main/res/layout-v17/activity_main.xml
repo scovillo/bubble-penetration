@@ -62,7 +62,7 @@
             android:textColor="#ffffff"
             android:layout_alignParentBottom="true"
             android:layout_alignParentStart="true"
-            android:onClick="setName"/>
+            android:onClick="editUsername"/>
 
     <CheckBox
             android:layout_width="wrap_content"

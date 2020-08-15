@@ -1,9 +1,11 @@
-package de.spicysources.bubblepenetration
+package de.spicysources.bubblepenetration.screen
 
 import android.content.Context
 import android.opengl.GLSurfaceView
 import android.opengl.GLU
 import android.view.MotionEvent
+import de.spicysources.bubblepenetration.MainActivity
+import de.spicysources.bubblepenetration.R
 import de.spicysources.bubblepenetration.objects.Bubble
 import de.spicysources.bubblepenetration.objects.GameObject
 import de.spicysources.bubblepenetration.util.BubbleColors
@@ -17,15 +19,15 @@ import javax.microedition.khronos.opengles.GL11
 class BubbleGLSurfaceView(context: Context, muted: Boolean) : GLSurfaceView(context) {
 
     private var alarmed = false
-    private val renderer: BubbleRenderer
-    private val generator: Generator
+    private val renderer  = BubbleRenderer()
+    private val generator = Generator()
     var boundaryTop = 0f
     var boundaryBottom = 0f
     var boundaryLeft = 0f
     var boundaryRight = 0f
-    private var collectColor: BubbleColors?
-    private var timer: Float
-    private var score: Int
+    private var collectColor = BubbleColors.RED
+    private var timer = 40.0f
+    private var score = 0
     private var isTouch = false
     private val gameObjects = ArrayList<GameObject>()
     private val objectsToBeRemoved = ArrayList<GameObject>()
@@ -39,17 +41,11 @@ class BubbleGLSurfaceView(context: Context, muted: Boolean) : GLSurfaceView(cont
     private val increaseSpeed = 0.02f
 
     // sound
-    private val effectPlayer: EffectTask
+    private val effectPlayer = EffectTask(context, muted)
 
     init {
-        renderer = BubbleRenderer()
         setRenderer(renderer)
         renderMode = RENDERMODE_CONTINUOUSLY
-        generator = Generator()
-        collectColor = BubbleColors.RED
-        score = 0
-        timer = 40.0f
-        effectPlayer = EffectTask(context, muted)
         effectPlayer.start()
     }
 
@@ -203,7 +199,7 @@ class BubbleGLSurfaceView(context: Context, muted: Boolean) : GLSurfaceView(cont
                     if (`object`.color == collectColor) {
                         timer += bubbleTime.toFloat()
                         score += bubbleScore
-                        GameObject.Companion.speed += increaseSpeed
+                        GameObject.speed += increaseSpeed
                         effectPlayer.playSound(R.raw.blubb)
                     } else {
                         timer -= bubbleScore * 2.toFloat()

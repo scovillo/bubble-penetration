@@ -1,8 +1,9 @@
-package de.spicysources.bubblepenetration
+package de.spicysources.bubblepenetration.screen
 
 import android.content.Context
 import android.opengl.GLSurfaceView
 import android.opengl.GLU
+import de.spicysources.bubblepenetration.MainActivity
 import de.spicysources.bubblepenetration.objects.GameObject
 import de.spicysources.bubblepenetration.util.BubbleColors
 import de.spicysources.bubblepenetration.util.Generator
