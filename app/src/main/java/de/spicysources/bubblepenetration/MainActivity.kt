@@ -6,7 +6,6 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.graphics.Typeface
-import android.media.MediaPlayer
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -20,23 +19,45 @@ import de.spicysources.bubblepenetration.database.DataConnection
 import de.spicysources.bubblepenetration.objects.GameObject
 import de.spicysources.bubblepenetration.screen.BubbleGLSurfaceView
 import de.spicysources.bubblepenetration.screen.MenuGLSurfaceView
+import de.spicysources.bubblepenetration.sound.MusicPlayer
 import java.io.*
 
 class MainActivity : Activity() {
 
     private var readFromFile = false
-    private var musicMuted = false
-    private var effectsMuted = false
+    private var areSoundEffectsMuted = false
     private var bubbleGLSurfaceView: BubbleGLSurfaceView? = null
     private var menuGLSurfaceView: MenuGLSurfaceView? = null
     private var mWindowManager: WindowManager? = null
+    private val musicPlayer = MusicPlayer(this)
 
     private val filename = "bubblePenetration"
     private var username: String = "anonym"
-    private var musicPlayer: MediaPlayer? = null
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        musicPlayer.init()
+        readFromFile()
+        if (!readFromFile) {
+            showUsernameScreen(false)
+        } else {
+            showMainMenu()
+        }
+    }
+
+    public override fun onResume() {
+        super.onResume()
+        musicPlayer.start()
+    }
+
+    public override fun onPause() {
+        super.onPause()
+        GameObject.speed = 1.0f
+        musicPlayer.pause()
+    }
 
     fun startGame(view: View) {
-        effectsMuted = !(findViewById<View>(R.id.effects_box) as CheckBox).isChecked
+        areSoundEffectsMuted = !(findViewById<View>(R.id.effects_box) as CheckBox).isChecked
         mWindowManager = getSystemService(Context.WINDOW_SERVICE) as WindowManager
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         setContentView(R.layout.game_hud)
@@ -44,8 +65,7 @@ class MainActivity : Activity() {
         bubbleGLSurfaceView = BubbleGLSurfaceView(this)
         val glSurfaceViewHolder = findViewById<View>(R.id.GLSurfaceViewHolder) as FrameLayout
         glSurfaceViewHolder.addView(bubbleGLSurfaceView)
-        bubbleGLSurfaceView!!.isMuted(effectsMuted)
-        startMusic()
+        bubbleGLSurfaceView!!.isMuted(areSoundEffectsMuted)
     }
 
     fun showHighscores(view: View) {
@@ -117,16 +137,6 @@ class MainActivity : Activity() {
         showMainMenu()
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        readFromFile()
-        if (!readFromFile) {
-            showUsernameScreen(false)
-        } else {
-            showMainMenu()
-        }
-    }
-
     private fun showMainMenu() {
         setContentView(R.layout.activity_main)
         menuGLSurfaceView = MenuGLSurfaceView(this)
@@ -161,13 +171,12 @@ class MainActivity : Activity() {
             this.assets,
             "fonts/PLUMP.ttf"
         )
-        if (musicMuted) {
+        if (musicPlayer.isMuted) {
             (findViewById<View>(R.id.music_box) as CheckBox).isChecked = false
         }
-        if (effectsMuted) {
+        if (areSoundEffectsMuted) {
             (findViewById<View>(R.id.effects_box) as CheckBox).isChecked = false
         }
-        startMusic()
     }
 
     fun showGameOverScreen(score: String) {
@@ -175,7 +184,7 @@ class MainActivity : Activity() {
         GameObject.speed = 1.0f
         setContentView(R.layout.game_over)
         val gameOverScore = findViewById<View>(R.id.your_score_textview) as TextView
-        gameOverScore!!.text = score
+        gameOverScore.text = score
         (findViewById<View>(R.id.game_over_textview) as TextView).typeface = Typeface.createFromAsset(
             this.assets,
             "fonts/PLUMP.ttf"
@@ -213,18 +222,6 @@ class MainActivity : Activity() {
                 "fonts/PLUMP.ttf"
             )
         )
-        startMusic()
-    }
-
-    public override fun onResume() {
-        super.onResume()
-        startMusic()
-    }
-
-    public override fun onPause() {
-        super.onPause()
-        GameObject.speed = 1.0f
-        if (musicPlayer != null && musicPlayer!!.isPlaying) musicPlayer!!.pause()
     }
 
     fun writeToFile(view: View) {
@@ -267,31 +264,13 @@ class MainActivity : Activity() {
         }
     }
 
-    private fun startMusic() {
-        if (musicPlayer == null) {
-            musicPlayer = MediaPlayer.create(this, R.raw.music)
-            musicPlayer!!.isLooping = true
-            musicPlayer!!.setVolume(0.3f, 0.3f)
-        }
-        if (!musicPlayer!!.isPlaying and !musicMuted) {
-            musicPlayer!!.start()
-        }
-    }
-
     fun setMusic(view: View) {
-        musicMuted = !(findViewById<View>(R.id.music_box) as CheckBox).isChecked
-        if (musicMuted) {
-            if (musicPlayer != null && musicPlayer!!.isPlaying) {
-                musicPlayer!!.stop()
-            }
-            musicPlayer = null
-        } else {
-            startMusic()
-        }
+        val isMusicMuted = !(findViewById<View>(R.id.music_box) as CheckBox).isChecked
+        musicPlayer.isMuted = isMusicMuted
     }
 
     fun setEffects(view: View) {
-        effectsMuted = !(findViewById<View>(R.id.effects_box) as CheckBox).isChecked
+        areSoundEffectsMuted = !(findViewById<View>(R.id.effects_box) as CheckBox).isChecked
     }
 
     fun showUsernameScreen(view: View) {
@@ -337,7 +316,7 @@ class MainActivity : Activity() {
         }
     }
 
-    fun launchMarket() {
+    fun launchMarket(view: View) {
         val uri = Uri.parse("market://details?id=$packageName")
         val myAppLinkToMarket = Intent(Intent.ACTION_VIEW, uri)
         try {

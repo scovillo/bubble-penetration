@@ -1,11 +1,11 @@
-package de.spicysources.bubblepenetration.util
+package de.spicysources.bubblepenetration.sound
 
 import android.content.Context
 import android.media.MediaPlayer
 import de.spicysources.bubblepenetration.R
 import java.util.concurrent.ArrayBlockingQueue
 
-class EffectTask(private val context: Context) : Thread() {
+class SoundEffects(private val context: Context) : Runnable {
 
     var isMuted = false
     var ingame = true

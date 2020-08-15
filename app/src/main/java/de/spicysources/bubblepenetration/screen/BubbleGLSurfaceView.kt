@@ -14,7 +14,7 @@ import de.spicysources.bubblepenetration.animation.BlinkAnimation
 import de.spicysources.bubblepenetration.objects.Bubble
 import de.spicysources.bubblepenetration.objects.GameObject
 import de.spicysources.bubblepenetration.util.BubbleColors
-import de.spicysources.bubblepenetration.util.EffectTask
+import de.spicysources.bubblepenetration.sound.SoundEffects
 import de.spicysources.bubblepenetration.util.Generator
 import java.util.*
 import javax.microedition.khronos.egl.EGLConfig
@@ -26,7 +26,7 @@ class BubbleGLSurfaceView(context: Context) : GLSurfaceView(context) {
     private val mainActivity = context as MainActivity
     private val assets = context.assets
     private val generator = Generator()
-    private val effectPlayer = EffectTask(context)
+    private val effectPlayer = SoundEffects(context)
 
     private var alarmed = false
     var boundaryTop = 0f
@@ -43,6 +43,7 @@ class BubbleGLSurfaceView(context: Context) : GLSurfaceView(context) {
     private val timerText: TextView
     private var scoreText: TextView
     private val renderer: BubbleRenderer
+
     // game balance factors
     private val starScore = 5
     private val starTime = 5
@@ -58,7 +59,7 @@ class BubbleGLSurfaceView(context: Context) : GLSurfaceView(context) {
         renderer = BubbleRenderer(timerText)
         setRenderer(renderer)
         renderMode = RENDERMODE_CONTINUOUSLY
-        effectPlayer.start()
+        Thread(effectPlayer).start()
     }
 
     fun isMuted(value: Boolean) {
