@@ -10,7 +10,7 @@ class LocalFileStorage(private val mainActivity: MainActivity) {
     private val filename = "bubblePenetration"
 
     fun writeToFile(username: String) {
-        mainActivity.setNetwork()
+        DataConnection.permitNetwork()
         try {
             val output = OutputStreamWriter(mainActivity.openFileOutput(filename, Context.MODE_PRIVATE))
             output.write(username)

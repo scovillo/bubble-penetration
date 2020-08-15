@@ -168,7 +168,7 @@ class BubbleGLSurfaceView(context: Context) : GLSurfaceView(context) {
                 }
                 if (timer <= 0.0) {
                     effectPlayer.ingame = false
-                    mainActivity.showGameOverScreen("" + score)
+                    mainActivity.showGameOverScreenWith(score.toString())
                 } else {
                     timerText.text = "time: " + timeToTimeFormat(timer.toDouble(), 1)
                     scoreText.text = "score: $score"

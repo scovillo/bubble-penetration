@@ -1,10 +1,16 @@
 package de.spicysources.bubblepenetration.data
 
+import android.os.StrictMode
 import java.io.*
 import java.net.HttpURLConnection
 import java.net.URL
 
 object DataConnection {
+
+    fun permitNetwork() {
+        val policy = StrictMode.ThreadPolicy.Builder().permitAll().build()
+        StrictMode.setThreadPolicy(policy)
+    }
 
     fun getHighscoreData(username: String): Array<String> {
         var result = ""
@@ -76,4 +82,5 @@ object DataConnection {
         }
         return httpConn
     }
+
 }
