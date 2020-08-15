@@ -40,6 +40,7 @@ class BubbleGLSurfaceView(context: Context) : GLSurfaceView(context) {
     private val objectsToBeRemoved = ArrayList<GameObject>()
     private val targetsToBeRemoved = ArrayList<GameObject>()
     private val timerText: TextView
+    private var scoreText: TextView
     private val renderer: BubbleRenderer
     // game balance factors
     private val starScore = 5
@@ -51,6 +52,8 @@ class BubbleGLSurfaceView(context: Context) : GLSurfaceView(context) {
     init {
         timerText = mainActivity.findViewById<View>(R.id.Timer) as TextView
         timerText.typeface = Typeface.createFromAsset(this.assets, "fonts/PLUMP.ttf")
+        scoreText = mainActivity.findViewById<View>(R.id.Score) as TextView
+        scoreText.typeface = Typeface.createFromAsset(this.assets, "fonts/PLUMP.ttf")
         renderer = BubbleRenderer(timerText)
         setRenderer(renderer)
         renderMode = RENDERMODE_CONTINUOUSLY
@@ -166,7 +169,7 @@ class BubbleGLSurfaceView(context: Context) : GLSurfaceView(context) {
                     mainActivity.showGameover("" + score)
                 } else {
                     timerText.text = "time: " + timeToTimeFormat(timer.toDouble(), 1)
-                    mainActivity.setScoreText("score: $score")
+                    scoreText.text = "score: $score"
                     mainActivity.setHUDColor(generator.getGLColor(collectColor))
                 }
             }

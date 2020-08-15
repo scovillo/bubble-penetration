@@ -33,7 +33,6 @@ class MainActivity : Activity() {
     private var menuGLSurfaceView: MenuGLSurfaceView? = null
     private var mWindowManager: WindowManager? = null
     private var mDisplay: Display? = null
-    private var scoreText: TextView? = null
     private var gameOverScore: TextView? = null
     private var title: TextView? = null
     private val filename = "bubblePenetration"
@@ -52,10 +51,6 @@ class MainActivity : Activity() {
         val glSurfaceViewHolder = findViewById<View>(R.id.GLSurfaceViewHolder) as FrameLayout
         glSurfaceViewHolder.addView(bubbleGLSurfaceView)
         bubbleGLSurfaceView!!.isMuted(effectsMuted)
-
-        scoreText = findViewById<View>(R.id.Score) as TextView
-
-        scoreText!!.typeface = Typeface.createFromAsset(this.assets, "fonts/PLUMP.ttf")
         startMusic()
     }
 
@@ -226,12 +221,6 @@ class MainActivity : Activity() {
             )
         )
         startMusic()
-    }
-
-
-
-    fun setScoreText(score: String?) {
-        scoreText!!.text = score
     }
 
     fun titleBlink() {
