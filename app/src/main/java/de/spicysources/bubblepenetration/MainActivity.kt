@@ -25,7 +25,6 @@ import java.io.*
 
 class MainActivity : Activity() {
 
-    private var blinkStep = 0.035f
     private var readFromFile = false
     private var musicMuted = false
     private var effectsMuted = false
@@ -34,7 +33,7 @@ class MainActivity : Activity() {
     private var mWindowManager: WindowManager? = null
     private var mDisplay: Display? = null
     private var gameOverScore: TextView? = null
-    private var title: TextView? = null
+
     private val filename = "bubblePenetration"
     private var username: String = "anonym"
     private var score: String? = null
@@ -143,7 +142,6 @@ class MainActivity : Activity() {
             setNetwork()
             DataConnection.getUsernameExists(username)
         }
-        title = findViewById<View>(R.id.menu_title) as TextView
         (findViewById<View>(R.id.effects_box) as CheckBox).typeface = Typeface.createFromAsset(
             this.assets,
             "fonts/PLUMP.ttf"
@@ -222,17 +220,6 @@ class MainActivity : Activity() {
         )
         startMusic()
     }
-
-    fun titleBlink() {
-        if (title != null && (title!!.alpha > 1 || title!!.alpha < 0.25f)) {
-            blinkStep *= -1f
-        }
-        if (title != null) {
-            title!!.alpha = title!!.alpha + blinkStep
-        }
-    }
-
-
 
     public override fun onResume() {
         super.onResume()

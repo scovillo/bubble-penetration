@@ -2,9 +2,7 @@ package de.spicysources.bubblepenetration.animation
 
 import android.widget.TextView
 
-class BlinkAnimation(private val textView: TextView, private val minAlphaLimit: Float = 0.25f) {
-
-    private var blinkStep = 0.035f
+class BlinkAnimation(private val textView: TextView, private var blinkStep: Float = 0.035f, private val minAlphaLimit: Float = 0.25f) {
 
     fun update() {
         if (textView.alpha > 1 || textView.alpha < minAlphaLimit) {

@@ -3,7 +3,11 @@ package de.spicysources.bubblepenetration.screen
 import android.content.Context
 import android.opengl.GLSurfaceView
 import android.opengl.GLU
+import android.view.View
+import android.widget.TextView
 import de.spicysources.bubblepenetration.MainActivity
+import de.spicysources.bubblepenetration.R
+import de.spicysources.bubblepenetration.animation.BlinkAnimation
 import de.spicysources.bubblepenetration.objects.GameObject
 import de.spicysources.bubblepenetration.util.BubbleColors
 import de.spicysources.bubblepenetration.util.Generator
@@ -12,8 +16,9 @@ import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
 import javax.microedition.khronos.opengles.GL11
 
-class MenuGLSurfaceView(private val androidContext: Context) : GLSurfaceView(androidContext) {
+class MenuGLSurfaceView(context: Context) : GLSurfaceView(context) {
 
+    private val mainActivity = context as MainActivity
     private val renderer: SpaceRenderer
     private val generator: Generator
     var boundaryTop = 0f
@@ -22,8 +27,12 @@ class MenuGLSurfaceView(private val androidContext: Context) : GLSurfaceView(and
     var boundaryRight = 0f
     private val gameObjects = ArrayList<GameObject>()
     private val objectsToBeRemoved = ArrayList<GameObject>()
+    private val title: TextView
+    private val titleBlinkAnimation: BlinkAnimation
 
     init {
+        title = mainActivity.findViewById<View>(R.id.menu_title) as TextView
+        titleBlinkAnimation = BlinkAnimation(title, 0.015f)
         renderer = SpaceRenderer()
         setRenderer(renderer)
         renderMode = RENDERMODE_CONTINUOUSLY
@@ -55,8 +64,7 @@ class MenuGLSurfaceView(private val androidContext: Context) : GLSurfaceView(and
         }
 
         private fun updateGameobjects(fracSec: Float) {
-            (androidContext as MainActivity).runOnUiThread { androidContext.titleBlink() }
-
+            titleBlinkAnimation.update()
             // position update on all obstacles
             for (`object` in gameObjects) {
                 `object`.update(fracSec)
