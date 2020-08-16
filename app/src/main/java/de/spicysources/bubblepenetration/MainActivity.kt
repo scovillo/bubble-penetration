@@ -2,17 +2,18 @@ package de.spicysources.bubblepenetration
 
 import android.app.Activity
 import android.content.ActivityNotFoundException
-import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.view.View
 import android.view.WindowManager
-import android.widget.*
+import android.widget.CheckBox
+import android.widget.EditText
+import android.widget.FrameLayout
+import android.widget.Toast
 import de.spicysources.bubblepenetration.data.DataConnection
 import de.spicysources.bubblepenetration.data.LocalFileStorage
-import de.spicysources.bubblepenetration.objects.GameObject
-import de.spicysources.bubblepenetration.screen.*
+import de.spicysources.bubblepenetration.screen.BubbleGLSurfaceView
 import de.spicysources.bubblepenetration.screen.layout.GameOverScreenLayout
 import de.spicysources.bubblepenetration.screen.layout.HighscoreLayout
 import de.spicysources.bubblepenetration.screen.layout.MainMenuLayout
@@ -53,7 +54,6 @@ class MainActivity : Activity() {
 
     public override fun onPause() {
         super.onPause()
-        GameObject.speed = 1.0f
         musicPlayer.pause()
     }
 
@@ -101,7 +101,8 @@ class MainActivity : Activity() {
             Toast.makeText(this, "sorry, maximal 10 letters!", Toast.LENGTH_SHORT).show()
             return
         }
-        if (DataConnection.getUsernameExists(value)) {
+        val isSuccess = DataConnection.registerUsername(value)
+        if (!isSuccess) {
             Toast.makeText(this, "username already exists!", Toast.LENGTH_SHORT).show()
             return
         }

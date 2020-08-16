@@ -33,34 +33,27 @@ class HighscoreLayout(private val mainActivity: MainActivity) {
             mainActivity.assets,
             "fonts/PLUMP.ttf"
         )
-        val data = DataConnection.getHighscoreData(mainActivity.username);
-        var i = 1
-        while (i < data.size - 2) {
+        val jsonArray = DataConnection.getHighscoreData()
+        for (i in 0 until jsonArray.length()) {
             val rank = generateHighscoreTextView()
-            rank.text = data[i]
+            rank.text = "${i + 1}"
             rank.typeface = Typeface.createFromAsset(mainActivity.assets, "fonts/PLUMP.ttf")
             val name = generateHighscoreTextView()
-            name.text = data[i + 1]
+            name.text = jsonArray.getJSONObject(i).getString("username")
             name.typeface = Typeface.createFromAsset(mainActivity.assets, "fonts/PLUMP.ttf")
             val score = generateHighscoreTextView()
-            score.text = data[i + 2]
+            score.text = jsonArray.getJSONObject(i).getString("highscore")
             score.typeface = Typeface.createFromAsset(mainActivity.assets, "fonts/PLUMP.ttf")
             val row = TableRow(mainActivity)
-            if (data[i] == "1") {
-                rank.setTextColor(mainActivity.resources.getColor(Color.YELLOW))
-                name.setTextColor(mainActivity.resources.getColor(Color.YELLOW))
-                score.setTextColor(mainActivity.resources.getColor(Color.YELLOW))
-            }
-            if (data[i + 1] == mainActivity.username) {
-                rank.setTextColor(Color.RED)
-                name.setTextColor(Color.RED)
-                score.setTextColor(Color.RED)
+            if (name.text == mainActivity.username) {
+                rank.setTextColor(Color.YELLOW)
+                name.setTextColor(Color.YELLOW)
+                score.setTextColor(Color.YELLOW)
             }
             row.addView(rank)
             row.addView(name)
             row.addView(score)
             table.addView(row)
-            i += 3
         }
     }
 

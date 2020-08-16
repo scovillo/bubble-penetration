@@ -38,7 +38,7 @@ class GameOverScreenLayout(private val mainActivity: MainActivity) {
             "fonts/PLUMP.ttf"
         )
         DataConnection.permitNetwork()
-        val better = DataConnection.putHighscoreData(mainActivity.username, score)
+        val better = DataConnection.registerHighscore(mainActivity.username, score)
         if (better) {
             (mainActivity.findViewById<View>(R.id.highscore_label) as TextView).text = "Great! check your new rank!"
             (mainActivity.findViewById<View>(R.id.your_score_label) as TextView).text = "!!! New Highscore !!!"

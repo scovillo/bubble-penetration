@@ -1,9 +1,15 @@
 package de.spicysources.bubblepenetration.data
 
 import android.os.StrictMode
-import java.io.*
+import org.json.JSONArray
+import org.json.JSONObject
+import java.io.BufferedReader
+import java.io.DataOutputStream
+import java.io.IOException
+import java.io.InputStreamReader
 import java.net.HttpURLConnection
 import java.net.URL
+
 
 object DataConnection {
 
@@ -12,75 +18,84 @@ object DataConnection {
         StrictMode.setThreadPolicy(policy)
     }
 
-    fun getHighscoreData(username: String): Array<String> {
-        var result = ""
+    fun getHighscoreData(): JSONArray {
         try {
-            val httpConn = getHttpPostConnection("http://188.68.55.198:8080/BubbleHighscores/GetHighscores")
-            val writer = BufferedWriter(OutputStreamWriter(httpConn!!.outputStream))
-            writer.write(username.trimIndent())
-            writer.flush()
-            val reader =
-                BufferedReader(InputStreamReader(httpConn.inputStream))
-            result = reader.readLine()
-            writer.close()
-            reader.close()
+            val httpConn = URL("https://bubble-dev.spicysources.de/highscores").openConnection() as HttpURLConnection
+            httpConn.requestMethod = "GET"
+            httpConn.doOutput = false
+            val result = readResponseFrom(httpConn)
+            return JSONObject(result).getJSONArray("highscores")
         } catch (e: IOException) {
             e.printStackTrace()
         }
-        return result.split("\\|").toTypedArray()
+        return JSONObject("{empty:[]}").getJSONArray("empty")
     }
 
-    fun putHighscoreData(name: String?, score: String): Boolean {
-        val inputString = "$name|$score\n"
-        var better = false
+    fun registerHighscore(username: String, score: String): Boolean {
         try {
-            val httpConn = getHttpPostConnection("http://188.68.55.198:8080/BubbleHighscores/PutHighscores")
-            val writer = BufferedWriter(OutputStreamWriter(httpConn!!.outputStream))
-            writer.write(inputString)
-            writer.flush()
-            val reader = BufferedReader(InputStreamReader(httpConn.inputStream))
-            val result = reader.read().toChar()
-            if (result == '1') better = true
-            writer.close()
-            reader.close()
+            val httpConn = URL(
+                "https://bubble-dev.spicysources.de/highscores"
+            ).openConnection() as HttpURLConnection
+            httpConn.requestMethod = "POST"
+            httpConn.doOutput = true
+
+            val body = JSONObject("{}")
+            body.put("username", username)
+            body.put("highscore", score)
+
+            sendPost(httpConn, body)
+
+            val result = readResponseFrom(httpConn)
+            println(result)
             httpConn.disconnect()
+            return result == "true"
         } catch (e: Exception) {
             e.printStackTrace()
         }
-        return better
+        return false
     }
 
-    fun getUsernameExists(username: String): Boolean {
-        var exists = false
+    fun registerUsername(username: String): Boolean {
         try {
-            val httpConn = getHttpPostConnection("http://188.68.55.198:8080/BubbleHighscores/CheckUsername")
-            val writer = BufferedWriter(OutputStreamWriter(httpConn!!.outputStream))
-            writer.write(username.trimIndent())
-            writer.flush()
-            val reader = BufferedReader(InputStreamReader(httpConn.inputStream))
-            val result = reader.read().toChar()
-            if (result == '1') exists = true
-            writer.close()
-            reader.close()
-            httpConn.disconnect()
-        } catch (e: IOException) {
-            e.printStackTrace()
-        }
-        return exists
-    }
-
-    private fun getHttpPostConnection(url: String): HttpURLConnection? {
-        var httpConn: HttpURLConnection? = null
-        try {
-            val conn = URL(url).openConnection()
-            httpConn = conn as HttpURLConnection
+            val httpConn = URL(
+                "https://bubble-dev.spicysources.de/username"
+            ).openConnection() as HttpURLConnection
             httpConn.requestMethod = "POST"
             httpConn.doOutput = true
-            httpConn.connect()
+
+            val body = JSONObject("{}")
+            body.put("username", username)
+
+            sendPost(httpConn, body)
+
+            val result = readResponseFrom(httpConn)
+            httpConn.disconnect()
+            println(result)
+            return result == "true"
         } catch (e: IOException) {
             e.printStackTrace()
         }
-        return httpConn
+        return false
+    }
+
+    private fun readResponseFrom(httpURLConnection: HttpURLConnection): String {
+        val reader = BufferedReader(InputStreamReader(httpURLConnection.inputStream))
+        var inputLine: String?
+        val content = StringBuffer()
+        while (reader.readLine().also { inputLine = it } != null) {
+            content.append(inputLine)
+        }
+        reader.close()
+        return content.toString()
+    }
+
+    private fun sendPost(httpURLConnection: HttpURLConnection, body: JSONObject) {
+        httpURLConnection.setRequestProperty( "Content-Type", "application/json")
+        httpURLConnection.setRequestProperty( "charset", "utf-8")
+        val out = DataOutputStream(httpURLConnection.outputStream)
+        out.write(body.toString().toByteArray())
+        out.flush()
+        out.close()
     }
 
 }
