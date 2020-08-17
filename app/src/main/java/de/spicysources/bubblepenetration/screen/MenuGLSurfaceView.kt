@@ -32,7 +32,7 @@ class MenuGLSurfaceView(context: Context) : GLSurfaceView(context) {
 
     init {
         title = mainActivity.findViewById<View>(R.id.menu_title) as TextView
-        titleBlinkAnimation = BlinkAnimation(title, 0.015f)
+        titleBlinkAnimation = BlinkAnimation(title, 0.015f, 0.35f)
         renderer = SpaceRenderer()
         setRenderer(renderer)
         renderMode = RENDERMODE_CONTINUOUSLY

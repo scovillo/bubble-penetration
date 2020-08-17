@@ -1,83 +1,90 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:orientation="vertical" android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              android:background="@color/black">
-
-    <TextView
+<RelativeLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/black">
+    <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/your_name"
-            android:id="@+id/your_name"
-            android:textAlignment="center"
-            android:textColor="@color/title"
-            android:textSize="40sp"
-            android:textStyle="bold|italic"
-            android:enabled="true"
-            android:gravity="center_horizontal"/>
-
-    <EditText
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:inputType="textPersonName"
-            android:text="@string/anonym"
-            android:ems="10"
-            android:id="@+id/username_field"
-            android:layout_gravity="center_horizontal"
-            android:textSize="36sp"
-            android:textColor="#ffffff"
-            android:textAlignment="center"
-            android:layout_marginTop="16dp"
-            android:enabled="true"
-    />
-
-    <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/warning"
-            android:id="@+id/warning"
-            android:textAlignment="center"
-            android:textColor="#ff0000"
-            android:textSize="16sp"
-            android:layout_gravity="center_horizontal"
-            android:enabled="true"/>
-
-    <LinearLayout
-            android:orientation="horizontal"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginTop="16sp">
-
-        <Button
+            android:orientation="vertical"
+            android:layout_centerVertical="true">
+        <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/save"
-                android:id="@+id/save"
-                android:onClick="saveUsername"
-                android:textSize="24sp"
-                android:background="@drawable/button"
-                android:layout_gravity="center_horizontal"
-                android:textColor="@color/gold"
-                android:enabled="true"
-                android:clickable="true"
-                android:focusable="true"/>
-
-        <Button
+                android:orientation="vertical"
+                android:layout_gravity="center">
+            <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/your_name"
+                    android:id="@+id/your_name"
+                    android:textAlignment="center"
+                    android:textColor="@color/title"
+                    android:textSize="40sp"
+                    android:padding="8sp"
+                    android:textStyle="bold|italic"
+                    android:enabled="true"
+                    android:gravity="center_horizontal"/>
+            <EditText
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:inputType="textPersonName"
+                    android:text="@string/anonym"
+                    android:ems="10"
+                    android:id="@+id/username_field"
+                    android:layout_gravity="center_horizontal"
+                    android:textSize="36sp"
+                    android:textColor="#ffffff"
+                    android:textAlignment="center"
+                    android:enabled="true"/>
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/warning"
+                    android:id="@+id/warning"
+                    android:textAlignment="center"
+                    android:textColor="#ff0000"
+                    android:textSize="16sp"
+                    android:padding="12sp"
+                    android:layout_gravity="center_horizontal"
+                    android:enabled="true"/>
+        </LinearLayout>
+        <LinearLayout
+                android:orientation="horizontal"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/cancel"
-                android:onClick="backToMenu"
-                android:textSize="24sp"
-                android:background="@drawable/button"
-                android:text="@string/cancel"
-                android:textColor="@color/gold"
                 android:layout_gravity="center_horizontal"
-                android:layout_marginLeft="8dp"
-                android:clickable="true"
-                android:enabled="true"
-                android:layout_marginStart="8dp"
-                android:focusable="true"/>
+                android:layout_marginTop="16sp">
+            <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/save"
+                    android:id="@+id/save"
+                    android:onClick="saveUsername"
+                    android:textSize="24sp"
+                    android:background="@drawable/button"
+                    android:layout_gravity="center_horizontal"
+                    android:textColor="@color/gold"
+                    android:enabled="true"
+                    android:clickable="true"
+                    android:focusable="true"/>
+            <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/cancel"
+                    android:onClick="backToMenu"
+                    android:textSize="24sp"
+                    android:background="@drawable/button"
+                    android:text="@string/cancel"
+                    android:textColor="@color/gold"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginLeft="8dp"
+                    android:clickable="true"
+                    android:enabled="true"
+                    android:layout_marginStart="8dp"
+                    android:focusable="true"/>
+        </LinearLayout>
     </LinearLayout>
-
-</LinearLayout>
+</RelativeLayout>
