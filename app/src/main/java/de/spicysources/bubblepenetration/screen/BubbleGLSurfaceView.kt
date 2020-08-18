@@ -7,10 +7,11 @@ import android.opengl.GLSurfaceView
 import android.opengl.GLU
 import android.view.MotionEvent
 import android.view.View
+import android.view.animation.AlphaAnimation
+import android.view.animation.Animation
 import android.widget.TextView
 import de.spicysources.bubblepenetration.MainActivity
 import de.spicysources.bubblepenetration.R
-import de.spicysources.bubblepenetration.animation.BlinkAnimation
 import de.spicysources.bubblepenetration.objects.Bubble
 import de.spicysources.bubblepenetration.objects.GameObject
 import de.spicysources.bubblepenetration.util.BubbleColors
@@ -56,7 +57,7 @@ class BubbleGLSurfaceView(context: Context) : GLSurfaceView(context) {
         timerText.typeface = Typeface.createFromAsset(this.assets, "fonts/PLUMP.ttf")
         scoreText = mainActivity.findViewById<View>(R.id.Score) as TextView
         scoreText.typeface = Typeface.createFromAsset(this.assets, "fonts/PLUMP.ttf")
-        renderer = BubbleRenderer(timerText)
+        renderer = BubbleRenderer()
         setRenderer(renderer)
         renderMode = RENDERMODE_CONTINUOUSLY
         Thread(effectPlayer).start()
@@ -127,7 +128,7 @@ class BubbleGLSurfaceView(context: Context) : GLSurfaceView(context) {
         return true
     }
 
-    private inner class BubbleRenderer(timerText: TextView) : Renderer {
+    private inner class BubbleRenderer : Renderer {
 
         private val modelViewScene = FloatArray(16)
         var lastFrameTime = System.currentTimeMillis()
@@ -137,7 +138,14 @@ class BubbleGLSurfaceView(context: Context) : GLSurfaceView(context) {
         var unitsPerPixelZ = 0f
             private set
 
-        private val timerBlinkAnimation = BlinkAnimation(timerText)
+        private val anim: Animation = AlphaAnimation(0.35f, 1.0f)
+
+        init {
+            anim.duration = 300
+            anim.startOffset = 20
+            anim.repeatMode = Animation.REVERSE
+            anim.repeatCount = Animation.INFINITE
+        }
 
         override fun onDrawFrame(gl: GL10) {
             // update time calculation
@@ -160,10 +168,12 @@ class BubbleGLSurfaceView(context: Context) : GLSurfaceView(context) {
             // refresh HUD
             (context as MainActivity?)!!.runOnUiThread {
                 if (alarmed) {
-                    timerBlinkAnimation.update()
+                    if(timerText.animation == null) {
+                        timerText.startAnimation(anim)
+                    }
                 }
                 if (timer > 10) {
-                    timerBlinkAnimation.stop()
+                    timerText.animation?.cancel()
                     alarmed = false
                 }
                 if (timer <= 0.0) {

@@ -2,6 +2,8 @@ package de.spicysources.bubblepenetration.screen.layout
 
 import android.graphics.Typeface
 import android.view.View
+import android.view.animation.AlphaAnimation
+import android.view.animation.Animation
 import android.widget.Button
 import android.widget.CheckBox
 import android.widget.FrameLayout
@@ -51,6 +53,13 @@ class MainMenuLayout(private val mainActivity: MainActivity, private val musicPl
         if (mainActivity.areSoundEffectsMuted) {
             (mainActivity.findViewById<View>(R.id.effects_box) as CheckBox).isChecked = false
         }
+        val anim: Animation = AlphaAnimation(0.35f, 1.0f)
+        anim.duration = 300
+        anim.startOffset = 20
+        anim.repeatMode = Animation.REVERSE
+        anim.repeatCount = Animation.INFINITE
+        val title = mainActivity.findViewById<View>(R.id.menu_title) as TextView
+        title.startAnimation(anim)
     }
 
     fun hide() {

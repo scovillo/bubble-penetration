@@ -4,10 +4,11 @@ import android.content.Context
 import android.opengl.GLSurfaceView
 import android.opengl.GLU
 import android.view.View
+import android.view.animation.AlphaAnimation
+import android.view.animation.Animation
 import android.widget.TextView
 import de.spicysources.bubblepenetration.MainActivity
 import de.spicysources.bubblepenetration.R
-import de.spicysources.bubblepenetration.animation.BlinkAnimation
 import de.spicysources.bubblepenetration.objects.GameObject
 import de.spicysources.bubblepenetration.util.BubbleColors
 import de.spicysources.bubblepenetration.util.Generator
@@ -15,6 +16,7 @@ import java.util.*
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
 import javax.microedition.khronos.opengles.GL11
+
 
 class MenuGLSurfaceView(context: Context) : GLSurfaceView(context) {
 
@@ -27,12 +29,8 @@ class MenuGLSurfaceView(context: Context) : GLSurfaceView(context) {
     var boundaryRight = 0f
     private val gameObjects = ArrayList<GameObject>()
     private val objectsToBeRemoved = ArrayList<GameObject>()
-    private val title: TextView
-    private val titleBlinkAnimation: BlinkAnimation
 
     init {
-        title = mainActivity.findViewById<View>(R.id.menu_title) as TextView
-        titleBlinkAnimation = BlinkAnimation(title, 0.015f, 0.35f)
         renderer = SpaceRenderer()
         setRenderer(renderer)
         renderMode = RENDERMODE_CONTINUOUSLY
@@ -64,7 +62,6 @@ class MenuGLSurfaceView(context: Context) : GLSurfaceView(context) {
         }
 
         private fun updateGameobjects(fracSec: Float) {
-            titleBlinkAnimation.update()
             // position update on all obstacles
             for (`object` in gameObjects) {
                 `object`.update(fracSec)

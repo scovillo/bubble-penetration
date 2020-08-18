@@ -7,10 +7,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.view.View
 import android.view.WindowManager
-import android.widget.CheckBox
-import android.widget.EditText
-import android.widget.FrameLayout
-import android.widget.Toast
+import android.widget.*
 import de.spicysources.bubblepenetration.data.DataConnection
 import de.spicysources.bubblepenetration.data.LocalFileStorage
 import de.spicysources.bubblepenetration.screen.BubbleGLSurfaceView
@@ -69,7 +66,7 @@ class MainActivity : Activity() {
     }
 
     fun showGameOverScreenWith(score: String) {
-        val glSurfaceViewHolder = findViewById<View>(R.id.GLSurfaceViewHolder) as FrameLayout
+        val glSurfaceViewHolder = this.findViewById<View>(R.id.GLSurfaceViewHolder) as FrameLayout
         glSurfaceViewHolder.removeAllViews()
         gameOverScreenLayout.showWith(score)
     }
