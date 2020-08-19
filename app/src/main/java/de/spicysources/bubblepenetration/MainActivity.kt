@@ -8,6 +8,8 @@ import android.os.Bundle
 import android.view.View
 import android.view.WindowManager
 import android.widget.*
+import android.widget.Toast.LENGTH_LONG
+import android.widget.Toast.LENGTH_SHORT
 import de.spicysources.bubblepenetration.data.DataConnection
 import de.spicysources.bubblepenetration.data.LocalFileStorage
 import de.spicysources.bubblepenetration.screen.BubbleGLSurfaceView
@@ -16,6 +18,7 @@ import de.spicysources.bubblepenetration.screen.layout.HighscoreLayout
 import de.spicysources.bubblepenetration.screen.layout.MainMenuLayout
 import de.spicysources.bubblepenetration.screen.layout.UsernameLayout
 import de.spicysources.bubblepenetration.sound.MusicPlayer
+import java.util.concurrent.CompletableFuture
 
 class MainActivity : Activity() {
 
@@ -91,18 +94,27 @@ class MainActivity : Activity() {
     fun saveUsername(view: View) {
         val value = (findViewById<View>(R.id.username_field) as EditText).text.toString()
         if (value.isBlank()) {
-            Toast.makeText(this, "sorry, username can not be empty!", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "sorry, username can not be empty!", LENGTH_SHORT).show()
             return
         }
         if (value.length > 10) {
-            Toast.makeText(this, "sorry, maximal 10 letters!", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "sorry, maximal 10 letters!", LENGTH_SHORT).show()
             return
         }
-        val isSuccess = DataConnection.registerUsername(value)
+
+        val isSuccess: Boolean? = CompletableFuture.supplyAsync {
+            DataConnection.registerUsername(value)
+        }.exceptionally { null }.join()
+
+        if (isSuccess == null) {
+            Toast.makeText(this, "Server is currently not available...please try again later.", LENGTH_LONG).show()
+            return
+        }
         if (!isSuccess) {
-            Toast.makeText(this, "username already exists!", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "username already exists!", LENGTH_SHORT).show()
             return
         }
+
         username = value
         localFileStorage.writeToFile(username)
         mainMenuLayout.show()
@@ -118,7 +130,7 @@ class MainActivity : Activity() {
         try {
             startActivity(myAppLinkToMarket)
         } catch (e: ActivityNotFoundException) {
-            Toast.makeText(this, " unable to find market app", Toast.LENGTH_LONG).show()
+            Toast.makeText(this, " unable to find market app", LENGTH_LONG).show()
         }
     }
 
