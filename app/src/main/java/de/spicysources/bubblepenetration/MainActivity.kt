@@ -18,7 +18,8 @@ import de.spicysources.bubblepenetration.screen.layout.HighscoreLayout
 import de.spicysources.bubblepenetration.screen.layout.MainMenuLayout
 import de.spicysources.bubblepenetration.screen.layout.UsernameLayout
 import de.spicysources.bubblepenetration.sound.MusicPlayer
-import java.util.concurrent.CompletableFuture
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.TimeoutException
 
 class MainActivity : Activity() {
 
@@ -69,8 +70,8 @@ class MainActivity : Activity() {
     }
 
     fun showGameOverScreenWith(score: String) {
-        val glSurfaceViewHolder = this.findViewById<View>(R.id.GLSurfaceViewHolder) as FrameLayout
-        glSurfaceViewHolder.removeAllViews()
+        val glSurfaceViewHolder = this.findViewById<View>(R.id.GLSurfaceViewHolder) as FrameLayout?
+        glSurfaceViewHolder?.removeAllViews()
         gameOverScreenLayout.showWith(score)
     }
 
@@ -102,22 +103,18 @@ class MainActivity : Activity() {
             return
         }
 
-        val isSuccess: Boolean? = CompletableFuture.supplyAsync {
-            DataConnection.registerUsername(value)
-        }.exceptionally { null }.join()
-
-        if (isSuccess == null) {
+        try {
+            val isSuccess = DataConnection.registerUsername(value)[4000, TimeUnit.MILLISECONDS]
+            if (!isSuccess) {
+                Toast.makeText(this, "username already exists!", LENGTH_SHORT).show()
+                return
+            }
+            username = value
+            localFileStorage.writeToFile(username)
+            mainMenuLayout.show()
+        } catch (timeoutException: TimeoutException) {
             Toast.makeText(this, "Server is currently not available...please try again later.", LENGTH_LONG).show()
-            return
         }
-        if (!isSuccess) {
-            Toast.makeText(this, "username already exists!", LENGTH_SHORT).show()
-            return
-        }
-
-        username = value
-        localFileStorage.writeToFile(username)
-        mainMenuLayout.show()
     }
 
     fun showUsernameScreen(view: View) {

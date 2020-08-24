@@ -4,11 +4,12 @@ import android.graphics.Color
 import android.graphics.Typeface
 import android.view.View
 import android.widget.*
+import android.widget.Toast.LENGTH_LONG
 import de.spicysources.bubblepenetration.MainActivity
 import de.spicysources.bubblepenetration.R
 import de.spicysources.bubblepenetration.data.DataConnection
-import org.json.JSONArray
-import java.util.concurrent.CompletableFuture
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.TimeoutException
 
 class HighscoreLayout(private val mainActivity: MainActivity) {
 
@@ -32,11 +33,9 @@ class HighscoreLayout(private val mainActivity: MainActivity) {
             "fonts/PLUMP.ttf"
         )
 
-        val jsonArray: JSONArray? = CompletableFuture.supplyAsync {
-            DataConnection.getHighscoreData()
-        }.exceptionally { null }.join()
+        try {
+            val jsonArray = DataConnection.getHighscoreData()[5000, TimeUnit.MILLISECONDS]
 
-        if (jsonArray != null) {
             for (i in 0 until jsonArray.length()) {
                 val rank = generateHighscoreTextView()
                 rank.text = "${i + 1}"
@@ -58,8 +57,8 @@ class HighscoreLayout(private val mainActivity: MainActivity) {
                 row.addView(score)
                 table.addView(row)
             }
-        } else {
-            Toast.makeText(mainActivity, "Server is currently not available...please try again later.", 1500).show()
+        } catch (timeoutException: TimeoutException) {
+            Toast.makeText(mainActivity, "Server is currently not available...please try again later.", LENGTH_LONG).show()
         }
     }
 
@@ -73,7 +72,6 @@ class HighscoreLayout(private val mainActivity: MainActivity) {
         tv.gravity = 1
         tv.setTextColor(Color.WHITE)
         tv.textSize = 25f
-        tv.textAlignment = View.TEXT_ALIGNMENT_CENTER
         return tv
     }
 

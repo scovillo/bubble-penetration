@@ -7,50 +7,68 @@ import java.io.DataOutputStream
 import java.io.InputStreamReader
 import java.net.HttpURLConnection
 import java.net.URL
+import java.util.concurrent.Callable
+import java.util.concurrent.Executors
+import java.util.concurrent.Future
 
 object DataConnection {
 
-    fun getHighscoreData(): JSONArray {
-        val httpConn = URL("https://bubble-dev.spicysources.de/highscores").openConnection() as HttpURLConnection
-        httpConn.requestMethod = "GET"
-        httpConn.doOutput = false
-        val result = readResponseFrom(httpConn)
-        return JSONObject(result).getJSONArray("highscores")
+    private val threadPool = Executors.newCachedThreadPool()
+
+    fun getHighscoreData(): Future<JSONArray> {
+        return threadPool.submit(
+            Callable {
+                val httpConn =
+                    URL("https://bubble-dev.spicysources.de/highscores").openConnection() as HttpURLConnection
+                httpConn.requestMethod = "GET"
+                httpConn.doOutput = false
+                val result = readResponseFrom(httpConn)
+                return@Callable JSONObject(result).getJSONArray("highscores")
+            }
+        )
     }
 
-    fun registerHighscore(username: String, score: String): Boolean {
-        val httpConn = URL(
-            "https://bubble-dev.spicysources.de/highscores"
-        ).openConnection() as HttpURLConnection
-        httpConn.requestMethod = "POST"
-        httpConn.doOutput = true
+    fun registerHighscore(username: String, score: String): Future<Boolean> {
+        return threadPool.submit(
+            Callable {
+                val httpConn = URL(
+                    "https://bubble-dev.spicysources.de/highscores"
+                ).openConnection() as HttpURLConnection
+                httpConn.requestMethod = "POST"
+                httpConn.doOutput = true
 
-        val body = JSONObject("{}")
-        body.put("username", username)
-        body.put("highscore", score)
+                val body = JSONObject("{}")
+                body.put("username", username)
+                body.put("highscore", score)
 
-        sendPost(httpConn, body)
+                sendPost(httpConn, body)
 
-        val result = readResponseFrom(httpConn)
-        httpConn.disconnect()
-        return result == "true"
+                val result = readResponseFrom(httpConn)
+                httpConn.disconnect()
+                return@Callable result == "true"
+            }
+        )
     }
 
-    fun registerUsername(username: String): Boolean {
-        val httpConn = URL(
-            "https://bubble-dev.spicysources.de/username"
-        ).openConnection() as HttpURLConnection
-        httpConn.requestMethod = "POST"
-        httpConn.doOutput = true
+    fun registerUsername(username: String): Future<Boolean> {
+        return threadPool.submit(
+            Callable {
+                val httpConn = URL(
+                    "https://bubble-dev.spicysources.de/username"
+                ).openConnection() as HttpURLConnection
+                httpConn.requestMethod = "POST"
+                httpConn.doOutput = true
 
-        val body = JSONObject("{}")
-        body.put("username", username)
+                val body = JSONObject("{}")
+                body.put("username", username)
 
-        sendPost(httpConn, body)
+                sendPost(httpConn, body)
 
-        val result = readResponseFrom(httpConn)
-        httpConn.disconnect()
-        return result == "true"
+                val result = readResponseFrom(httpConn)
+                httpConn.disconnect()
+                return@Callable result == "true"
+            }
+        )
     }
 
     private fun readResponseFrom(httpURLConnection: HttpURLConnection): String {
