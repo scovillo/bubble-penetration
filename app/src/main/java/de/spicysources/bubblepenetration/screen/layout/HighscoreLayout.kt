@@ -14,6 +14,9 @@ import java.util.concurrent.TimeoutException
 class HighscoreLayout(private val mainActivity: MainActivity) {
 
     fun show() {
+
+        val highscoreRequest = DataConnection.getHighscoreData()
+
         mainActivity.setContentView(R.layout.highscores)
         val table = mainActivity.findViewById<View>(R.id.highscore_table) as TableLayout
         (mainActivity.findViewById<View>(R.id.highscore_back_button) as Button).typeface = Typeface.createFromAsset(
@@ -34,7 +37,7 @@ class HighscoreLayout(private val mainActivity: MainActivity) {
         )
 
         try {
-            val jsonArray = DataConnection.getHighscoreData()[5000, TimeUnit.MILLISECONDS]
+            val jsonArray = highscoreRequest[5000, TimeUnit.MILLISECONDS]
 
             for (i in 0 until jsonArray.length()) {
                 val rank = generateHighscoreTextView()
@@ -57,7 +60,7 @@ class HighscoreLayout(private val mainActivity: MainActivity) {
                 row.addView(score)
                 table.addView(row)
             }
-        } catch (timeoutException: TimeoutException) {
+        } catch (exception: Exception) {
             Toast.makeText(mainActivity, "Server is currently not available...please try again later.", LENGTH_LONG).show()
         }
     }

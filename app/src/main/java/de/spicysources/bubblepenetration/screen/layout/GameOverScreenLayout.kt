@@ -54,7 +54,7 @@ class GameOverScreenLayout(private val mainActivity: MainActivity) {
                 (mainActivity.findViewById<View>(R.id.your_score_label) as TextView).text = "Your score"
                 (mainActivity.findViewById<View>(R.id.your_score_label) as TextView).setTextColor(WHITE)
             }
-        } catch (timeoutException: TimeoutException) {
+        } catch (exception: Exception) {
             (mainActivity.findViewById<View>(R.id.highscore_label) as TextView).text = "Server is currently not available."
             (mainActivity.findViewById<View>(R.id.your_score_label) as TextView).text = "Your score"
             (mainActivity.findViewById<View>(R.id.your_score_label) as TextView).setTextColor(WHITE)

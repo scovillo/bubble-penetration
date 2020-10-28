@@ -4,20 +4,23 @@ import android.graphics.Typeface
 import android.view.View
 import android.view.animation.AlphaAnimation
 import android.view.animation.Animation
-import android.widget.Button
-import android.widget.CheckBox
-import android.widget.FrameLayout
-import android.widget.TextView
+import android.widget.*
 import de.spicysources.bubblepenetration.MainActivity
 import de.spicysources.bubblepenetration.R
+import de.spicysources.bubblepenetration.data.DataConnection
 import de.spicysources.bubblepenetration.screen.MenuGLSurfaceView
 import de.spicysources.bubblepenetration.sound.MusicPlayer
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.TimeoutException
 
 class MainMenuLayout(private val mainActivity: MainActivity, private val musicPlayer: MusicPlayer) {
 
     var menuGLSurfaceView: MenuGLSurfaceView? = null
 
     fun show() {
+
+        val highscoreRequest = DataConnection.getHighscoreData()
+
         mainActivity.setContentView(R.layout.activity_main)
         menuGLSurfaceView = MenuGLSurfaceView(mainActivity)
         val glSurfaceViewHolder = mainActivity.findViewById<View>(R.id.menuGLSurfaceViewHolder) as FrameLayout
@@ -47,6 +50,11 @@ class MainMenuLayout(private val mainActivity: MainActivity, private val musicPl
             mainActivity.assets,
             "fonts/PLUMP.ttf"
         )
+        val championTextView = (mainActivity.findViewById<View>(R.id.champion_text) as TextView)
+        championTextView.typeface = Typeface.createFromAsset(
+            mainActivity.assets,
+            "fonts/PLUMP.ttf"
+        )
         if (musicPlayer.isMuted) {
             (mainActivity.findViewById<View>(R.id.music_box) as CheckBox).isChecked = false
         }
@@ -60,6 +68,19 @@ class MainMenuLayout(private val mainActivity: MainActivity, private val musicPl
         anim.repeatCount = Animation.INFINITE
         val title = mainActivity.findViewById<View>(R.id.menu_title) as TextView
         title.startAnimation(anim)
+
+        try {
+            val jsonArray = highscoreRequest[5000, TimeUnit.MILLISECONDS]
+
+            if (jsonArray.length() > 0) {
+                championTextView.text = "Champion:\n${jsonArray.getJSONObject(0).getString("username")} with ${jsonArray.getJSONObject(0).getString("highscore")} !"
+            } else {
+                championTextView.text = "No current champion..."
+            }
+        } catch (exception: Exception) {
+            Toast.makeText(mainActivity, "Server is currently not available...please try again later.", Toast.LENGTH_LONG).show()
+            championTextView.text = "No current champion..."
+        }
     }
 
     fun hide() {

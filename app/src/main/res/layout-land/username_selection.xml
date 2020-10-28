@@ -20,7 +20,7 @@
                 android:layout_margin="12sp"
                 android:text="@string/greeting"
                 android:textAlignment="center"
-                android:textColor="@color/gold"
+                android:textColor="@color/title"
                 android:textSize="36sp" />
 
         <Button

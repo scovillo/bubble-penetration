@@ -111,7 +111,7 @@ class MainActivity : Activity() {
             usernames.add(value)
             localFileStorage.writeToFile(usernames)
             this.selectUsername(value)
-        } catch (timeoutException: TimeoutException) {
+        } catch (exception: Exception) {
             Toast.makeText(this, "Server is currently not available...please try again later.", LENGTH_LONG).show()
         }
     }
@@ -134,7 +134,7 @@ class MainActivity : Activity() {
         val myAppLinkToMarket = Intent(Intent.ACTION_VIEW, uri)
         try {
             startActivity(myAppLinkToMarket)
-        } catch (e: ActivityNotFoundException) {
+        } catch (exception: Exception) {
             Toast.makeText(this, " unable to find market app", LENGTH_LONG).show()
         }
     }
