@@ -8,7 +8,7 @@ import android.widget.TextView
 import de.spicysources.bubblepenetration.MainActivity
 import de.spicysources.bubblepenetration.R
 
-class UsernameLayout(private val mainActivity: MainActivity) {
+class UsernameCreationLayout(private val mainActivity: MainActivity) {
 
     fun showWith(isCancelEnabled: Boolean) {
         mainActivity.setContentView(R.layout.set_username)
@@ -25,10 +25,6 @@ class UsernameLayout(private val mainActivity: MainActivity) {
             mainActivity.assets,
             "fonts/PLUMP.ttf"
         )
-        (mainActivity.findViewById<View>(R.id.warning) as TextView).typeface = Typeface.createFromAsset(
-            mainActivity.assets,
-            "fonts/PLUMP.ttf"
-        )
         (mainActivity.findViewById<View>(R.id.save) as Button).typeface = Typeface.createFromAsset(
             mainActivity.assets,
             "fonts/PLUMP.ttf"
@@ -41,7 +37,6 @@ class UsernameLayout(private val mainActivity: MainActivity) {
             mainActivity.assets,
             "fonts/PLUMP.ttf"
         )
-        (mainActivity.findViewById<View>(R.id.username_field) as EditText).setText(mainActivity.username)
     }
 
 }

@@ -13,10 +13,7 @@ import android.widget.Toast.LENGTH_SHORT
 import de.spicysources.bubblepenetration.data.DataConnection
 import de.spicysources.bubblepenetration.data.LocalFileStorage
 import de.spicysources.bubblepenetration.screen.BubbleGLSurfaceView
-import de.spicysources.bubblepenetration.screen.layout.GameOverScreenLayout
-import de.spicysources.bubblepenetration.screen.layout.HighscoreLayout
-import de.spicysources.bubblepenetration.screen.layout.MainMenuLayout
-import de.spicysources.bubblepenetration.screen.layout.UsernameLayout
+import de.spicysources.bubblepenetration.screen.layout.*
 import de.spicysources.bubblepenetration.sound.MusicPlayer
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
@@ -30,21 +27,23 @@ class MainActivity : Activity() {
     private val localFileStorage = LocalFileStorage(this)
 
     private val gameOverScreenLayout = GameOverScreenLayout(this)
-    private val usernameLayout = UsernameLayout(this)
+    private val usernameSelectionLayout = UsernameSelectionLayout(this)
+    private val usernameCreationLayout = UsernameCreationLayout(this)
     private val highscoreLayout = HighscoreLayout(this)
     private val mainMenuLayout = MainMenuLayout(this, musicPlayer)
 
-    lateinit var username: String
+    lateinit var selectedUsername: String
         private set
+    private var usernames = mutableListOf<String>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         musicPlayer.init()
-        username = localFileStorage.readFromFile()
-        if (username.isBlank()) {
-            usernameLayout.showWith(false)
+        usernames = localFileStorage.readFromFile()
+        if(usernames.isEmpty()) {
+            usernameCreationLayout.showWith(false)
         } else {
-            mainMenuLayout.show()
+            usernameSelectionLayout.showWith(usernames)
         }
     }
 
@@ -109,16 +108,25 @@ class MainActivity : Activity() {
                 Toast.makeText(this, "username already exists!", LENGTH_SHORT).show()
                 return
             }
-            username = value
-            localFileStorage.writeToFile(username)
-            mainMenuLayout.show()
+            usernames.add(value)
+            localFileStorage.writeToFile(usernames)
+            this.selectUsername(value)
         } catch (timeoutException: TimeoutException) {
             Toast.makeText(this, "Server is currently not available...please try again later.", LENGTH_LONG).show()
         }
     }
 
-    fun showUsernameScreen(view: View) {
-        usernameLayout.showWith(true)
+    fun showUsernameSelectionScreen(view: View) {
+        usernameSelectionLayout.showWith(usernames)
+    }
+
+    fun showUsernameCreationScreen(view: View) {
+        usernameCreationLayout.showWith(usernames.isNotEmpty())
+    }
+
+    fun selectUsername(username: String) {
+        this.selectedUsername = username
+        mainMenuLayout.show()
     }
 
     fun launchMarket(view: View) {

@@ -15,14 +15,14 @@ import de.spicysources.bubblepenetration.sound.MusicPlayer
 
 class MainMenuLayout(private val mainActivity: MainActivity, private val musicPlayer: MusicPlayer) {
 
-    private var menuGLSurfaceView: MenuGLSurfaceView? = null
+    var menuGLSurfaceView: MenuGLSurfaceView? = null
 
     fun show() {
         mainActivity.setContentView(R.layout.activity_main)
         menuGLSurfaceView = MenuGLSurfaceView(mainActivity)
         val glSurfaceViewHolder = mainActivity.findViewById<View>(R.id.menuGLSurfaceViewHolder) as FrameLayout
         glSurfaceViewHolder.addView(menuGLSurfaceView)
-        (mainActivity.findViewById<View>(R.id.menu_username) as TextView).text = mainActivity.username
+        (mainActivity.findViewById<View>(R.id.menu_username) as TextView).text = mainActivity.selectedUsername
         (mainActivity.findViewById<View>(R.id.effects_box) as CheckBox).typeface = Typeface.createFromAsset(
             mainActivity.assets,
             "fonts/PLUMP.ttf"

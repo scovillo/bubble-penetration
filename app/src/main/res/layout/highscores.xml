@@ -1,68 +1,74 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    tools:context="de.spicysources.bubblepenetration.MainActivity"
-    android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/black">
-
+              android:orientation="vertical"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:background="@color/black"
+              android:clickable="false">
     <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Back to Menu"
-        android:id="@+id/highscore_back_button"
-        android:layout_gravity="center_horizontal"
-        android:onClick="backToMenu" />
-
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/back_to_menu"
+            android:textSize="24sp"
+            android:background="@drawable/button"
+            android:id="@+id/highscore_back_button"
+            android:layout_gravity="center_horizontal"
+            android:textColor="@color/gold"
+            android:onClick="backToMenu"
+            android:clickable="true"
+            android:enabled="true"
+            android:focusable="true"
+            android:layout_marginTop="8sp"/>
     <LinearLayout
-        android:orientation="horizontal"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Rank"
-            android:textColor="@color/white"
-            android:textSize="28dp"
-            android:textAlignment="center"
-            android:id="@+id/table_rank" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Name"
-            android:id="@+id/table_name"
-            android:textColor="@color/white"
-            android:textSize="28dp"
-            android:textAlignment="center"/>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Score"
-            android:id="@+id/table_score"
-            android:textColor="@color/white"
-            android:textSize="28dp"
-            android:textAlignment="center"/>
-    </LinearLayout>
-
-    <ScrollView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:textAlignment="center">
-        <TableLayout
-            android:id="@+id/highscore_table"
+            android:orientation="horizontal"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingTop="16dp"
-            android:textAlignment="center">
-
-        </TableLayout>
+            android:layout_marginTop="16dp">
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Rank"
+                android:textColor="@color/white"
+                android:textSize="28sp"
+                android:textAlignment="center"
+                android:id="@+id/table_rank"
+                android:enabled="true"
+                android:gravity="center_horizontal"/>
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Name"
+                android:id="@+id/table_name"
+                android:textColor="@color/white"
+                android:textSize="28sp"
+                android:textAlignment="center"
+                android:enabled="true"
+                android:gravity="center_horizontal"/>
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Score"
+                android:id="@+id/table_score"
+                android:textColor="@color/white"
+                android:textSize="28sp"
+                android:textAlignment="center"
+                android:enabled="true"
+                android:gravity="center_horizontal"/>
+    </LinearLayout>
+    <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:textAlignment="center"
+            android:gravity="center_horizontal">
+        <TableLayout
+                android:id="@+id/highscore_table"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingTop="16dp"
+                android:textAlignment="center"
+                android:gravity="center_horizontal"/>
     </ScrollView>
-
 </LinearLayout>

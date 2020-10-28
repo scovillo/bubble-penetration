@@ -64,7 +64,7 @@
             android:layout_gravity="start|bottom"
             android:textSize="24sp"
             android:textColor="#ffffff"
-            android:onClick="showUsernameScreen"
+            android:onClick="showUsernameSelectionScreen"
             android:layout_marginLeft="8sp"
             android:layout_marginBottom="8sp"
             android:clickable="true"

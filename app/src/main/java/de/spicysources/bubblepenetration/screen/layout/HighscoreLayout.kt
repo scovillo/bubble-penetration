@@ -47,7 +47,7 @@ class HighscoreLayout(private val mainActivity: MainActivity) {
                 score.text = jsonArray.getJSONObject(i).getString("highscore")
                 score.typeface = Typeface.createFromAsset(mainActivity.assets, "fonts/PLUMP.ttf")
                 val row = TableRow(mainActivity)
-                if (name.text == mainActivity.username) {
+                if (name.text == mainActivity.selectedUsername) {
                     rank.setTextColor(Color.YELLOW)
                     name.setTextColor(Color.YELLOW)
                     score.setTextColor(Color.YELLOW)

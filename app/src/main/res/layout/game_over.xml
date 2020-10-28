@@ -1,70 +1,96 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    tools:context="de.spicysources.bubblepenetration.MainActivity"
-    android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:paddingLeft="16dp"
-    android:paddingRight="16dp"
-    android:paddingBottom="16dp"
-    android:paddingTop="32dp"
-    android:background="@color/black">
-
-    <TextView
-        android:id="@+id/game_over_textview"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/game_over_text"
-        android:textSize="48dp"
-        android:textColor="@color/title"
-        android:layout_gravity="center_horizontal"
-        android:textStyle="bold|italic" />
-
-    <TextView
-        android:id="@+id/your_score_label"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/game_over_score_label"
-        android:textSize="16dp"
-        android:textColor="@color/white"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginTop="16dp"/>
-    <TextView
-        android:id="@+id/your_score_textview"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="0"
-        android:textSize="28dp"
-        android:textColor="@color/white"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginTop="16dp" />
-
-    <LinearLayout
-        android:orientation="horizontal"
+<RelativeLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:textAlignment="center">
-
-        <Button
-            android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:background="@color/black">
+    <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/back_to_menu"
-            android:id="@+id/gameover_back_button"
-            android:onClick="backToMenu"
-            android:textSize="20sp" />
-
-        <Button
-            android:id="@+id/highscore_gameover"
-            android:text="@string/highscore_button_text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="20sp"
-            android:onClick="showHighscores"
-            android:layout_alignParentTop="true"
-            android:enabled="true"
-            android:alpha="0.7" />
-
+            android:orientation="vertical"
+            android:layout_centerInParent="true">
+        <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_gravity="center">
+            <TextView
+                    android:id="@+id/game_over_textview"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/game_over_text"
+                    android:textSize="40sp"
+                    android:textColor="@color/title"
+                    android:layout_gravity="center_horizontal"
+                    android:textStyle="bold|italic"
+                    android:enabled="true"/>
+            <TextView
+                    android:id="@+id/your_score_label"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/game_over_score_label"
+                    android:textSize="16sp"
+                    android:textColor="@color/white"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginTop="8dp"
+                    android:enabled="true"/>
+            <TextView
+                    android:id="@+id/your_score_textview"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0"
+                    android:textSize="36sp"
+                    android:textColor="@color/white"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginTop="8dp"
+                    android:enabled="true"/>
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/new_highscore"
+                    android:id="@+id/highscore_label"
+                    android:textSize="18sp"
+                    android:padding="16sp"
+                    android:textColor="@color/white"
+                    android:layout_gravity="center_horizontal"
+                    android:textAlignment="center"
+                    android:layout_marginTop="8dp"
+                    android:enabled="true"/>
+        </LinearLayout>
+        <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/gameover_buttons"
+                android:layout_marginTop="8dp"
+                android:layout_gravity="center">
+            <Button
+                    android:id="@+id/highscore_gameover"
+                    android:text="@string/highscore_button_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="20sp"
+                    android:layout_margin="6sp"
+                    android:onClick="showHighscores"
+                    android:background="@drawable/button"
+                    android:enabled="true"
+                    android:textColor="@color/gold"
+                    android:clickable="true"
+                    android:focusable="true"/>
+            <Button
+                    android:id="@+id/bewerten_button"
+                    android:text="@string/bewerten"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="20sp"
+                    android:layout_margin="6sp"
+                    android:onClick="launchMarket"
+                    android:background="@drawable/button"
+                    android:enabled="true"
+                    android:textColor="@color/gold"
+                    android:clickable="true"
+                    android:focusable="true"/>
+        </LinearLayout>
     </LinearLayout>
-
-</LinearLayout>
+</RelativeLayout>

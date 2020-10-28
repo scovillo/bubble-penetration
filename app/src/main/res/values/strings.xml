@@ -23,4 +23,6 @@
     <string name="menu_Banner_ID">ca-app-pub-7068131275474759/4763625423</string>
     <string name="highscore_Screen_ID">ca-app-pub-7068131275474759/4454071022</string>
     <string name="new_highscore">New Highscore!!</string>
+    <string name="add">+</string>
+    <string name="greeting">Hi, who are you?</string>
 </resources>
