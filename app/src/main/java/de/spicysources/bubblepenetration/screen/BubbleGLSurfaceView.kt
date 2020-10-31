@@ -17,6 +17,8 @@ import de.spicysources.bubblepenetration.objects.GameObject
 import de.spicysources.bubblepenetration.util.BubbleColors
 import de.spicysources.bubblepenetration.sound.SoundEffects
 import de.spicysources.bubblepenetration.logic.Generator
+import de.spicysources.bubblepenetration.logic.Time
+import de.spicysources.bubblepenetration.objects.Star
 import java.util.*
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
@@ -34,7 +36,7 @@ class BubbleGLSurfaceView(context: Context) : GLSurfaceView(context) {
     private val gameObjects = ArrayList<GameObject>()
     private val generator = Generator(gameObjects, boundaries)
     private var collectColor = BubbleColors.RED
-    private var timer = 40.0f
+    private var timer = 20.0f
     private var score = 0
     private var isTouch = false
     private val objectsToBeRemoved = ArrayList<GameObject>()
@@ -42,12 +44,7 @@ class BubbleGLSurfaceView(context: Context) : GLSurfaceView(context) {
     private val timerText: TextView
     private var scoreText: TextView
     private val renderer: BubbleRenderer
-
-    // game balance factors
-    private val starScore = 5
-    private val starTime = 5
-    private val bubbleScore = 2
-    private val bubbleTime = 2
+    private val timeLogic = Time()
 
     init {
         timerText = mainActivity.findViewById<View>(R.id.Timer) as TextView
@@ -164,7 +161,7 @@ class BubbleGLSurfaceView(context: Context) : GLSurfaceView(context) {
             // refresh HUD
             (context as MainActivity?)!!.runOnUiThread {
                 if (alarmed) {
-                    if(timerText.animation == null) {
+                    if (timerText.animation == null) {
                         timerText.startAnimation(anim)
                     }
                 }
@@ -197,53 +194,51 @@ class BubbleGLSurfaceView(context: Context) : GLSurfaceView(context) {
         }
 
         private fun updateGameobjects(fracSec: Float) {
-            // position update on all gameobjects
-            for (`object` in gameObjects) {
-                `object`.update(fracSec)
-            }
-            // check for gameobjects that flew out of the viewing area and remove
-            // or deactivate them
-            for (`object` in gameObjects) {
+
+            gameObjects.forEach {
+                it.update(fracSec)
                 // offset makes sure that the gameobjects don't get deleted or set
                 // inactive while visible to the player.
-                val offset = `object`.scale
-                if (`object`.x > boundaries.right + offset
-                    || `object`.x < boundaries.left - offset
-                    || `object`.z > boundaries.top + offset
-                    || `object`.z < boundaries.bottom - offset
+                val offset = it.scale
+                if (it.x > boundaries.right + offset
+                    || it.x < boundaries.left - offset
+                    || it.z > boundaries.top + offset
+                    || it.z < boundaries.bottom - offset
                 ) {
-                    objectsToBeRemoved.add(`object`)
+                    objectsToBeRemoved.add(it)
                 }
             }
-            for (`object` in targetsToBeRemoved) {
+            for (gameObject in targetsToBeRemoved) {
                 if (isTouch) {
                     break
                 }
                 // collected bubble or star
-                if (`object` is Bubble) {
-                    //Check if hit bubble have the right color
-                    if (`object`.color == collectColor) {
-                        timer += bubbleTime.toFloat()
-                        score += bubbleScore
-                        effectPlayer.playSound(R.raw.blubb)
-                    } else {
-                        timer -= bubbleScore * 2.toFloat()
-                        effectPlayer.playSound(R.raw.fart)
+                when (gameObject) {
+                    is Bubble -> {
+                        //Check if hit bubble have the right color
+                        if (gameObject.color == collectColor) {
+                            timer += timeLogic.getBubbleTimeFor(gameObject.speed)
+                            score += gameObject.score
+                            effectPlayer.playSound(R.raw.blubb)
+                        } else {
+                            timer -= timeLogic.getBubblePunishmentTimeFor(gameObject.speed)
+                            effectPlayer.playSound(R.raw.fart)
+                        }
                     }
-                } else {
-                    timer += starTime.toFloat()
-                    score += starScore
-                    effectPlayer.playSound(R.raw.star)
+                    is Star -> {
+                        timer += timeLogic.getStarTimeFor(gameObject.speed)
+                        score += gameObject.score
+                        effectPlayer.playSound(R.raw.star)
+                    }
                 }
-                gameObjects.remove(`object`)
+                gameObjects.remove(gameObject)
             }
             targetsToBeRemoved.clear()
-            // remove obsolete gameobjects
-            for (`object` in objectsToBeRemoved) {
+            for (gameObject in objectsToBeRemoved) {
                 if (isTouch) {
                     break
                 }
-                gameObjects.remove(`object`)
+                gameObjects.remove(gameObject)
             }
             objectsToBeRemoved.clear()
             //spawn new gameobjects

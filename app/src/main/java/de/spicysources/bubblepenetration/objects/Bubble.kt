@@ -9,11 +9,12 @@ import javax.microedition.khronos.opengles.GL10
 class Bubble(//Object color
     val color: BubbleColors?, private val glColor: FloatArray, speed: Float
 ) : GameObject(speed) {
-    //Wobble animation scale factors
+
+    val score = 1
+
     private var wobbleX = 1.0f
     private var wobbleY = 0.7f
 
-    //Wobble animation flags
     private var wobbleXup = true
     private var wobbleYup = true
 

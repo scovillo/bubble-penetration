@@ -3,7 +3,7 @@ package de.spicysources.bubblepenetration.objects
 import android.opengl.Matrix
 import javax.microedition.khronos.opengles.GL10
 
-abstract class GameObject(protected val speed: Float) {
+abstract class GameObject(val speed: Float) {
     // current transformation matrix
     var transformationMatrix: FloatArray
 

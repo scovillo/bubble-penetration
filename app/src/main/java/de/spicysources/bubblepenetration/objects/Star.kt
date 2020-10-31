@@ -8,14 +8,13 @@ import java.nio.ShortBuffer
 import javax.microedition.khronos.opengles.GL10
 
 class Star(speed: Float) : GameObject(speed) {
-    // current rotation
-    var rotation = 0.0f
 
-    // rotation speed in deg/s
-    val angularVelocity = 50 + Math.random().toFloat() * 100
-    val rotationAxis = floatArrayOf(0.0f, 1.0f, 0.0f)
+    val score = 3
 
-    // doubled bubble speed
+    private var rotation = 0.0f
+    private val angularVelocity = 50 + Math.random().toFloat() * 100
+    private val rotationAxis = floatArrayOf(0.0f, 1.0f, 0.0f)
+
     override fun draw(gl: GL10) {
         gl.glMatrixMode(GL10.GL_MODELVIEW)
         gl.glPushMatrix()
