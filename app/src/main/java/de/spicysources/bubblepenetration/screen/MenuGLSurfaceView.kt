@@ -3,38 +3,32 @@ package de.spicysources.bubblepenetration.screen
 import android.content.Context
 import android.opengl.GLSurfaceView
 import android.opengl.GLU
-import android.view.View
-import android.view.animation.AlphaAnimation
-import android.view.animation.Animation
-import android.widget.TextView
 import de.spicysources.bubblepenetration.MainActivity
-import de.spicysources.bubblepenetration.R
 import de.spicysources.bubblepenetration.objects.GameObject
 import de.spicysources.bubblepenetration.util.BubbleColors
-import de.spicysources.bubblepenetration.util.Generator
+import de.spicysources.bubblepenetration.logic.Generator
+import java.lang.Math.*
 import java.util.*
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
 import javax.microedition.khronos.opengles.GL11
+import kotlin.math.roundToInt
 
 
 class MenuGLSurfaceView(context: Context) : GLSurfaceView(context) {
 
     private val mainActivity = context as MainActivity
     private val renderer: SpaceRenderer
-    private val generator: Generator
-    var boundaryTop = 0f
-    var boundaryBottom = 0f
-    var boundaryLeft = 0f
-    var boundaryRight = 0f
+    private val boundaries = Boundaries()
     private val gameObjects = ArrayList<GameObject>()
+    private val generator = Generator(gameObjects, boundaries)
     private val objectsToBeRemoved = ArrayList<GameObject>()
+    private val score = (800 * random()).roundToInt()
 
     init {
         renderer = SpaceRenderer()
         setRenderer(renderer)
         renderMode = RENDERMODE_CONTINUOUSLY
-        generator = Generator()
     }
 
     private inner class SpaceRenderer : Renderer {
@@ -72,10 +66,10 @@ class MenuGLSurfaceView(context: Context) : GLSurfaceView(context) {
                 // offset makes sure that the gameobjects don't get deleted or set
                 // inactive while visible to the player.
                 val offset = `object`.scale
-                if (`object`.x > boundaryRight + offset
-                    || `object`.x < boundaryLeft - offset
-                    || `object`.z > boundaryTop + offset
-                    || `object`.z < boundaryBottom - offset
+                if (`object`.x > boundaries.right + offset
+                    || `object`.x < boundaries.left - offset
+                    || `object`.z > boundaries.top + offset
+                    || `object`.z < boundaries.bottom - offset
                 ) {
                     objectsToBeRemoved.add(`object`)
                 }
@@ -86,14 +80,7 @@ class MenuGLSurfaceView(context: Context) : GLSurfaceView(context) {
             }
             objectsToBeRemoved.clear()
             //add new gameobjects
-            generator.generateGameobject(
-                gameObjects,
-                BubbleColors.RED,
-                boundaryBottom,
-                boundaryTop,
-                boundaryRight,
-                boundaryLeft
-            )
+            generator.generateGameobject(BubbleColors.RED, score)
         }
 
         // Called when surface is created or the viewport gets resized
@@ -111,14 +98,13 @@ class MenuGLSurfaceView(context: Context) : GLSurfaceView(context) {
             // set up modelview matrix for scene
             gl.glMatrixMode(GL10.GL_MODELVIEW)
             gl.glLoadIdentity()
-            val desired_height = 10.0f
+            val desiredHeight = 10.0f
             // We want to be able to see the range of 5 to -5 units at the y
             // axis (height=10).
             // To achieve this we have to pull the camera towards the positive z axis
             // based on the following formula:
             // z = (desired_height / 2) / tan(fovy/2)
-            val z =
-                (desired_height / 2 / Math.tan(fovy / 2 * (Math.PI / 180.0f))).toFloat()
+            val z = (desiredHeight / 2 / tan(fovy / 2 * (PI / 180.0f))).toFloat()
             // forward for the camera is backward for the scene
             gl.glTranslatef(0.0f, 0.0f, -z)
             // rotate local to achive top down view from negative y down to xz-plane
@@ -127,12 +113,7 @@ class MenuGLSurfaceView(context: Context) : GLSurfaceView(context) {
             // save local system as a basis to draw scene items
             gl11.glGetFloatv(GL11.GL_MODELVIEW_MATRIX, modelViewScene, 0)
             // window boundaries
-            // z range is the desired height
-            boundaryTop = desired_height / 2
-            boundaryBottom = -desired_height / 2
-            // x range is the desired width
-            boundaryLeft = -(desired_height / 2 * aspectRatio)
-            boundaryRight = desired_height / 2 * aspectRatio
+            boundaries.updateWith(desiredHeight, aspectRatio)
         }
 
         override fun onSurfaceCreated(gl: GL10, config: EGLConfig) {

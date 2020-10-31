@@ -7,7 +7,7 @@ import java.nio.FloatBuffer
 import java.nio.ShortBuffer
 import javax.microedition.khronos.opengles.GL10
 
-class Star : GameObject() {
+class Star(speed: Float) : GameObject(speed) {
     // current rotation
     var rotation = 0.0f
 
@@ -16,7 +16,6 @@ class Star : GameObject() {
     val rotationAxis = floatArrayOf(0.0f, 1.0f, 0.0f)
 
     // doubled bubble speed
-    var speed: Float = GameObject.Companion.speed * 2
     override fun draw(gl: GL10) {
         gl.glMatrixMode(GL10.GL_MODELVIEW)
         gl.glPushMatrix()

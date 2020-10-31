@@ -1,11 +1,14 @@
-package de.spicysources.bubblepenetration.util
+package de.spicysources.bubblepenetration.logic
 
 import de.spicysources.bubblepenetration.objects.Bubble
 import de.spicysources.bubblepenetration.objects.GameObject
 import de.spicysources.bubblepenetration.objects.Star
+import de.spicysources.bubblepenetration.screen.Boundaries
+import de.spicysources.bubblepenetration.util.BubbleColors
+import de.spicysources.bubblepenetration.util.Utilities
 import java.util.*
 
-class Generator {
+class Generator(private val gameObjects: MutableList<GameObject>, private val boundaries: Boundaries) {
 
     private val colorCast = HashMap<BubbleColors, FloatArray>()
 
@@ -23,6 +26,8 @@ class Generator {
     private val delay = 6000 //[ms]
     private var timeFlag = System.currentTimeMillis() + delay
 
+    private val logic = GameSpeed()
+
     init {
         colorCast[BubbleColors.RED] = floatArrayOf(1.0f, 0.0f, 0.0f, 0.7f)
         colorCast[BubbleColors.ORANGE] = floatArrayOf(1.0f, 0.5f, 0.0f, 0.7f)
@@ -33,10 +38,7 @@ class Generator {
         colorCast[BubbleColors.PURPLE] = floatArrayOf(0.635f, 0.505f, 0.788f, 0.7f)
     }
 
-    fun generateGameobject(
-        gameObjects: MutableList<GameObject>, collectColor: BubbleColors?,
-        boundaryBottom: Float, boundaryTop: Float, boundaryRight: Float, boundaryLeft: Float
-    ) {
+    fun generateGameobject(collectColor: BubbleColors?, score: Int) {
         // Spawn new bubble to match the target obstacle count
         if (maxObjectCountOnScreen > gameObjects.size) {
             for (i in 0 until maxObjectCountOnScreen - gameObjects.size) {
@@ -62,33 +64,33 @@ class Generator {
 
                 // calculate source vertex position, <0.5 horizontal, else vertical
                 if (Math.random() < 0.5) {  // horizontal placing, top or bottom
-                    spawnZ = if (sourceCode and 2 > 0) boundaryBottom - spawnOffset else boundaryTop + spawnOffset
+                    spawnZ = if (sourceCode and 2 > 0) boundaries.bottom - spawnOffset else boundaries.top + spawnOffset
                     spawnX =
-                        if (sourceCode and 1 > 0) boundaryRight * Math.random()
-                            .toFloat() else boundaryLeft * Math.random()
+                        if (sourceCode and 1 > 0) boundaries.right * Math.random()
+                            .toFloat() else boundaries.left * Math.random()
                             .toFloat()
                 } else {  // vertical placing, left or right
                     spawnZ =
-                        if (sourceCode and 2 > 0) boundaryBottom * Math.random()
-                            .toFloat() else boundaryTop * Math.random()
+                        if (sourceCode and 2 > 0) boundaries.bottom * Math.random()
+                            .toFloat() else boundaries.top * Math.random()
                             .toFloat()
-                    spawnX = if (sourceCode and 1 > 0) boundaryRight + spawnOffset else boundaryLeft - spawnOffset
+                    spawnX = if (sourceCode and 1 > 0) boundaries.right + spawnOffset else boundaries.left - spawnOffset
                 }
                 // calculate destination vertex position, <0.5 horizontal, else vertical
                 if (Math.random() < 0.5) {  // horizontal placing, top or bottom
                     velocity[2] =
-                        if (destCode and 2 > 0) boundaryBottom - spawnOffset else boundaryTop + spawnOffset
+                        if (destCode and 2 > 0) boundaries.bottom - spawnOffset else boundaries.top + spawnOffset
                     velocity[0] =
-                        if (destCode and 1 > 0) boundaryRight * Math.random()
-                            .toFloat() else boundaryLeft * Math.random()
+                        if (destCode and 1 > 0) boundaries.right * Math.random()
+                            .toFloat() else boundaries.left * Math.random()
                             .toFloat()
                 } else {  // vertical placing, left or right
                     velocity[2] =
-                        if (destCode and 2 > 0) boundaryBottom * Math.random()
-                            .toFloat() else boundaryTop * Math.random()
+                        if (destCode and 2 > 0) boundaries.bottom * Math.random()
+                            .toFloat() else boundaries.top * Math.random()
                             .toFloat()
                     velocity[0] =
-                        if (destCode and 1 > 0) boundaryRight + spawnOffset else boundaryLeft - spawnOffset
+                        if (destCode and 1 > 0) boundaries.right + spawnOffset else boundaries.left - spawnOffset
                 }
                 // calculate velocity
                 velocity[0] -= spawnX
@@ -114,7 +116,7 @@ class Generator {
                 }
                 //spawn new gameobject
                 if (Math.random() <= randomSpawn) {
-                    val newStar = Star()
+                    val newStar = Star(logic.getStarSpeedFor(score))
                     //stars a little bit smaller than Bubbles in average
                     newStar.scale = scale * 0.85f
                     newStar.setPosition(spawnX, 0f, spawnZ)
@@ -125,8 +127,8 @@ class Generator {
                     //make sure there is a bubble with color to collect
                     newBubble = if (collectColorAvailable) {
                         val random = generateColor()
-                        Bubble(random, colorCast[random]!!)
-                    } else Bubble(collectColor, colorCast[collectColor]!!)
+                        Bubble(random, colorCast[random]!!, logic.getBubbleSpeedFor(score))
+                    } else Bubble(collectColor, colorCast[collectColor]!!, logic.getBubbleSpeedFor(score))
                     newBubble.scale = scale
                     newBubble.setPosition(spawnX, 0f, spawnZ)
                     newBubble.velocity = velocity

@@ -18,7 +18,6 @@ import java.util.concurrent.TimeoutException
 class GameOverScreenLayout(private val mainActivity: MainActivity) {
 
     fun showWith(score: String) {
-        GameObject.speed = 1.0f
         mainActivity.setContentView(R.layout.game_over)
         val gameOverScore = mainActivity.findViewById<View>(R.id.your_score_textview) as TextView
         gameOverScore.text = score

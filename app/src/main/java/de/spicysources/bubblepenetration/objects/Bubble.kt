@@ -7,8 +7,8 @@ import java.nio.FloatBuffer
 import javax.microedition.khronos.opengles.GL10
 
 class Bubble(//Object color
-    val color: BubbleColors?, private val glColor: FloatArray
-) : GameObject() {
+    val color: BubbleColors?, private val glColor: FloatArray, speed: Float
+) : GameObject(speed) {
     //Wobble animation scale factors
     private var wobbleX = 1.0f
     private var wobbleY = 0.7f

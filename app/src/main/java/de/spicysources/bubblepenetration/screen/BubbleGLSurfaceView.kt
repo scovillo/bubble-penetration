@@ -16,7 +16,7 @@ import de.spicysources.bubblepenetration.objects.Bubble
 import de.spicysources.bubblepenetration.objects.GameObject
 import de.spicysources.bubblepenetration.util.BubbleColors
 import de.spicysources.bubblepenetration.sound.SoundEffects
-import de.spicysources.bubblepenetration.util.Generator
+import de.spicysources.bubblepenetration.logic.Generator
 import java.util.*
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
@@ -26,19 +26,17 @@ class BubbleGLSurfaceView(context: Context) : GLSurfaceView(context) {
 
     private val mainActivity = context as MainActivity
     private val assets = context.assets
-    private val generator = Generator()
+
     private val effectPlayer = SoundEffects(context)
 
     private var alarmed = false
-    var boundaryTop = 0f
-    var boundaryBottom = 0f
-    var boundaryLeft = 0f
-    var boundaryRight = 0f
+    private val boundaries = Boundaries()
+    private val gameObjects = ArrayList<GameObject>()
+    private val generator = Generator(gameObjects, boundaries)
     private var collectColor = BubbleColors.RED
     private var timer = 40.0f
     private var score = 0
     private var isTouch = false
-    private val gameObjects = ArrayList<GameObject>()
     private val objectsToBeRemoved = ArrayList<GameObject>()
     private val targetsToBeRemoved = ArrayList<GameObject>()
     private val timerText: TextView
@@ -50,7 +48,6 @@ class BubbleGLSurfaceView(context: Context) : GLSurfaceView(context) {
     private val starTime = 5
     private val bubbleScore = 2
     private val bubbleTime = 2
-    private val increaseSpeed = 0.02f
 
     init {
         timerText = mainActivity.findViewById<View>(R.id.Timer) as TextView
@@ -80,9 +77,8 @@ class BubbleGLSurfaceView(context: Context) : GLSurfaceView(context) {
                 var i = 0
                 while (i < gameObjects.size) {
                     val bubble = gameObjects[i]
-                    val x = event.x * renderer.unitsPerPixelX - boundaryRight - bubble.x
-                    val y =
-                        (event.y * renderer.unitsPerPixelZ - boundaryTop) * -1 - bubble.z
+                    val x = event.x * renderer.unitsPerPixelX - boundaries.right - bubble.x
+                    val y = (event.y * renderer.unitsPerPixelZ - boundaries.top) * -1 - bubble.z
                     if (Math.sqrt(
                             Math.pow(x.toDouble(), 2.0) + Math.pow(
                                 y.toDouble(),
@@ -211,10 +207,10 @@ class BubbleGLSurfaceView(context: Context) : GLSurfaceView(context) {
                 // offset makes sure that the gameobjects don't get deleted or set
                 // inactive while visible to the player.
                 val offset = `object`.scale
-                if (`object`.x > boundaryRight + offset
-                    || `object`.x < boundaryLeft - offset
-                    || `object`.z > boundaryTop + offset
-                    || `object`.z < boundaryBottom - offset
+                if (`object`.x > boundaries.right + offset
+                    || `object`.x < boundaries.left - offset
+                    || `object`.z > boundaries.top + offset
+                    || `object`.z < boundaries.bottom - offset
                 ) {
                     objectsToBeRemoved.add(`object`)
                 }
@@ -229,7 +225,6 @@ class BubbleGLSurfaceView(context: Context) : GLSurfaceView(context) {
                     if (`object`.color == collectColor) {
                         timer += bubbleTime.toFloat()
                         score += bubbleScore
-                        GameObject.speed += increaseSpeed
                         effectPlayer.playSound(R.raw.blubb)
                     } else {
                         timer -= bubbleScore * 2.toFloat()
@@ -238,7 +233,6 @@ class BubbleGLSurfaceView(context: Context) : GLSurfaceView(context) {
                 } else {
                     timer += starTime.toFloat()
                     score += starScore
-                    GameObject.speed += increaseSpeed * 2
                     effectPlayer.playSound(R.raw.star)
                 }
                 gameObjects.remove(`object`)
@@ -253,14 +247,7 @@ class BubbleGLSurfaceView(context: Context) : GLSurfaceView(context) {
             }
             objectsToBeRemoved.clear()
             //spawn new gameobjects
-            generator.generateGameobject(
-                gameObjects,
-                collectColor,
-                boundaryBottom,
-                boundaryTop,
-                boundaryRight,
-                boundaryLeft
-            )
+            generator.generateGameobject(collectColor, score)
         }
 
         // Called when surface is created or the viewport gets resized
@@ -278,14 +265,14 @@ class BubbleGLSurfaceView(context: Context) : GLSurfaceView(context) {
             // set up modelview matrix for scene
             gl.glMatrixMode(GL10.GL_MODELVIEW)
             gl.glLoadIdentity()
-            val desired_height = 10.0f
+            val desiredHeight = 10.0f
             // We want to be able to see the range of 5 to -5 units at the y
             // axis (height=10).
             // To achieve this we have to pull the camera towards the positive z axis
             // based on the following formula:
             // z = (desired_height / 2) / tan(fovy/2)
             val z =
-                (desired_height / 2 / Math.tan(fovy / 2 * (Math.PI / 180.0f))).toFloat()
+                (desiredHeight / 2 / Math.tan(fovy / 2 * (Math.PI / 180.0f))).toFloat()
             // forward for the camera is backward for the scene
             gl.glTranslatef(0.0f, 0.0f, -z)
             // rotate local to achive top down view from negative y down to xz-plane
@@ -294,15 +281,10 @@ class BubbleGLSurfaceView(context: Context) : GLSurfaceView(context) {
             // save local system as a basis to draw scene items
             gl11.glGetFloatv(GL11.GL_MODELVIEW_MATRIX, modelViewScene, 0)
             // window boundaries
-            // z range is the desired height
-            boundaryTop = desired_height / 2
-            boundaryBottom = -desired_height / 2
-            // x range is the desired width
-            boundaryLeft = -(desired_height / 2 * aspectRatio)
-            boundaryRight = desired_height / 2 * aspectRatio
+            boundaries.updateWith(desiredHeight, aspectRatio)
             // tochevent pixel coordinates to openGL coordinates
-            unitsPerPixelZ = desired_height / height
-            unitsPerPixelX = desired_height * aspectRatio / width
+            unitsPerPixelZ = desiredHeight / height
+            unitsPerPixelX = desiredHeight * aspectRatio / width
         }
 
         override fun onSurfaceCreated(gl: GL10, config: EGLConfig) {
