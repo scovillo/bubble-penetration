@@ -50,34 +50,28 @@ class MenuGLSurfaceView(context: Context) : GLSurfaceView(context) {
             // load local system to draw scene items
             gl.glMatrixMode(GL10.GL_MODELVIEW)
             gl11.glLoadMatrixf(modelViewScene, 0)
-            for (`object` in gameObjects) {
-                `object`.draw(gl)
-            }
+            gameObjects.forEach { it.draw(gl) }
         }
 
         private fun updateGameobjects(fracSec: Float) {
             // position update on all obstacles
-            for (`object` in gameObjects) {
-                `object`.update(fracSec)
-            }
+            gameObjects.forEach { it.update(fracSec) }
             // check for gameobjects that flew out of the viewing area and remove
             // or deactivate them
-            for (`object` in gameObjects) {
+            gameObjects.forEach {
                 // offset makes sure that the gameobjects don't get deleted or set
                 // inactive while visible to the player.
-                val offset = `object`.scale
-                if (`object`.x > boundaries.right + offset
-                    || `object`.x < boundaries.left - offset
-                    || `object`.z > boundaries.top + offset
-                    || `object`.z < boundaries.bottom - offset
+                val offset = it.scale
+                if (it.x > boundaries.right + offset
+                    || it.x < boundaries.left - offset
+                    || it.z > boundaries.top + offset
+                    || it.z < boundaries.bottom - offset
                 ) {
-                    objectsToBeRemoved.add(`object`)
+                    objectsToBeRemoved.add(it)
                 }
             }
             // remove obsolete gameobjects
-            for (`object` in objectsToBeRemoved) {
-                gameObjects.remove(`object`)
-            }
+            objectsToBeRemoved.forEach { gameObjects.remove(it) }
             objectsToBeRemoved.clear()
             //add new gameobjects
             generator.generateGameobject(BubbleColors.RED, score)

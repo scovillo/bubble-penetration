@@ -33,7 +33,7 @@
 
             <TextView
                     android:id="@+id/Timer_Postfix"
-                    android:layout_width="75dp"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:alpha="0"
                     android:paddingRight="20sp"
@@ -55,9 +55,18 @@
 
             <TextView
                     android:id="@+id/Score_Postfix"
-                    android:layout_width="75dp"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:alpha="0"
+                    android:paddingRight="20sp"
+                    android:text=""
+                    android:textColor="@color/white"
+                    android:textSize="18sp" />
+
+            <TextView
+                    android:id="@+id/Combo"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:paddingRight="20sp"
                     android:text=""
                     android:textColor="@color/white"

@@ -5,6 +5,7 @@ import android.view.View
 import android.widget.TextView
 import de.spicysources.bubblepenetration.MainActivity
 import de.spicysources.bubblepenetration.R
+import de.spicysources.bubblepenetration.util.roundToFirstDigit
 
 class TimerPostfix(private val mainActivity: MainActivity) {
 
@@ -15,8 +16,9 @@ class TimerPostfix(private val mainActivity: MainActivity) {
     }
 
     fun animateWith(time: Float) {
+        val formattedTime = roundToFirstDigit(time)
         mainActivity.runOnUiThread {
-            timerTextPostfix.text = if (time < 0) "$time" else "+$time"
+            timerTextPostfix.text = if (formattedTime < 0) "$formattedTime" else "+$formattedTime"
             timerTextPostfix.alpha = 1.0f
             timerTextPostfix.animate().alpha(0.0f).setDuration(400).setStartDelay(200).start()
         }

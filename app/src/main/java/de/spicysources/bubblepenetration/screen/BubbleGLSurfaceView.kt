@@ -12,6 +12,7 @@ import android.view.animation.Animation
 import android.widget.TextView
 import de.spicysources.bubblepenetration.MainActivity
 import de.spicysources.bubblepenetration.R
+import de.spicysources.bubblepenetration.logic.Combo
 import de.spicysources.bubblepenetration.objects.Bubble
 import de.spicysources.bubblepenetration.objects.GameObject
 import de.spicysources.bubblepenetration.util.BubbleColors
@@ -21,6 +22,7 @@ import de.spicysources.bubblepenetration.logic.Time
 import de.spicysources.bubblepenetration.objects.Star
 import de.spicysources.bubblepenetration.screen.hud.ScorePostfix
 import de.spicysources.bubblepenetration.screen.hud.TimerPostfix
+import de.spicysources.bubblepenetration.util.roundToFirstDigit
 import java.util.*
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
@@ -47,6 +49,7 @@ class BubbleGLSurfaceView(context: Context) : GLSurfaceView(context) {
     private var scoreText: TextView
     private val renderer: BubbleRenderer
     private val timeLogic = Time()
+    private val combo = Combo(mainActivity)
 
     init {
         timerText = mainActivity.findViewById<View>(R.id.Timer) as TextView
@@ -179,7 +182,7 @@ class BubbleGLSurfaceView(context: Context) : GLSurfaceView(context) {
                     effectPlayer.ingame = false
                     mainActivity.showGameOverScreenWith(score.toString())
                 } else {
-                    timerText.text = "time: " + timeToTimeFormat(timer.toDouble(), 1)
+                    timerText.text = "time: " + roundToFirstDigit(timer)
                     scoreText.text = "score: $score"
                     setHUDColor(generator.getGLColor(collectColor))
                 }
@@ -194,9 +197,7 @@ class BubbleGLSurfaceView(context: Context) : GLSurfaceView(context) {
             gl.glMatrixMode(GL10.GL_MODELVIEW)
             gl11.glLoadMatrixf(modelViewScene, 0)
             //draw gameobjects
-            for (`object` in gameObjects) {
-                `object`.draw(gl)
-            }
+            gameObjects.forEach { it.draw(gl) }
         }
 
         private fun updateGameobjects(fracSec: Float) {
@@ -225,26 +226,35 @@ class BubbleGLSurfaceView(context: Context) : GLSurfaceView(context) {
                         if (gameObject.color == collectColor) {
                             val time = timeLogic.getBubbleTimeFor(gameObject.speed)
                             timer += time
-                            score += gameObject.score
                             timerPostfix.animateWith(time)
-                            scorePostfix.animateWith(gameObject.score)
+
+                            val collectScore = gameObject.score * combo.multiplikator
+                            score += collectScore
+                            scorePostfix.animateWith(collectScore)
+
+                            combo.increment()
                             effectPlayer.playSound(R.raw.blubb)
                         } else {
                             val time = -timeLogic.getBubblePunishmentTimeFor(gameObject.speed)
                             timer += time
                             timerPostfix.animateWith(time)
+                            combo.reset()
                             effectPlayer.playSound(R.raw.fart)
                         }
                     }
                     is Star -> {
                         val time = timeLogic.getStarTimeFor(gameObject.speed)
                         timer += time
-                        score += gameObject.score
                         timerPostfix.animateWith(time)
-                        scorePostfix.animateWith(gameObject.score)
+
+                        val collectScore = gameObject.score * combo.multiplikator
+                        score += collectScore
+                        scorePostfix.animateWith(collectScore)
+
                         effectPlayer.playSound(R.raw.star)
                     }
                 }
+                combo.update()
                 gameObjects.remove(gameObject)
             }
             targetsToBeRemoved.clear()
@@ -309,12 +319,6 @@ class BubbleGLSurfaceView(context: Context) : GLSurfaceView(context) {
             gl.glShadeModel(GL10.GL_SMOOTH)
             gl.glEnable(GL10.GL_DEPTH_TEST)
         }
-
-        private fun timeToTimeFormat(time: Double, nachkommastellen: Int): Double {
-            val factor = Math.pow(10.0, nachkommastellen.toDouble())
-            return (time * factor).toInt().toDouble() / factor
-        }
-
 
         private fun setHUDColor(glCollectColor: FloatArray) {
             val max = 255
