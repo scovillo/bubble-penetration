@@ -92,7 +92,6 @@
             android:enabled="true"
             android:focusable="true"
             android:onClick="showUsernameSelectionScreen"
-            android:text="@string/username"
             android:textColor="@color/white"
             android:textSize="24sp" />
 

@@ -9,13 +9,11 @@
     <string name="collect_text">Collect!</string>
     <string name="game_over_text">Game Over</string>
     <string name="game_over_score_label">Your score:</string>
-    <string name="anonym">anonym</string>
     <string name="save">save</string>
     <string name="your_name">Your name?</string>
     <string name="back_to_menu">back</string>
     <string name="cancel">cancel</string>
     <string name="music">Music</string>
-    <string name="username">anonym</string>
     <string name="bubble_penetration">Bubble\nPenetration</string>
     <string name="warning">You can not change back to your old username!</string>
     <string name="bewerten">app rating</string>

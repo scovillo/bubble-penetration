@@ -11,7 +11,7 @@ import de.spicysources.bubblepenetration.R
 class UsernameCreationLayout(private val mainActivity: MainActivity) {
 
     fun showWith(isCancelEnabled: Boolean) {
-        mainActivity.setContentView(R.layout.set_username)
+        mainActivity.setContentView(R.layout.username_creation)
 
         if (isCancelEnabled) {
             mainActivity.findViewById<View>(R.id.cancel).isEnabled = true
