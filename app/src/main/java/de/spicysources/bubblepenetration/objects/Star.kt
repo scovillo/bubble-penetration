@@ -85,7 +85,7 @@ class Star(speed: Float) : GameObject(speed) {
 
     init {
         if (!buffersInitialized) {
-            currentColor = floatArrayOf(1.0f, 1.0f, 1.0f, 0.7f)
+            currentColor = floatArrayOf(1.0f, 0.875f, 0.0f, 0.7f)
 
             // Initialize buffers
             val verticesBB = ByteBuffer.allocateDirect(vertices.size * 4)

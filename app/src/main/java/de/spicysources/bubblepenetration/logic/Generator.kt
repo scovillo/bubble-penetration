@@ -26,16 +26,14 @@ class Generator(private val gameObjects: MutableList<GameObject>, private val bo
     private val delay = 6000 //[ms]
     private var timeFlag = System.currentTimeMillis() + delay
 
-    private val logic = GameSpeed()
+    private val gameSpeed = GameSpeed()
 
     init {
         colorCast[BubbleColors.RED] = floatArrayOf(1.0f, 0.0f, 0.0f, 0.7f)
         colorCast[BubbleColors.ORANGE] = floatArrayOf(1.0f, 0.5f, 0.0f, 0.7f)
-        colorCast[BubbleColors.YELLOW] = floatArrayOf(1.0f, 1.0f, 0.0f, 0.7f)
         colorCast[BubbleColors.GREEN] = floatArrayOf(0.0f, 1.0f, 0.0f, 0.7f)
         colorCast[BubbleColors.LIGHTBLUE] = floatArrayOf(0.0f, 1.0f, 1.0f, 0.7f)
         colorCast[BubbleColors.BLUE] = floatArrayOf(0.0f, 0.0f, 1.0f, 0.7f)
-        colorCast[BubbleColors.PURPLE] = floatArrayOf(0.635f, 0.505f, 0.788f, 0.7f)
     }
 
     fun generateGameobject(collectColor: BubbleColors?, score: Int) {
@@ -98,25 +96,25 @@ class Generator(private val gameObjects: MutableList<GameObject>, private val bo
                 Utilities.normalize(velocity)
                 var positionOk = true
                 // check distance to other gameobjects
-                for (`object` in gameObjects) {
+                for (gameObject in gameObjects) {
                     val minDistance =
-                        0.5f * scale + 0.5f * `object`.scale + minSpawnDistanceBetweenObstacles
-                    if (Math.abs(spawnX - `object`.x) < minDistance
-                        && Math.abs(spawnZ - `object`.z) < minDistance
+                        0.5f * scale + 0.5f * gameObject.scale + minSpawnDistanceBetweenObstacles
+                    if (Math.abs(spawnX - gameObject.x) < minDistance
+                        && Math.abs(spawnZ - gameObject.z) < minDistance
                     ) positionOk = false // Distance too small -> invalid position
                 }
                 if (!positionOk) continue  // Invalid spawn position -> try again next time
                 //Is the needed color available?
                 var collectColorAvailable = false
-                for (`object` in gameObjects) {
-                    if (`object` is Bubble && `object`.color == collectColor) {
+                for (gameObject in gameObjects) {
+                    if (gameObject is Bubble && gameObject.color == collectColor) {
                         collectColorAvailable = true
                         break
                     }
                 }
                 //spawn new gameobject
                 if (Math.random() <= randomSpawn) {
-                    val newStar = Star(logic.getStarSpeedFor(score))
+                    val newStar = Star(gameSpeed.getStarSpeedFor(score))
                     //stars a little bit smaller than Bubbles in average
                     newStar.scale = scale * 0.85f
                     newStar.setPosition(spawnX, 0f, spawnZ)
@@ -127,8 +125,8 @@ class Generator(private val gameObjects: MutableList<GameObject>, private val bo
                     //make sure there is a bubble with color to collect
                     newBubble = if (collectColorAvailable) {
                         val random = generateColor()
-                        Bubble(random, colorCast[random]!!, logic.getBubbleSpeedFor(score))
-                    } else Bubble(collectColor, colorCast[collectColor]!!, logic.getBubbleSpeedFor(score))
+                        Bubble(random, colorCast[random]!!, gameSpeed.getBubbleSpeedFor(score))
+                    } else Bubble(collectColor, colorCast[collectColor]!!, gameSpeed.getBubbleSpeedFor(score))
                     newBubble.scale = scale
                     newBubble.setPosition(spawnX, 0f, spawnZ)
                     newBubble.velocity = velocity
