@@ -19,6 +19,8 @@ import de.spicysources.bubblepenetration.sound.SoundEffects
 import de.spicysources.bubblepenetration.logic.Generator
 import de.spicysources.bubblepenetration.logic.Time
 import de.spicysources.bubblepenetration.objects.Star
+import de.spicysources.bubblepenetration.screen.hud.ScorePostfix
+import de.spicysources.bubblepenetration.screen.hud.TimerPostfix
 import java.util.*
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
@@ -49,8 +51,10 @@ class BubbleGLSurfaceView(context: Context) : GLSurfaceView(context) {
     init {
         timerText = mainActivity.findViewById<View>(R.id.Timer) as TextView
         timerText.typeface = Typeface.createFromAsset(this.assets, "fonts/PLUMP.ttf")
+
         scoreText = mainActivity.findViewById<View>(R.id.Score) as TextView
         scoreText.typeface = Typeface.createFromAsset(this.assets, "fonts/PLUMP.ttf")
+
         renderer = BubbleRenderer()
         setRenderer(renderer)
         renderMode = RENDERMODE_CONTINUOUSLY
@@ -131,13 +135,15 @@ class BubbleGLSurfaceView(context: Context) : GLSurfaceView(context) {
         var unitsPerPixelZ = 0f
             private set
 
-        private val anim: Animation = AlphaAnimation(0.35f, 1.0f)
+        private val timerTextAnimation: Animation = AlphaAnimation(0.35f, 1.0f)
+        private val timerPostfix = TimerPostfix(mainActivity)
+        private val scorePostfix = ScorePostfix(mainActivity)
 
         init {
-            anim.duration = 300
-            anim.startOffset = 20
-            anim.repeatMode = Animation.REVERSE
-            anim.repeatCount = Animation.INFINITE
+            timerTextAnimation.duration = 300
+            timerTextAnimation.startOffset = 20
+            timerTextAnimation.repeatMode = Animation.REVERSE
+            timerTextAnimation.repeatCount = Animation.INFINITE
         }
 
         override fun onDrawFrame(gl: GL10) {
@@ -159,10 +165,10 @@ class BubbleGLSurfaceView(context: Context) : GLSurfaceView(context) {
             // update color to collect
             collectColor = generator.generateCollectColor(collectColor, score)
             // refresh HUD
-            (context as MainActivity?)!!.runOnUiThread {
+            mainActivity.runOnUiThread {
                 if (alarmed) {
                     if (timerText.animation == null) {
-                        timerText.startAnimation(anim)
+                        timerText.startAnimation(timerTextAnimation)
                     }
                 }
                 if (timer > 10) {
@@ -217,17 +223,25 @@ class BubbleGLSurfaceView(context: Context) : GLSurfaceView(context) {
                     is Bubble -> {
                         //Check if hit bubble have the right color
                         if (gameObject.color == collectColor) {
-                            timer += timeLogic.getBubbleTimeFor(gameObject.speed)
+                            val time = timeLogic.getBubbleTimeFor(gameObject.speed)
+                            timer += time
                             score += gameObject.score
+                            timerPostfix.animateWith(time)
+                            scorePostfix.animateWith(gameObject.score)
                             effectPlayer.playSound(R.raw.blubb)
                         } else {
-                            timer -= timeLogic.getBubblePunishmentTimeFor(gameObject.speed)
+                            val time = -timeLogic.getBubblePunishmentTimeFor(gameObject.speed)
+                            timer += time
+                            timerPostfix.animateWith(time)
                             effectPlayer.playSound(R.raw.fart)
                         }
                     }
                     is Star -> {
-                        timer += timeLogic.getStarTimeFor(gameObject.speed)
+                        val time = timeLogic.getStarTimeFor(gameObject.speed)
+                        timer += time
                         score += gameObject.score
+                        timerPostfix.animateWith(time)
+                        scorePostfix.animateWith(gameObject.score)
                         effectPlayer.playSound(R.raw.star)
                     }
                 }
