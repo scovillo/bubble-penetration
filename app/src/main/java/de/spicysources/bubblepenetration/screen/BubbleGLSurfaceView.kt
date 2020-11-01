@@ -13,18 +13,17 @@ import android.widget.TextView
 import de.spicysources.bubblepenetration.MainActivity
 import de.spicysources.bubblepenetration.R
 import de.spicysources.bubblepenetration.logic.Combo
-import de.spicysources.bubblepenetration.objects.Bubble
-import de.spicysources.bubblepenetration.objects.GameObject
-import de.spicysources.bubblepenetration.util.BubbleColors
-import de.spicysources.bubblepenetration.sound.SoundEffects
 import de.spicysources.bubblepenetration.logic.Generator
 import de.spicysources.bubblepenetration.logic.Time
+import de.spicysources.bubblepenetration.objects.Bubble
+import de.spicysources.bubblepenetration.objects.GameObject
 import de.spicysources.bubblepenetration.objects.Star
 import de.spicysources.bubblepenetration.screen.hud.ScorePostfix
 import de.spicysources.bubblepenetration.screen.hud.TimerPostfix
+import de.spicysources.bubblepenetration.sound.SoundEffects
+import de.spicysources.bubblepenetration.util.BubbleColors
 import java.math.RoundingMode
 import java.text.DecimalFormat
-import java.util.*
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
 import javax.microedition.khronos.opengles.GL11
@@ -228,6 +227,9 @@ class BubbleGLSurfaceView(context: Context) : GLSurfaceView(context) {
                             score += collectScore
                             scorePostfix.animateWith(collectScore)
 
+                            if(combo.isActive) {
+                                combo.giveHapticFeedBack()
+                            }
                             combo.increment()
                             effectPlayer.playSound(R.raw.blubb)
                         } else {
@@ -247,6 +249,9 @@ class BubbleGLSurfaceView(context: Context) : GLSurfaceView(context) {
                         score += collectScore
                         scorePostfix.animateWith(collectScore)
 
+                        if(combo.isActive) {
+                            combo.giveHapticFeedBack()
+                        }
                         effectPlayer.playSound(R.raw.star)
                     }
                 }

@@ -1,6 +1,10 @@
 package de.spicysources.bubblepenetration.logic
 
+import android.content.Context.VIBRATOR_SERVICE
 import android.graphics.Typeface
+import android.os.Build
+import android.os.VibrationEffect
+import android.os.Vibrator
 import android.view.View
 import android.view.animation.AlphaAnimation
 import android.view.animation.Animation
@@ -8,16 +12,20 @@ import android.widget.TextView
 import de.spicysources.bubblepenetration.MainActivity
 import de.spicysources.bubblepenetration.R
 import java.lang.System.currentTimeMillis
+import kotlin.math.pow
 
 class Combo(private val mainActivity: MainActivity) {
 
     val multiplikator
-    get() = run {
-        val factor = counter / comboCollectFactor
-        if (factor > 0) factor + factor else 1
-    }
+        get() = run {
+            val factor = counter / comboCollectFactor
+            if (factor > 0) {
+                val multiplikator = 2.0.pow(factor.toDouble()).toInt()
+                if (multiplikator > 16) 16 else multiplikator
+            } else 1
+        }
 
-    private val isActive
+    val isActive
         get() = multiplikator > 1
 
     private var counter = 0
@@ -33,6 +41,8 @@ class Combo(private val mainActivity: MainActivity) {
     private val textAnimation: Animation = AlphaAnimation(0.35f, 1.0f)
 
     private val symbol = "●"
+
+    private val vibrator = mainActivity.getSystemService(VIBRATOR_SERVICE) as Vibrator
 
     init {
         textView.typeface = Typeface.createFromAsset(mainActivity.assets, "fonts/PLUMP.ttf")
@@ -57,7 +67,7 @@ class Combo(private val mainActivity: MainActivity) {
             } else {
                 textView.animation?.cancel()
             }
-            for (i in 0 until counter%comboCollectFactor) {
+            for (i in 0 until counter % comboCollectFactor) {
                 comboProgressText = "$comboProgressText$symbol"
             }
             textView.text = comboProgressText
@@ -71,6 +81,26 @@ class Combo(private val mainActivity: MainActivity) {
 
     fun reset() {
         counter = 0
+    }
+
+    fun giveHapticFeedBack() {
+        if (vibrator.hasVibrator()) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                vibrator.vibrate(VibrationEffect.createOneShot(25, getAmplitude()))
+            } else {
+                vibrator.vibrate(25)
+            }
+        }
+    }
+
+    private fun getAmplitude(): Int {
+        return when (multiplikator) {
+            2 -> 75
+            4 -> 125
+            8 -> 175
+            16 -> 255
+            else -> 0
+        }
     }
 
 }
