@@ -53,7 +53,7 @@ class BubbleGLSurfaceView(context: Context) : GLSurfaceView(context) {
     private val renderer: BubbleRenderer
     private val timeLogic = Time()
     private val combo = Combo(mainActivity)
-    private val firstDigitFormat = DecimalFormat("#.0")
+    private val firstDigitFormat = DecimalFormat("0.0")
 
     init {
         timerText = mainActivity.findViewById<View>(R.id.Timer) as TextView

@@ -16,7 +16,7 @@ class GameSpeed {
     }
 
     private fun getScaledSpeedFor(score: Int): Float {
-        return 1 + 6 * log(0.00175f * score + 1, 2f)
+        return 1 + 6 * log(0.00125f * score + 1, 2f)
     }
 
 }

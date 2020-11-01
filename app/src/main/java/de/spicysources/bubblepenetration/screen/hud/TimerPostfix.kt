@@ -12,7 +12,7 @@ class TimerPostfix(private val mainActivity: MainActivity) {
 
     private val timerTextPostfix: TextView = mainActivity.findViewById<View>(R.id.Timer_Postfix) as TextView
 
-    private val firstDigitFormat = DecimalFormat("#.0")
+    private val firstDigitFormat = DecimalFormat("0.0")
 
     init {
         timerTextPostfix.typeface = Typeface.createFromAsset(mainActivity.assets, "fonts/PLUMP.ttf")
