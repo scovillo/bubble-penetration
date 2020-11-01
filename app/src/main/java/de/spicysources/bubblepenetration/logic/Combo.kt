@@ -11,10 +11,11 @@ import android.view.animation.Animation
 import android.widget.TextView
 import de.spicysources.bubblepenetration.MainActivity
 import de.spicysources.bubblepenetration.R
+import de.spicysources.bubblepenetration.sound.SoundEffects
 import java.lang.System.currentTimeMillis
 import kotlin.math.pow
 
-class Combo(private val mainActivity: MainActivity) {
+class Combo(private val mainActivity: MainActivity, private val effectPlayer: SoundEffects) {
 
     val multiplikator
         get() = run {
@@ -75,8 +76,17 @@ class Combo(private val mainActivity: MainActivity) {
     }
 
     fun increment() {
+        val oldMultiplikator = multiplikator
         counter++
         lastBubble = currentTimeMillis()
+        if (multiplikator > oldMultiplikator && !effectPlayer.isMuted) {
+            when (multiplikator) {
+                2 -> effectPlayer.playSound(R.raw.combo)
+                4 -> effectPlayer.playSound(R.raw.wow)
+                8 -> effectPlayer.playSound(R.raw.yeah)
+                16 -> effectPlayer.playSound(R.raw.mega)
+            }
+        }
     }
 
     fun reset() {

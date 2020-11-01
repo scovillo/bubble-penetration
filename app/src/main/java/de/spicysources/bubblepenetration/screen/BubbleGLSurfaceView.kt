@@ -52,7 +52,7 @@ class BubbleGLSurfaceView(context: Context) : GLSurfaceView(context) {
     private var scoreText: TextView
     private val renderer: BubbleRenderer
     private val timeLogic = Time()
-    private val combo = Combo(mainActivity)
+    private val combo = Combo(mainActivity, effectPlayer)
     private val firstDigitFormat = DecimalFormat("0.0")
 
     init {
