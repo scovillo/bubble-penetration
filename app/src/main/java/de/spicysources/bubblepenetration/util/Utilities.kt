@@ -1,20 +1,14 @@
 package de.spicysources.bubblepenetration.util
 
-import kotlin.math.roundToInt
+import kotlin.math.sqrt
 
-object Utilities {
-    fun normalize(vector: FloatArray): Float {
-        if (vector.size < 2 || vector.size > 3) return 0.0f // invalid vector -> abort
-        var len = 0.0f
-        for (f in vector) {
-            len += f * f
-        }
-        len = Math.sqrt(len.toDouble()).toFloat()
-        for (i in vector.indices) vector[i] /= len
-        return len
+fun normalize(vector: FloatArray): Float {
+    if (vector.size < 2 || vector.size > 3) return 0.0f // invalid vector -> abort
+    var len = 0.0f
+    for (f in vector) {
+        len += f * f
     }
-}
-
-fun roundToFirstDigit(number: Float): Float {
-    return (number * 10).roundToInt() / 10f
+    len = sqrt(len.toDouble()).toFloat()
+    for (i in vector.indices) vector[i] /= len
+    return len
 }

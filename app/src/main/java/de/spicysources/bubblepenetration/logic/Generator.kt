@@ -5,7 +5,7 @@ import de.spicysources.bubblepenetration.objects.GameObject
 import de.spicysources.bubblepenetration.objects.Star
 import de.spicysources.bubblepenetration.screen.Boundaries
 import de.spicysources.bubblepenetration.util.BubbleColors
-import de.spicysources.bubblepenetration.util.Utilities
+import de.spicysources.bubblepenetration.util.normalize
 import java.util.*
 
 class Generator(private val gameObjects: MutableList<GameObject>, private val boundaries: Boundaries) {
@@ -93,7 +93,7 @@ class Generator(private val gameObjects: MutableList<GameObject>, private val bo
                 // calculate velocity
                 velocity[0] -= spawnX
                 velocity[2] -= spawnZ
-                Utilities.normalize(velocity)
+                normalize(velocity)
                 var positionOk = true
                 // check distance to other gameobjects
                 for (gameObject in gameObjects) {

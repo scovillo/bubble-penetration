@@ -7,12 +7,12 @@ class GameSpeed {
 
     fun getBubbleSpeedFor(score: Int): Float {
         val speed = getScaledSpeedFor(score)
-        return speed * 0.6f + random().toFloat() * speed * 0.4f
+        return speed * 0.75f + random().toFloat() * speed * 0.25f
     }
 
     fun getStarSpeedFor(score: Int): Float {
         val speed = getScaledSpeedFor(score)
-        return speed * 0.75f + random().toFloat() * speed * 0.25f
+        return speed * 0.85f + random().toFloat() * speed * 0.15f
     }
 
     private fun getScaledSpeedFor(score: Int): Float {

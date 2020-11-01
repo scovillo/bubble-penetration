@@ -22,11 +22,15 @@ import de.spicysources.bubblepenetration.logic.Time
 import de.spicysources.bubblepenetration.objects.Star
 import de.spicysources.bubblepenetration.screen.hud.ScorePostfix
 import de.spicysources.bubblepenetration.screen.hud.TimerPostfix
-import de.spicysources.bubblepenetration.util.roundToFirstDigit
+import java.math.RoundingMode
+import java.text.DecimalFormat
 import java.util.*
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
 import javax.microedition.khronos.opengles.GL11
+import kotlin.math.pow
+import kotlin.math.sqrt
+import kotlin.math.tan
 
 class BubbleGLSurfaceView(context: Context) : GLSurfaceView(context) {
 
@@ -40,7 +44,7 @@ class BubbleGLSurfaceView(context: Context) : GLSurfaceView(context) {
     private val gameObjects = ArrayList<GameObject>()
     private val generator = Generator(gameObjects, boundaries)
     private var collectColor = BubbleColors.RED
-    private var timer = 20.0f
+    private var timer = 25.0f
     private var score = 0
     private var isTouch = false
     private val objectsToBeRemoved = ArrayList<GameObject>()
@@ -50,6 +54,7 @@ class BubbleGLSurfaceView(context: Context) : GLSurfaceView(context) {
     private val renderer: BubbleRenderer
     private val timeLogic = Time()
     private val combo = Combo(mainActivity)
+    private val firstDigitFormat = DecimalFormat("#.0")
 
     init {
         timerText = mainActivity.findViewById<View>(R.id.Timer) as TextView
@@ -57,6 +62,8 @@ class BubbleGLSurfaceView(context: Context) : GLSurfaceView(context) {
 
         scoreText = mainActivity.findViewById<View>(R.id.Score) as TextView
         scoreText.typeface = Typeface.createFromAsset(this.assets, "fonts/PLUMP.ttf")
+
+        firstDigitFormat.roundingMode = RoundingMode.CEILING
 
         renderer = BubbleRenderer()
         setRenderer(renderer)
@@ -83,34 +90,22 @@ class BubbleGLSurfaceView(context: Context) : GLSurfaceView(context) {
                     val bubble = gameObjects[i]
                     val x = event.x * renderer.unitsPerPixelX - boundaries.right - bubble.x
                     val y = (event.y * renderer.unitsPerPixelZ - boundaries.top) * -1 - bubble.z
-                    if (Math.sqrt(
-                            Math.pow(x.toDouble(), 2.0) + Math.pow(
-                                y.toDouble(),
-                                2.0
-                            )
+                    if (sqrt(
+                            x.toDouble().pow(2.0) + y.toDouble().pow(2.0)
                         ) <= bubble.scale
                     ) {
                         if (distance <= 1E-20) {
-                            distance = Math.sqrt(
-                                Math.pow(
-                                    x.toDouble(),
-                                    2.0
-                                ) + Math.pow(y.toDouble(), 2.0)
+                            distance = sqrt(
+                                x.toDouble().pow(2.0) + y.toDouble().pow(2.0)
                             )
                             targetIndex = targetCounter
                         } else {
-                            if (Math.sqrt(
-                                    Math.pow(
-                                        x.toDouble(),
-                                        2.0
-                                    ) + Math.pow(y.toDouble(), 2.0)
+                            if (sqrt(
+                                    x.toDouble().pow(2.0) + y.toDouble().pow(2.0)
                                 ) < distance
                             ) {
-                                distance = Math.sqrt(
-                                    Math.pow(
-                                        x.toDouble(),
-                                        2.0
-                                    ) + Math.pow(y.toDouble(), 2.0)
+                                distance = sqrt(
+                                    x.toDouble().pow(2.0) + y.toDouble().pow(2.0)
                                 )
                                 targetIndex = targetCounter
                             }
@@ -182,13 +177,14 @@ class BubbleGLSurfaceView(context: Context) : GLSurfaceView(context) {
                     effectPlayer.ingame = false
                     mainActivity.showGameOverScreenWith(score.toString())
                 } else {
-                    timerText.text = "time: " + roundToFirstDigit(timer)
+                    timerText.text = "time: " + firstDigitFormat.format(timer)
                     scoreText.text = "score: $score"
                     setHUDColor(generator.getGLColor(collectColor))
                 }
             }
             //update gameobjects
             updateGameobjects(fracSec)
+            combo.update()
             // clear screen and depth buffer
             gl.glClear(GL10.GL_COLOR_BUFFER_BIT or GL10.GL_DEPTH_BUFFER_BIT)
             val gl11 = gl as GL11
@@ -254,7 +250,6 @@ class BubbleGLSurfaceView(context: Context) : GLSurfaceView(context) {
                         effectPlayer.playSound(R.raw.star)
                     }
                 }
-                combo.update()
                 gameObjects.remove(gameObject)
             }
             targetsToBeRemoved.clear()
@@ -291,7 +286,7 @@ class BubbleGLSurfaceView(context: Context) : GLSurfaceView(context) {
             // based on the following formula:
             // z = (desired_height / 2) / tan(fovy/2)
             val z =
-                (desiredHeight / 2 / Math.tan(fovy / 2 * (Math.PI / 180.0f))).toFloat()
+                (desiredHeight / 2 / tan(fovy / 2 * (Math.PI / 180.0f))).toFloat()
             // forward for the camera is backward for the scene
             gl.glTranslatef(0.0f, 0.0f, -z)
             // rotate local to achive top down view from negative y down to xz-plane
