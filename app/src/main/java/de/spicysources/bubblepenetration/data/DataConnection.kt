@@ -1,5 +1,6 @@
 package de.spicysources.bubblepenetration.data
 
+import de.spicysources.bubblepenetration.BuildConfig
 import de.spicysources.bubblepenetration.THREAD_POOL
 import org.json.JSONArray
 import org.json.JSONObject
@@ -13,11 +14,13 @@ import java.util.concurrent.Future
 
 object DataConnection {
 
+    private val host = if (BuildConfig.DEBUG) "bubble-dev.spicysources.de" else "bubble.spicysources.de"
+
     fun getHighscoreData(): Future<JSONArray> {
         return THREAD_POOL.submit(
             Callable {
                 val httpConn =
-                    URL("https://bubble-dev.spicysources.de/highscores").openConnection() as HttpURLConnection
+                    URL("https://$host/highscores").openConnection() as HttpURLConnection
                 httpConn.requestMethod = "GET"
                 httpConn.doOutput = false
                 val result = readResponseFrom(httpConn)
@@ -30,7 +33,7 @@ object DataConnection {
         return THREAD_POOL.submit(
             Callable {
                 val httpConn = URL(
-                    "https://bubble-dev.spicysources.de/highscores"
+                    "https://$host/highscores"
                 ).openConnection() as HttpURLConnection
                 httpConn.requestMethod = "POST"
                 httpConn.doOutput = true
@@ -52,7 +55,7 @@ object DataConnection {
         return THREAD_POOL.submit(
             Callable {
                 val httpConn = URL(
-                    "https://bubble-dev.spicysources.de/username"
+                    "https://$host/username"
                 ).openConnection() as HttpURLConnection
                 httpConn.requestMethod = "POST"
                 httpConn.doOutput = true
