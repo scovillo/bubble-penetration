@@ -24,4 +24,5 @@
     <string name="add">+</string>
     <string name="greeting">Hi, who are you?</string>
     <string name="effects">Effects</string>
+    <string name="NO_CHAMPION">No current champion...</string>
 </resources>

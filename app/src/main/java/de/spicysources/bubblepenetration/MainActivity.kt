@@ -15,8 +15,11 @@ import de.spicysources.bubblepenetration.data.LocalFileStorage
 import de.spicysources.bubblepenetration.screen.BubbleGLSurfaceView
 import de.spicysources.bubblepenetration.screen.layout.*
 import de.spicysources.bubblepenetration.sound.MusicPlayer
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
-import java.util.concurrent.TimeoutException
+
+val THREAD_POOL: ExecutorService = Executors.newCachedThreadPool()
 
 class MainActivity : Activity() {
 
@@ -103,7 +106,7 @@ class MainActivity : Activity() {
         }
 
         try {
-            val isSuccess = DataConnection.registerUsername(value)[4000, TimeUnit.MILLISECONDS]
+            val isSuccess = DataConnection.registerUsername(value)[6000, TimeUnit.MILLISECONDS]
             if (!isSuccess) {
                 Toast.makeText(this, "username already exists!", LENGTH_SHORT).show()
                 return

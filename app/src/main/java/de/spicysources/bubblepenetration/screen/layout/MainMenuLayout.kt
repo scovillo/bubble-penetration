@@ -10,19 +10,24 @@ import de.spicysources.bubblepenetration.R
 import de.spicysources.bubblepenetration.data.DataConnection
 import de.spicysources.bubblepenetration.screen.MenuGLSurfaceView
 import de.spicysources.bubblepenetration.sound.MusicPlayer
+import de.spicysources.bubblepenetration.THREAD_POOL
 import java.util.concurrent.TimeUnit
-import java.util.concurrent.TimeoutException
 
 class MainMenuLayout(private val mainActivity: MainActivity, private val musicPlayer: MusicPlayer) {
 
     var menuGLSurfaceView: MenuGLSurfaceView? = null
 
     fun show() {
-
-        val highscoreRequest = DataConnection.getHighscoreData()
-
         mainActivity.setContentView(R.layout.activity_main)
+
+        loadCurrentChampionAsync()
+
         menuGLSurfaceView = MenuGLSurfaceView(mainActivity)
+        val championTextView = (mainActivity.findViewById<View>(R.id.champion_text) as TextView)
+        championTextView.typeface = Typeface.createFromAsset(
+            mainActivity.assets,
+            "fonts/PLUMP.ttf"
+        )
         val glSurfaceViewHolder = mainActivity.findViewById<View>(R.id.menuGLSurfaceViewHolder) as FrameLayout
         glSurfaceViewHolder.addView(menuGLSurfaceView)
         (mainActivity.findViewById<View>(R.id.menu_username) as TextView).text = mainActivity.selectedUsername
@@ -50,11 +55,6 @@ class MainMenuLayout(private val mainActivity: MainActivity, private val musicPl
             mainActivity.assets,
             "fonts/PLUMP.ttf"
         )
-        val championTextView = (mainActivity.findViewById<View>(R.id.champion_text) as TextView)
-        championTextView.typeface = Typeface.createFromAsset(
-            mainActivity.assets,
-            "fonts/PLUMP.ttf"
-        )
         if (musicPlayer.isMuted) {
             (mainActivity.findViewById<View>(R.id.music_box) as CheckBox).isChecked = false
         }
@@ -68,24 +68,34 @@ class MainMenuLayout(private val mainActivity: MainActivity, private val musicPl
         anim.repeatCount = Animation.INFINITE
         val title = mainActivity.findViewById<View>(R.id.menu_title) as TextView
         title.startAnimation(anim)
-
-        try {
-            val jsonArray = highscoreRequest[5000, TimeUnit.MILLISECONDS]
-
-            if (jsonArray.length() > 0) {
-                championTextView.text = "Champion:\n${jsonArray.getJSONObject(0).getString("username")} with ${jsonArray.getJSONObject(0).getString("highscore")} !"
-            } else {
-                championTextView.text = "No current champion..."
-            }
-        } catch (exception: Exception) {
-            Toast.makeText(mainActivity, "Server is currently not available...please try again later.", Toast.LENGTH_LONG).show()
-            championTextView.text = "No current champion..."
-        }
     }
 
     fun hide() {
         val glSurfaceViewHolder = mainActivity.findViewById<View>(R.id.menuGLSurfaceViewHolder) as FrameLayout
         glSurfaceViewHolder.removeAllViews()
+    }
+
+    private fun loadCurrentChampionAsync() {
+        THREAD_POOL.execute {
+            val championTextView = (mainActivity.findViewById<View>(R.id.champion_text) as TextView)
+            try {
+                val highscoreRequest = DataConnection.getHighscoreData()
+                val jsonArray = highscoreRequest[8000, TimeUnit.MILLISECONDS]
+
+                mainActivity.runOnUiThread {
+                    if (jsonArray.length() > 0) {
+                        championTextView.text = "Champion:\n${jsonArray.getJSONObject(0).getString("username")} with ${jsonArray.getJSONObject(0).getString("highscore")} !"
+                    } else {
+                        championTextView.text = mainActivity.getString(R.string.NO_CHAMPION)
+                    }
+                }
+            } catch (exception: Exception) {
+                mainActivity.runOnUiThread {
+                    Toast.makeText(mainActivity, "Server is currently not available...please try again later.", Toast.LENGTH_LONG).show()
+                    championTextView.text = mainActivity.getString(R.string.NO_CHAMPION)
+                }
+            }
+        }
     }
 
 }

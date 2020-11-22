@@ -8,17 +8,16 @@ import android.widget.Toast.LENGTH_LONG
 import de.spicysources.bubblepenetration.MainActivity
 import de.spicysources.bubblepenetration.R
 import de.spicysources.bubblepenetration.data.DataConnection
+import de.spicysources.bubblepenetration.THREAD_POOL
 import java.util.concurrent.TimeUnit
-import java.util.concurrent.TimeoutException
 
 class HighscoreLayout(private val mainActivity: MainActivity) {
 
     fun show() {
-
-        val highscoreRequest = DataConnection.getHighscoreData()
-
         mainActivity.setContentView(R.layout.highscores)
-        val table = mainActivity.findViewById<View>(R.id.highscore_table) as TableLayout
+
+        loadHighscoresAsync()
+
         (mainActivity.findViewById<View>(R.id.highscore_back_button) as Button).typeface = Typeface.createFromAsset(
             mainActivity.assets,
             "fonts/PLUMP.ttf"
@@ -35,34 +34,6 @@ class HighscoreLayout(private val mainActivity: MainActivity) {
             mainActivity.assets,
             "fonts/PLUMP.ttf"
         )
-
-        try {
-            val jsonArray = highscoreRequest[5000, TimeUnit.MILLISECONDS]
-
-            for (i in 0 until jsonArray.length()) {
-                val rank = generateHighscoreTextView()
-                rank.text = "${i + 1}"
-                rank.typeface = Typeface.createFromAsset(mainActivity.assets, "fonts/PLUMP.ttf")
-                val name = generateHighscoreTextView()
-                name.text = jsonArray.getJSONObject(i).getString("username")
-                name.typeface = Typeface.createFromAsset(mainActivity.assets, "fonts/PLUMP.ttf")
-                val score = generateHighscoreTextView()
-                score.text = jsonArray.getJSONObject(i).getString("highscore")
-                score.typeface = Typeface.createFromAsset(mainActivity.assets, "fonts/PLUMP.ttf")
-                val row = TableRow(mainActivity)
-                if (name.text == mainActivity.selectedUsername) {
-                    rank.setTextColor(Color.YELLOW)
-                    name.setTextColor(Color.YELLOW)
-                    score.setTextColor(Color.YELLOW)
-                }
-                row.addView(rank)
-                row.addView(name)
-                row.addView(score)
-                table.addView(row)
-            }
-        } catch (exception: Exception) {
-            Toast.makeText(mainActivity, "Server is currently not available...please try again later.", LENGTH_LONG).show()
-        }
     }
 
     private fun generateHighscoreTextView(): TextView {
@@ -76,6 +47,44 @@ class HighscoreLayout(private val mainActivity: MainActivity) {
         tv.setTextColor(Color.WHITE)
         tv.textSize = 25f
         return tv
+    }
+
+    private fun loadHighscoresAsync() {
+        THREAD_POOL.execute {
+            val table = mainActivity.findViewById<View>(R.id.highscore_table) as TableLayout
+            try {
+                val highscoreRequest = DataConnection.getHighscoreData()
+                val jsonArray = highscoreRequest[8000, TimeUnit.MILLISECONDS]
+
+                for (i in 0 until jsonArray.length()) {
+                    val rank = generateHighscoreTextView()
+                    rank.text = "${i + 1}"
+                    rank.typeface = Typeface.createFromAsset(mainActivity.assets, "fonts/PLUMP.ttf")
+                    val name = generateHighscoreTextView()
+                    name.text = jsonArray.getJSONObject(i).getString("username")
+                    name.typeface = Typeface.createFromAsset(mainActivity.assets, "fonts/PLUMP.ttf")
+                    val score = generateHighscoreTextView()
+                    score.text = jsonArray.getJSONObject(i).getString("highscore")
+                    score.typeface = Typeface.createFromAsset(mainActivity.assets, "fonts/PLUMP.ttf")
+                    val row = TableRow(mainActivity)
+                    if (name.text == mainActivity.selectedUsername) {
+                        rank.setTextColor(Color.YELLOW)
+                        name.setTextColor(Color.YELLOW)
+                        score.setTextColor(Color.YELLOW)
+                    }
+                    mainActivity.runOnUiThread {
+                        row.addView(rank)
+                        row.addView(name)
+                        row.addView(score)
+                        table.addView(row)
+                    }
+                }
+            } catch (exception: Exception) {
+                mainActivity.runOnUiThread {
+                    Toast.makeText(mainActivity, "Server is currently not available...please try again later.", LENGTH_LONG).show()
+                }
+            }
+        }
     }
 
 }

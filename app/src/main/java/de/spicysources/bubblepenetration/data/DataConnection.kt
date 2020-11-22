@@ -1,5 +1,6 @@
 package de.spicysources.bubblepenetration.data
 
+import de.spicysources.bubblepenetration.THREAD_POOL
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.BufferedReader
@@ -8,15 +9,12 @@ import java.io.InputStreamReader
 import java.net.HttpURLConnection
 import java.net.URL
 import java.util.concurrent.Callable
-import java.util.concurrent.Executors
 import java.util.concurrent.Future
 
 object DataConnection {
 
-    private val threadPool = Executors.newCachedThreadPool()
-
     fun getHighscoreData(): Future<JSONArray> {
-        return threadPool.submit(
+        return THREAD_POOL.submit(
             Callable {
                 val httpConn =
                     URL("https://bubble-dev.spicysources.de/highscores").openConnection() as HttpURLConnection
@@ -29,7 +27,7 @@ object DataConnection {
     }
 
     fun registerHighscore(username: String, score: String): Future<Boolean> {
-        return threadPool.submit(
+        return THREAD_POOL.submit(
             Callable {
                 val httpConn = URL(
                     "https://bubble-dev.spicysources.de/highscores"
@@ -51,7 +49,7 @@ object DataConnection {
     }
 
     fun registerUsername(username: String): Future<Boolean> {
-        return threadPool.submit(
+        return THREAD_POOL.submit(
             Callable {
                 val httpConn = URL(
                     "https://bubble-dev.spicysources.de/username"
