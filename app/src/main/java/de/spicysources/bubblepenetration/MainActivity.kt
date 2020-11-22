@@ -142,4 +142,10 @@ class MainActivity : Activity() {
         }
     }
 
+    fun openSpicySourcesWebsite(view: View) {
+        val uri = Uri.parse("https://www.spicysources.de/support/support.html")
+        val myAppLinkToMarket = Intent(Intent.ACTION_VIEW, uri)
+        startActivity(myAppLinkToMarket)
+    }
+
 }

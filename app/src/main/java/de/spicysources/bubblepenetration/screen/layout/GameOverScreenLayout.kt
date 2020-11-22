@@ -41,6 +41,10 @@ class GameOverScreenLayout(private val mainActivity: MainActivity) {
             mainActivity.assets,
             "fonts/PLUMP.ttf"
         )
+        (mainActivity.findViewById<View>(R.id.support_us) as Button).typeface = Typeface.createFromAsset(
+            mainActivity.assets,
+            "fonts/PLUMP.ttf"
+        )
     }
 
     private fun setHighscoreResultAsync(score: String) {

@@ -25,4 +25,6 @@
     <string name="greeting">Hi, who are you?</string>
     <string name="effects">Effects</string>
     <string name="NO_CHAMPION">No current champion...</string>
+    <string name="SUPPORT_US">support us</string>
+    <string name="MAIN_MENU">main menu</string>
 </resources>

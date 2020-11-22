@@ -8,7 +8,7 @@
     <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/back_to_menu"
+            android:text="@string/MAIN_MENU"
             android:textSize="24sp"
             android:background="@drawable/button"
             android:id="@+id/highscore_back_button"
