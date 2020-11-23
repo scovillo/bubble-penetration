@@ -45,6 +45,10 @@ class GameOverScreenLayout(private val mainActivity: MainActivity) {
             mainActivity.assets,
             "fonts/PLUMP.ttf"
         )
+        (mainActivity.findViewById<View>(R.id.highscore_label) as TextView).typeface = Typeface.createFromAsset(
+            mainActivity.assets,
+            "fonts/PLUMP.ttf"
+        )
     }
 
     private fun setHighscoreResultAsync(score: String) {
@@ -72,10 +76,6 @@ class GameOverScreenLayout(private val mainActivity: MainActivity) {
                     Toast.makeText(mainActivity, "Server is currently not available...please try again later!", LENGTH_LONG).show()
                 }
             }
-            (mainActivity.findViewById<View>(R.id.highscore_label) as TextView).typeface = Typeface.createFromAsset(
-                mainActivity.assets,
-                "fonts/PLUMP.ttf"
-            )
         }
     }
 
