@@ -64,12 +64,6 @@ pipeline {
     environment {
         ANDROID_SDK_ROOT="/usr/lib/android-sdk"
     }
-    parameters {
-        booleanParam(name: 'isRelease', defaultValue: false, description: 'Releases the project, creates a tag in the repository and deploys a release artifact.')
-        string(name: 'releaseVersion', defaultValue: 'X.X.X', description: 'Version to use for the released project.')
-        string(name: 'developmentVersion', defaultValue: 'X.X.X-SNAPSHOT', description: 'Next version to use for development.')
-        string(name: 'scmTag', defaultValue: 'bubble-penetration-X.X.X', description: 'Name to use for the tag created.')
-    }
     stages {
         stage('Test') {
             steps {
@@ -109,6 +103,25 @@ pipeline {
         }
         failure {
             mail subject: "${getEmailSubject(false)}", body: "${getEmailBody(false)}", from: 'jenkins@spicysources.de', to: 'lukasscheerer@spicysources.de, davidlink@spicysources.de'
+        }
+        always {
+            script {
+                def artifactId = sh script: './gradlew properties -q | grep "^name:" | awk \'{print $2}\'', returnStdout: true
+                def currentDevVersion = sh script: './gradlew properties -q | grep "^version:" | awk \'{print $2}\'', returnStdout: true
+                def releaseVersion = currentDevVersion.split("-")[0]
+                def splittedReleaseVersion = releaseVersion.split('\\.')
+                splittedReleaseVersion[1] = (splittedReleaseVersion[1].toInteger() + 1).toString()
+                def nextDevVersion = splittedReleaseVersion.join(".") + "-SNAPSHOT"
+                properties([
+                    parameters([
+                        booleanParam(name: 'isRelease', defaultValue: false, description: 'Releases the project, creates a tag in the repository and deploys a release artifact.'),
+                        booleanParam(name: 'isReleaseDryRun', defaultValue: false, description: 'Performs a test release only.'),
+                        string(name: 'releaseVersion', defaultValue: releaseVersion, description: 'Version to use for the released project.'),
+                        string(name: 'developmentVersion', defaultValue: nextDevVersion, description: 'Next version to use for development.'),
+                        string(name: 'scmTag', defaultValue: "${artifactId}-${releaseVersion}", description: 'Name to use for the tag created.')
+                    ])
+                ])
+            }
         }
     }
 }
