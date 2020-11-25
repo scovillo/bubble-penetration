@@ -92,6 +92,13 @@ pipeline {
                 }
             }
             steps {
+                withCredentials([usernamePassword(credentialsId: "gitea", passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) {
+                    sh """
+                        git config --global credential.username ${GIT_USERNAME}"
+                        git config --global credential.helper "!echo password=${GIT_PASSWORD}; echo"
+                        ./gradlew release -Prelease.useAutomaticVersion=true -Prelease.releaseVersion=${params.releaseVersion} -Prelease.newVersion=${params.developmentVersion}
+                    """
+                }
                 sh "./gradlew assembleRelease"
                 sh "mv ./app/build/outputs/apk/release/app-release.apk /var/www/spicysources.de/downloads/games/bubble-penetration/bubble-penetration-latest.apk"
             }
