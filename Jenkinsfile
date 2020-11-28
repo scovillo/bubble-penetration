@@ -61,6 +61,11 @@ pipeline {
     tools {
         jdk "OpenJDK11.0.3"
     }
+    options {
+        buildDiscarder(logRotator(numToKeepStr: '5'))
+        disableConcurrentBuilds()
+        timestamps()
+    }
     environment {
         ANDROID_SDK_ROOT="/usr/lib/android-sdk"
     }
