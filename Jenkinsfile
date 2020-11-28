@@ -1,3 +1,17 @@
+def String getGradleArtifactId() {
+    return sh(script: './gradlew properties -q | grep "^name:" | awk \'{print $2}\'', returnStdout: true)
+}
+
+def String getGradleReleaseVersion() {
+    return sh(script: './gradlew properties -q | grep "^version:" | awk \'{print $2}\'', returnStdout: true).split("-")[0]
+}
+
+def String getGradleNextDevelopmentVersion() {
+    def splittedReleaseVersion = getGradleReleaseVersion().split('\\.')
+    splittedReleaseVersion[1] = (splittedReleaseVersion[1].toInteger() + 1).toString()
+    return splittedReleaseVersion.join(".") + "-SNAPSHOT"
+}
+
 def String getEmailSubject(Boolean success) {
     buildResult = ''
     if (success) {
@@ -118,19 +132,11 @@ pipeline {
         }
         always {
             script {
-                def artifactId = sh script: './gradlew properties -q | grep "^name:" | awk \'{print $2}\'', returnStdout: true
-                def currentDevVersion = sh script: './gradlew properties -q | grep "^version:" | awk \'{print $2}\'', returnStdout: true
-                def releaseVersion = currentDevVersion.split("-")[0]
-                def splittedReleaseVersion = releaseVersion.split('\\.')
-                splittedReleaseVersion[1] = (splittedReleaseVersion[1].toInteger() + 1).toString()
-                def nextDevVersion = splittedReleaseVersion.join(".") + "-SNAPSHOT"
                 properties([
                     parameters([
                         booleanParam(name: 'isRelease', defaultValue: false, description: 'Releases the project, creates a tag in the repository and deploys a release artifact.'),
-                        booleanParam(name: 'isReleaseDryRun', defaultValue: false, description: 'Performs a test release only.'),
-                        string(name: 'releaseVersion', defaultValue: releaseVersion, description: 'Version to use for the released project.'),
-                        string(name: 'developmentVersion', defaultValue: nextDevVersion, description: 'Next version to use for development.'),
-                        string(name: 'scmTag', defaultValue: "${artifactId}-${releaseVersion}", description: 'Name to use for the tag created.')
+                        string(name: 'releaseVersion', defaultValue: getGradleReleaseVersion(), description: 'Version to use for the released project.'),
+                        string(name: 'developmentVersion', defaultValue: getGradleNextDevelopmentVersion(), description: 'Next version to use for development.'),
                     ])
                 ])
             }
