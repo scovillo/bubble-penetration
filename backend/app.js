@@ -1,6 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser')
 const pg = require('pg');
+const fs = require('fs');
 const app = express();
 
 app.use(bodyParser.json())
@@ -9,7 +10,8 @@ const environment = app.settings.env;
 const config = require('./config');
 const dbUrl = config.getFullUrlFor(environment);
 const dbClient = new pg.Client(dbUrl);
-dbClient.connect()
+dbClient.connect();
+createDb();
 
 app.post('/username', function (req, res, next) {
     const username = req.body.username
@@ -55,7 +57,7 @@ app.post('/highscores', function (req, res, next) {
     });
 })
 
-const server = app.listen(config.getPortFor(environment), 'localhost', function () {
+const server = app.listen(config.getPortFor(environment), function () {
     const host = server.address().address
     const port = server.address().port
     console.log("Environment: " + environment)
@@ -93,4 +95,14 @@ function saveHighscore(name, highscore) {
             return false;
         }
     }).catch(error => console.error(error));
+}
+
+function createDb() {
+    const sql = fs.readFileSync('./db/db-setup.sql').toString();
+    dbClient.query(sql)
+        .then(() => true)
+        .catch(error => {
+            console.error(error);
+            process.exit(1);
+        });
 }

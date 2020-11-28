@@ -6,10 +6,7 @@ function decode(value) {
 
 exports.getFullUrlFor = function getFullUrlFor(environment) {
     const parsed = JSON.parse(fs.readFileSync('./db/' + environment + '.json', 'UTF-8'));
-    const host = decode(parsed.host);
-    const username = decode(parsed.username);
-    const password = decode(parsed.password);
-    return "postgres://" + username + ":" + password + "@" + host;
+    return decode(parsed.url);
 }
 
 exports.getPortFor = function getPortFor(environment) {
