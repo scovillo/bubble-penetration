@@ -119,7 +119,9 @@ pipeline {
                     """
                 }
                 sh "./gradlew assembleRelease"
-                sh "mv ./app/build/outputs/apk/release/app-release.apk /var/www/spicysources.de/downloads/games/bubble-penetration/bubble-penetration-latest.apk"
+                sshagent(credentials: ['ss']) {
+                    sh "scp -P 63787 ./app/build/outputs/apk/release/app-release.apk jenkins@router.spicysources.de/var/www/www.spicysources.de/downloads/games/bubble-penetration/bubble-penetration-latest.apk"
+                }
             }
         }
     }
