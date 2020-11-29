@@ -81,6 +81,9 @@ pipeline {
         timestamps()
     }
     environment {
+        PROD_HOST="router.spicysources.de"
+        PROD_HOST_PORT="63787"
+        PROD_HOST_USERNAME="jenkins"
         ANDROID_SDK_ROOT="/usr/lib/android-sdk"
     }
     stages {
@@ -98,7 +101,12 @@ pipeline {
             }
             steps {
                 sh "./gradlew assembleDebug"
-                sh "mv ./app/build/outputs/apk/debug/app-debug.apk /var/www/lukas-scheerer.de/downloads/bubble-penetration.apk"
+                sshagent(credentials: ['ss']) {
+                    sh """
+                        ssh -p ${env.PROD_HOST_PORT} -o StrictHostKeyChecking=no -l ${env.PROD_HOST_USERNAME} ${env.PROD_HOST} uname -a
+                        scp -P ${env.PROD_HOST_PORT} ./app/build/outputs/apk/debug/app-debug.apk ${env.PROD_HOST_USERNAME}@${env.PROD_HOST}:/var/www/www.lukas-scheerer.de/downloads/bubble-penetration.apk
+                    """
+                }
             }
         }
         stage('Release') {
@@ -120,7 +128,10 @@ pipeline {
                 }
                 sh "./gradlew assembleRelease"
                 sshagent(credentials: ['ss']) {
-                    sh "scp -P 63787 ./app/build/outputs/apk/release/app-release.apk jenkins@router.spicysources.de/var/www/www.spicysources.de/downloads/games/bubble-penetration/bubble-penetration-latest.apk"
+                    sh """
+                        ssh -p ${env.PROD_HOST_PORT} -o StrictHostKeyChecking=no -l ${env.PROD_HOST_USERNAME} ${env.PROD_HOST} uname -a
+                        scp -P ${env.PROD_HOST_PORT} ./app/build/outputs/apk/release/app-release.apk ${env.PROD_HOST_USERNAME}@${env.PROD_HOST}:/var/www/www.spicysources.de/downloads/games/bubble-penetration/bubble-penetration-latest.apk
+                    """
                 }
             }
         }
