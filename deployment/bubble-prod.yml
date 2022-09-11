@@ -1,0 +1,173 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: bubble-postgres-config
+  namespace: bubble-prod
+  labels:
+    app: bubble-postgres
+data:
+  POSTGRES_DB: bubble_penetration
+  POSTGRES_USER: bubble_prod_admin
+  POSTGRES_PASSWORD: f28fe20708319b4f4817414a29ac84fc
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: bubble-config
+  namespace: bubble-prod
+  labels:
+    app: bubble-backend
+data:
+  DB-URL: "postgresql://bubble_prod_admin:f28fe20708319b4f4817414a29ac84fc@bubble-postgres-service:5432/bubble_penetration"
+  NODE_ENV: "production"
+---
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: bubble-prod-postgres-pv-volume
+  namespace: bubble-prod
+  labels:
+    type: local
+    app: bubble-postgres
+spec:
+  storageClassName: local-storage
+  capacity:
+    storage: 10Gi
+  accessModes:
+    - ReadWriteMany
+  local:
+    path: "/var/volumes/bubble-prod-db-data"
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - v220220535134189595
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: bubble-postgres-pv-claim
+  namespace: bubble-prod
+  labels:
+    app: bubble-postgres
+spec:
+  storageClassName: local-storage
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 10Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: bubble-postgres-service
+  namespace: bubble-prod
+  labels:
+    app: bubble-postgres
+spec:
+  type: ClusterIP
+  selector:
+    app: bubble-postgres
+  ports:
+    - protocol: TCP
+      port: 5432
+      targetPort: 5432
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bubble-postgres
+  namespace: bubble-prod
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bubble-postgres
+  template:
+    metadata:
+      labels:
+        app: bubble-postgres
+    spec:
+      containers:
+        - name: bubble-postgres
+          image: postgres:13-alpine
+          imagePullPolicy: "IfNotPresent"
+          ports:
+            - containerPort: 5432
+          envFrom:
+            - configMapRef:
+                name: bubble-postgres-config
+          volumeMounts:
+            - mountPath: /var/lib/postgresql/data
+              name: postgres-db
+      volumes:
+        - name: postgres-db
+          persistentVolumeClaim:
+            claimName: bubble-postgres-pv-claim
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bubble-backend
+  namespace: bubble-prod
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bubble-backend
+  template:
+    metadata:
+      labels:
+        app: bubble-backend
+    spec:
+      containers:
+      - name: bubble-backend
+        image: docker.spicysources.de/bubble-backend:1.0.0
+        imagePullPolicy: "Always"
+        ports:
+        - containerPort: 8089
+        envFrom:
+          - configMapRef:
+              name: bubble-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: bubble-backend-service
+  namespace: bubble-prod
+spec:
+  selector:
+    app: bubble-backend
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8089
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: bubble-ingress
+  namespace: bubble-prod
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+spec:
+  ingressClassName: nginx-class
+  tls:
+    - hosts:
+        - bubble.spicysources.de
+      secretName: bubble-tls-secret
+  rules:
+    - host: bubble.spicysources.de
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: bubble-backend-service
+                port:
+                  number: 8080

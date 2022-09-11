@@ -13,6 +13,13 @@ const dbClient = new pg.Client(dbUrl);
 dbClient.connect();
 createDb();
 
+app.all('*', function(req, res, next) {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Methods', 'PUT, GET, POST, DELETE, OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Content-Type');
+    next();
+});
+
 app.post('/username', function (req, res, next) {
     const username = req.body.username
     saveHighscore(username, 0).then(isSuccess => {
