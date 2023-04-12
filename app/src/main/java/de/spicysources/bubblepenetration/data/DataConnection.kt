@@ -14,13 +14,15 @@ import java.util.concurrent.Future
 
 object DataConnection {
 
-    private val host = if (BuildConfig.DEBUG) "bubble-dev.spicysources.de" else "bubble.spicysources.de"
+    private val host = if (BuildConfig.DEBUG) "dev.bubble.spicysources.de" else "bubble.spicysources.de"
+
+    private val apiVersion = "v1"
 
     fun getHighscoreData(): Future<JSONArray> {
         return THREAD_POOL.submit(
             Callable {
                 val httpConn =
-                    URL("https://$host/highscores").openConnection() as HttpURLConnection
+                    URL("https://$host/$apiVersion/highscores").openConnection() as HttpURLConnection
                 httpConn.requestMethod = "GET"
                 httpConn.doOutput = false
                 val result = readResponseFrom(httpConn)
@@ -33,7 +35,7 @@ object DataConnection {
         return THREAD_POOL.submit(
             Callable {
                 val httpConn = URL(
-                    "https://$host/highscores"
+                    "https://$host/$apiVersion/highscores"
                 ).openConnection() as HttpURLConnection
                 httpConn.requestMethod = "POST"
                 httpConn.doOutput = true
@@ -55,7 +57,7 @@ object DataConnection {
         return THREAD_POOL.submit(
             Callable {
                 val httpConn = URL(
-                    "https://$host/username"
+                    "https://$host/$apiVersion/username"
                 ).openConnection() as HttpURLConnection
                 httpConn.requestMethod = "POST"
                 httpConn.doOutput = true
