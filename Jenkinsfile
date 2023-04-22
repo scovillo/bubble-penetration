@@ -12,64 +12,6 @@ def String getGradleNextDevelopmentVersion() {
     return splittedReleaseVersion.join(".") + "-SNAPSHOT"
 }
 
-def String getEmailSubject(Boolean success) {
-    buildResult = ''
-    if (success) {
-        buildResult = 'Erfolgreich'
-    } else {
-        buildResult = 'Fehlgeschlagen'
-    }
-
-    return "${env.JOB_NAME} Build #${env.BUILD_NUMBER} ${buildResult}"
-}
-
-def String getEmailBody(Boolean success) {
-    buildResult = ''
-    errorReason = ''
-    if (success) {
-        buildResult = "${env.JOB_NAME} Build #${env.BUILD_NUMBER} erfolgreich."
-    } else {
-        buildResult = "${env.JOB_NAME} Build #${env.BUILD_NUMBER} fehlgeschlagen."
-
-        errorLog = currentBuild.rawBuild.getLog(50).findAll {
-            line -> line.contains("[ERROR]")
-        }.join('\n')
-        errorReason = "Fehlergrund:\n${errorLog}"
-    }
-
-    startedBy = "Build gestartet von: ${currentBuild.getBuildCauses('hudson.model.Cause$UserIdCause')}"
-    wrap([$class: 'BuildUser']) {
-        startedBy = "Build gestartet von: ${env.BUILD_USER}, ${env.BUILD_USER_EMAIL}"
-    }
-
-    committer = sh(returnStdout: true, script: "git log -1 --pretty=format:'%an'").trim()
-    committerEmail = sh(returnStdout: true, script: "git log -1 --pretty=format:'%ae'").trim()
-    commitMessage = sh(returnStdout: true, script: "git log -1 --pretty=%B").trim()
-    commitHash = sh(returnStdout: true, script: "git log -n 1 --pretty=format:'%h'").trim()
-    commitChanges = sh(returnStdout: true, script: 'git diff-tree --no-commit-id --name-status -r HEAD').trim()
-
-    return """
-        Salli hä vom Butler!
-        ${buildResult}
-        ${startedBy}
-        ${env.BUILD_URL}
-
-        Commit:
-        #${commitHash}, von Mitarbeiter ${committer}, ${committerEmail}
-        ${commitMessage}
-
-        Änderungen:
-        ${commitChanges}
-
-        ${if (!success) errorReason else ''}
-        """
-}
-
-def String getCommitHash() {
-    commitHash = sh(returnStdout: true, script: "git log -n 1 --pretty=format:'%h'").trim()
-    return """${commitHash}"""
-}
-
 pipeline {
     agent any
     tools {
@@ -137,11 +79,11 @@ pipeline {
         }
     }
     post {
-        success {
-            mail subject: "${getEmailSubject(true)}", body: "${getEmailBody(true)}", from: 'jenkins@spicysources.de', to: 'lukasscheerer@spicysources.de, davidlink@spicysources.de'
+        fixed {
+            buildMail(['lukasscheerer@spicysources.de, davidlink@spicysources.de'], true)
         }
         failure {
-            mail subject: "${getEmailSubject(false)}", body: "${getEmailBody(false)}", from: 'jenkins@spicysources.de', to: 'lukasscheerer@spicysources.de, davidlink@spicysources.de'
+            buildMail(['lukasscheerer@spicysources.de, davidlink@spicysources.de'], false)
         }
         always {
             script {
