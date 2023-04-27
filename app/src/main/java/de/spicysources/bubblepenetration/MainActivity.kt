@@ -61,6 +61,12 @@ class MainActivity : Activity() {
     }
 
     fun startGame(view: View) {
+        val isSuccess = DataConnection.registerUsername(this.selectedUsername)[6000, TimeUnit.MILLISECONDS]
+        if (!isSuccess) {
+            Toast.makeText(this, "Could not start game session!", LENGTH_SHORT).show()
+            return
+        }
+
         mainMenuLayout.hide()
         areSoundEffectsMuted = !(findViewById<View>(R.id.effects_box) as CheckBox).isChecked
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
