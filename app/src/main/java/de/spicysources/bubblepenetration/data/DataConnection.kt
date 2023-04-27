@@ -1,5 +1,6 @@
 package de.spicysources.bubblepenetration.data
 
+import android.util.Base64
 import de.spicysources.bubblepenetration.BuildConfig
 import de.spicysources.bubblepenetration.THREAD_POOL
 import org.json.JSONArray
@@ -16,6 +17,9 @@ object DataConnection {
 
     private val host = if (BuildConfig.DEBUG) "dev.bubble.spicysources.de" else "bubble.spicysources.de"
 
+    private val basicUsername = "bubble-admin"
+    private val basicPassword = "dioChWHuNM2aQzxyqIP8l6Ku5VEAnzbcypXL6vzZfOlhuUVLyu"
+
     private val apiVersion = "v1"
 
     fun getHighscoreData(): Future<JSONArray> {
@@ -25,6 +29,7 @@ object DataConnection {
                     URL("https://$host/$apiVersion/highscores").openConnection() as HttpURLConnection
                 httpConn.requestMethod = "GET"
                 httpConn.doOutput = false
+                httpConn.addBasicAuthorizationHeader()
                 val result = readResponseFrom(httpConn)
                 return@Callable JSONObject(result).getJSONArray("highscores")
             }
@@ -39,6 +44,7 @@ object DataConnection {
                 ).openConnection() as HttpURLConnection
                 httpConn.requestMethod = "POST"
                 httpConn.doOutput = true
+                httpConn.addBasicAuthorizationHeader()
 
                 val body = JSONObject("{}")
                 body.put("username", username)
@@ -88,10 +94,15 @@ object DataConnection {
     private fun sendPost(httpURLConnection: HttpURLConnection, body: JSONObject) {
         httpURLConnection.setRequestProperty("Content-Type", "application/json")
         httpURLConnection.setRequestProperty("charset", "utf-8")
+        httpURLConnection.addBasicAuthorizationHeader()
         val out = DataOutputStream(httpURLConnection.outputStream)
         out.write(body.toString().toByteArray())
         out.flush()
         out.close()
     }
 
+    private fun HttpURLConnection.addBasicAuthorizationHeader() {
+        val headerValue = "Basic ${Base64.encodeToString("$basicUsername:$basicPassword".toByteArray(), Base64.DEFAULT)}"
+        this.setRequestProperty("Authorization", headerValue)
+    }
 }
