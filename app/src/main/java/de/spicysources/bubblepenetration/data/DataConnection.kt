@@ -1,6 +1,7 @@
 package de.spicysources.bubblepenetration.data
 
 import android.util.Base64
+import android.util.Log
 import de.spicysources.bubblepenetration.BuildConfig
 import de.spicysources.bubblepenetration.THREAD_POOL
 import org.json.JSONArray
@@ -102,7 +103,8 @@ object DataConnection {
     }
 
     private fun HttpURLConnection.addBasicAuthorizationHeader() {
-        val headerValue = "Basic ${Base64.encodeToString("$basicUsername:$basicPassword".toByteArray(), Base64.DEFAULT)}"
+        val headerValue = "Basic ${Base64.encodeToString("$basicUsername:$basicPassword".toByteArray(), Base64.NO_WRAP or Base64.URL_SAFE)}"
+        Log.d("DEBUG", headerValue.trimIndent())
         this.setRequestProperty("Authorization", headerValue)
     }
 }
