@@ -1,5 +1,6 @@
 package de.spicysources.bubblepenetration.data
 
+import de.spicysources.bubblepenetration.BuildConfig
 import de.spicysources.bubblepenetration.MatchEndResource
 import de.spicysources.bubblepenetration.MatchStartResource
 import de.spicysources.bubblepenetration.THREAD_POOL
@@ -16,13 +17,13 @@ import java.util.concurrent.Future
 
 object DataConnection {
 
-    private val host = "dev.bubble.api.lukas-scheerer.de"
+    private val host = if (BuildConfig.DEBUG) "dev.bubble.api.lukas-scheerer.de" else "bubble.api.lukas-scheerer.de"
 
     fun getHighscoreData(): Future<JSONArray> {
         return THREAD_POOL.submit(
             Callable {
                 val httpConn =
-                    URL("https://$host/api/matches/highscores").openConnection() as HttpURLConnection
+                    URL("https://$host/matches/highscores").openConnection() as HttpURLConnection
                 httpConn.requestMethod = "GET"
                 httpConn.doOutput = false
                 val result = readResponseFrom(httpConn)
@@ -35,7 +36,7 @@ object DataConnection {
         return THREAD_POOL.submit(
             Callable {
                 val httpConn = URL(
-                    "https://$host/api/users"
+                    "https://$host/users"
                 ).openConnection() as HttpURLConnection
                 httpConn.requestMethod = "POST"
                 httpConn.doOutput = true
@@ -56,7 +57,7 @@ object DataConnection {
         return THREAD_POOL.submit(
             Callable {
                 val httpConn = URL(
-                    "https://$host/api/matches"
+                    "https://$host/matches"
                 ).openConnection() as HttpURLConnection
                 httpConn.requestMethod = "POST"
                 httpConn.doOutput = true
@@ -77,7 +78,7 @@ object DataConnection {
         return THREAD_POOL.submit(
             Callable {
                 val httpConn = URL(
-                    "https://$host/api/matches/$matchId"
+                    "https://$host/matches/$matchId"
                 ).openConnection() as HttpURLConnection
                 httpConn.requestMethod = "PUT"
                 httpConn.doOutput = true
@@ -113,12 +114,4 @@ object DataConnection {
         out.flush()
         out.close()
     }
-
-    /*
-    private fun HttpURLConnection.addBasicAuthorizationHeader() {
-        val headerValue = "Basic ${Base64.encodeToString("$basicUsername:$basicPassword".toByteArray(), Base64.NO_WRAP or Base64.URL_SAFE)}"
-        Log.d("DEBUG", headerValue.trimIndent())
-        this.setRequestProperty("Authorization", headerValue)
-    }
-     */
 }
