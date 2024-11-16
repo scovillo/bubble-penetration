@@ -56,9 +56,9 @@ class GameOverScreenLayout(private val mainActivity: MainActivity) {
         gameOverScore.text = score
         THREAD_POOL.execute {
             try {
-                val better = DataConnection.registerHighscore(mainActivity.selectedUsername, score)[6000, TimeUnit.MILLISECONDS]
+                val matchEndResource = DataConnection.endMatch(mainActivity.currentMatch.id, score.toInt())[6000, TimeUnit.MILLISECONDS]
                 mainActivity.runOnUiThread {
-                    if (better) {
+                    if (matchEndResource.isHighscore) {
                         (mainActivity.findViewById<View>(R.id.highscore_label) as TextView).text = "Great! check your new rank!"
                         (mainActivity.findViewById<View>(R.id.your_score_label) as TextView).text = "!!! New Highscore !!!"
                         (mainActivity.findViewById<View>(R.id.your_score_label) as TextView).setTextColor(YELLOW)

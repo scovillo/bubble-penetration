@@ -30,7 +30,7 @@ class MainMenuLayout(private val mainActivity: MainActivity, private val musicPl
         )
         val glSurfaceViewHolder = mainActivity.findViewById<View>(R.id.menuGLSurfaceViewHolder) as FrameLayout
         glSurfaceViewHolder.addView(menuGLSurfaceView)
-        (mainActivity.findViewById<View>(R.id.menu_username) as TextView).text = mainActivity.selectedUsername
+        (mainActivity.findViewById<View>(R.id.menu_username) as TextView).text = mainActivity.selectedUser.name
         (mainActivity.findViewById<View>(R.id.effects_box) as CheckBox).typeface = Typeface.createFromAsset(
             mainActivity.assets,
             "fonts/PLUMP.ttf"
@@ -84,7 +84,7 @@ class MainMenuLayout(private val mainActivity: MainActivity, private val musicPl
 
                 mainActivity.runOnUiThread {
                     if (jsonArray.length() > 0) {
-                        championTextView.text = "Champion:\n${jsonArray.getJSONObject(0).getString("username")} with ${jsonArray.getJSONObject(0).getString("highscore")} !"
+                        championTextView.text = "Champion:\n${jsonArray.getJSONObject(0).getString("name")} with ${jsonArray.getJSONObject(0).getString("score")} !"
                     } else {
                         championTextView.text = mainActivity.getString(R.string.NO_CHAMPION)
                     }

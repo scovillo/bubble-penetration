@@ -3,18 +3,20 @@ package de.spicysources.bubblepenetration.data
 import android.content.Context
 import android.util.Log
 import de.spicysources.bubblepenetration.MainActivity
+import de.spicysources.bubblepenetration.UserResource
+import org.json.JSONObject
 import java.io.*
 
 class LocalFileStorage(private val mainActivity: MainActivity) {
 
     private val filename = "bubblePenetration"
 
-    fun writeToFile(usernames: List<String>) {
+    fun writeToFile(users: List<UserResource>) {
         try {
             val output = OutputStreamWriter(mainActivity.openFileOutput(filename, Context.MODE_PRIVATE))
             val outputWriter = BufferedWriter(output)
-            usernames.forEach {
-                outputWriter.write(it)
+            users.forEach {
+                outputWriter.write(it.toJson().toString())
                 outputWriter.newLine()
             }
             outputWriter.flush()
@@ -25,16 +27,17 @@ class LocalFileStorage(private val mainActivity: MainActivity) {
         }
     }
 
-    fun readFromFile(): MutableList<String> {
+    fun readFromFile(): MutableList<UserResource> {
         try {
             val inputStream: InputStream? = mainActivity.openFileInput(filename)
             if (inputStream != null) {
                 val inputStreamReader = InputStreamReader(inputStream)
                 val bufferedReader = BufferedReader(inputStreamReader)
                 var readUsername: String?
-                val usernames = mutableListOf<String>()
+                val usernames = mutableListOf<UserResource>()
                 while (bufferedReader.readLine().also { readUsername = it } != null) {
-                    usernames.add(readUsername!!)
+                    val json = JSONObject(readUsername!!)
+                    usernames.add(UserResource(json.getString("id"), json.getString("name")))
                 }
                 inputStream.close()
                 return usernames

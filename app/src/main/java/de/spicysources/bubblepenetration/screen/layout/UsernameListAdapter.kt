@@ -9,8 +9,9 @@ import android.widget.ArrayAdapter
 import android.widget.TextView
 import de.spicysources.bubblepenetration.MainActivity
 import de.spicysources.bubblepenetration.R
+import de.spicysources.bubblepenetration.UserResource
 
-class UsernameListAdapter(private val mainActivity: MainActivity, private val usernames: MutableList<String>) : ArrayAdapter<String>(mainActivity, R.layout.username_list_row, usernames) {
+class UsernameListAdapter(private val mainActivity: MainActivity, private val users: MutableList<UserResource>) : ArrayAdapter<UserResource>(mainActivity, R.layout.username_list_row, users) {
 
     private var inflater: LayoutInflater = mainActivity.getSystemService(LAYOUT_INFLATER_SERVICE) as LayoutInflater
 
@@ -19,7 +20,7 @@ class UsernameListAdapter(private val mainActivity: MainActivity, private val us
         if (convertView == null) row = inflater.inflate(R.layout.username_list_row, null, true)
         row!!
         val usernameRowTextView = row.findViewById<View>(R.id.username_row_text) as TextView
-        usernameRowTextView.text = usernames[position]
+        usernameRowTextView.text = users[position].name
         usernameRowTextView.typeface = Typeface.createFromAsset(mainActivity.assets, "fonts/PLUMP.ttf")
         return row
     }

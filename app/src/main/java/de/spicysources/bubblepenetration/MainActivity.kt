@@ -1,7 +1,6 @@
 package de.spicysources.bubblepenetration
 
 import android.app.Activity
-import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -35,18 +34,20 @@ class MainActivity : Activity() {
     private val highscoreLayout = HighscoreLayout(this)
     private val mainMenuLayout = MainMenuLayout(this, musicPlayer)
 
-    lateinit var selectedUsername: String
+    lateinit var selectedUser: UserResource
         private set
-    private var usernames = mutableListOf<String>()
+    lateinit var currentMatch: MatchStartResource
+        private set
+    private var users = mutableListOf<UserResource>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         musicPlayer.init()
-        usernames = localFileStorage.readFromFile()
-        if(usernames.isEmpty()) {
+        users = localFileStorage.readFromFile()
+        if(users.isEmpty()) {
             usernameCreationLayout.showWith(false)
         } else {
-            usernameSelectionLayout.showWith(usernames)
+            usernameSelectionLayout.showWith(users)
         }
     }
 
@@ -61,6 +62,7 @@ class MainActivity : Activity() {
     }
 
     fun startGame(view: View) {
+        currentMatch = DataConnection.startMatch(selectedUser.id)[6000, TimeUnit.MILLISECONDS]
         mainMenuLayout.hide()
         areSoundEffectsMuted = !(findViewById<View>(R.id.effects_box) as CheckBox).isChecked
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
@@ -106,29 +108,26 @@ class MainActivity : Activity() {
         }
 
         try {
-            val isSuccess = DataConnection.registerUsername(value)[6000, TimeUnit.MILLISECONDS]
-            if (!isSuccess) {
-                Toast.makeText(this, "username already exists!", LENGTH_SHORT).show()
-                return
-            }
-            usernames.add(value)
-            localFileStorage.writeToFile(usernames)
-            this.selectUsername(value)
+            val created = DataConnection.registerUsername(value)[6000, TimeUnit.MILLISECONDS]
+            users.add(created)
+            localFileStorage.writeToFile(users)
+            this.selectUser(created)
         } catch (exception: Exception) {
+            Toast.makeText(this, "username already exists!", LENGTH_SHORT).show()
             Toast.makeText(this, "Server is currently not available...please try again later.", LENGTH_LONG).show()
         }
     }
 
     fun showUsernameSelectionScreen(view: View) {
-        usernameSelectionLayout.showWith(usernames)
+        usernameSelectionLayout.showWith(users)
     }
 
     fun showUsernameCreationScreen(view: View) {
-        usernameCreationLayout.showWith(usernames.isNotEmpty())
+        usernameCreationLayout.showWith(users.isNotEmpty())
     }
 
-    fun selectUsername(username: String) {
-        this.selectedUsername = username
+    fun selectUser(user: UserResource) {
+        this.selectedUser = user
         mainMenuLayout.show()
     }
 

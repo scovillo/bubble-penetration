@@ -8,10 +8,11 @@ import android.widget.ListView
 import android.widget.TextView
 import de.spicysources.bubblepenetration.MainActivity
 import de.spicysources.bubblepenetration.R
+import de.spicysources.bubblepenetration.UserResource
 
 class UsernameSelectionLayout(private val mainActivity: MainActivity) {
 
-    fun showWith(usernames: MutableList<String>) {
+    fun showWith(users: MutableList<UserResource>) {
         mainActivity.setContentView(R.layout.username_selection)
         (mainActivity.findViewById<View>(R.id.greeting) as TextView).typeface = Typeface.createFromAsset(
             mainActivity.assets,
@@ -21,12 +22,11 @@ class UsernameSelectionLayout(private val mainActivity: MainActivity) {
             mainActivity.assets,
             "fonts/PLUMP.ttf"
         )
-        val usernameAdapter = UsernameListAdapter(mainActivity, usernames)
+        val usernameAdapter = UsernameListAdapter(mainActivity, users)
         val usernameListView = (mainActivity.findViewById<View>(R.id.username_list) as ListView)
         usernameListView.adapter = usernameAdapter
         usernameListView.onItemClickListener = OnItemClickListener { _, _, position, _ ->
-            val selectedUsername = usernameListView.getItemAtPosition(position) as String
-            mainActivity.selectUsername(selectedUsername)
+            mainActivity.selectUser(users[position])
         }
     }
 
