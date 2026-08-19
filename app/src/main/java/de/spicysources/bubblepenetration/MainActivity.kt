@@ -64,7 +64,7 @@ class MainActivity : Activity() {
     fun startGame(view: View) {
         currentMatch = DataConnection.startMatch(selectedUser.id)[6000, TimeUnit.MILLISECONDS]
         mainMenuLayout.hide()
-        areSoundEffectsMuted = !(findViewById<View>(R.id.effects_box) as CheckBox).isChecked
+        areSoundEffectsMuted = !(view.findViewById<View>(R.id.effects_box) as CheckBox).isChecked
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         setContentView(R.layout.game_hud)
         val bubbleGLSurfaceView = BubbleGLSurfaceView(this)
