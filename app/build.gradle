@@ -3,24 +3,35 @@ apply plugin: 'com.android.application'
 android {
     namespace 'org.codeberg.scovillo.bubble'
     compileSdk 36
-
     defaultConfig {
         applicationId "org.codeberg.scovillo.bubble"
         minSdk 14
         targetSdk 36
         versionCode 5
         versionName "1.1"
-
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
     }
 
-
     signingConfigs {
         release {
-            storeFile file("keystores/bp-release-keystore.jks")
-            storePassword "bp-release"
-            keyAlias "ss-keystore"
-            keyPassword "bp-release"
+            storeFile = file(
+                    project.findProperty("KEYSTORE_FILE")
+                            ?: System.getenv("KEYSTORE_FILE")
+                            ?: "../release.keystore"
+            )
+            storePassword = (
+                    project.findProperty("KEYSTORE_PASSWORD")
+                            ?: System.getenv("KEYSTORE_PASSWORD")
+            )
+            keyAlias = (
+                    project.findProperty("KEY_ALIAS")
+                            ?: System.getenv("KEY_ALIAS")
+            )
+            keyPassword = (
+                    project.findProperty("KEY_PASSWORD")
+                            ?: System.getenv("KEY_PASSWORD")
+                            ?: storePassword
+            )
         }
     }
 
@@ -50,4 +61,85 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     implementation 'androidx.appcompat:appcompat:1.2.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
+}
+
+tasks.register("generateReadme") {
+    group = "documentation"
+    description = "Automatically generates a README.md with project details and Android configuration."
+
+    doLast {
+        def readmeFile = file("$projectDir/../README.md")
+        def descFile = file("$projectDir/../fastlane/metadata/android/en-US/full_description.txt")
+
+        def descText = descFile.exists()
+                ? descFile.text
+                : """Bubble Penetration is a fast-paced game for filling spare moments.
+Collect the right colors, use combos to maximize your score, and become the champion on the global leaderboard!"""
+
+        def appName = project.findProperty("appName") ?: project.name
+        def android = project.extensions.findByName("android")
+
+        def compileSdk = android?.compileSdkVersion ?: "Unknown"
+        def minSdk = android?.defaultConfig?.minSdk ?: "Unknown"
+        def targetSdk = android?.defaultConfig?.targetSdk ?: "Unknown"
+        def appId = android?.defaultConfig?.applicationId ?: "Unknown"
+        def versionCode = android?.defaultConfig?.versionCode ?: "Unknown"
+        def versionName = android?.defaultConfig?.versionName ?: "Unknown"
+
+        def dependencies = configurations
+                .findByName("implementation")
+                ?.allDependencies
+                ?.findAll { it.group != null }
+                ?.collect {
+                    "  - ${it.group}:${it.name}:${it.version ?: "unspecified"}"
+                }
+                ?.join("\n") ?: "  - None"
+
+        def content = """
+# ${appName}
+
+📦 **Version:** ${versionCode} (${versionName})  
+⚙️ **Build Tool:** Gradle ${gradle.gradleVersion}
+
+## 🤖 Android Configuration
+
+- **Application ID:** ${appId}
+- **Compile SDK:** ${compileSdk}
+- **Min SDK:** ${minSdk}
+- **Target SDK:** ${targetSdk}
+
+## 📱 Description
+
+${descText.trim()}
+
+The game is built using free and open-source software libraries.
+
+## 🛠️ Build Instructions
+
+```bash
+./gradlew assembleDebug
+```
+For a release build:
+```bash
+./gradlew assembleRelease
+```
+
+📚 Dependencies
+
+${dependencies}
+
+📄 License
+
+Bubble Penetration is free and open-source software.
+
+Copyright (C) 2026 Lukas Scheerer
+
+Licensed under the GNU General Public License v3.0.
+
+You should have received a copy of the GNU General Public License along with
+this program. If not, see https://www.gnu.org/licenses/.
+""".stripIndent().trim()
+
+        readmeFile.text = content
+    }
 }
