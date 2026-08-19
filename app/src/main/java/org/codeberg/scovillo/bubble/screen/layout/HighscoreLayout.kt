@@ -7,7 +7,7 @@ import android.widget.*
 import android.widget.Toast.LENGTH_LONG
 import org.codeberg.scovillo.bubble.MainActivity
 import org.codeberg.scovillo.bubble.R
-import org.codeberg.scovillo.bubble.data.DataConnection
+import org.codeberg.scovillo.bubble.data.ApiService
 import org.codeberg.scovillo.bubble.THREAD_POOL
 import java.util.concurrent.TimeUnit
 
@@ -53,7 +53,7 @@ class HighscoreLayout(private val mainActivity: MainActivity) {
         THREAD_POOL.execute {
             val table = mainActivity.findViewById<View>(R.id.highscore_table) as TableLayout
             try {
-                val highscoreRequest = DataConnection.getHighscoreData()
+                val highscoreRequest = ApiService.getHighscoreData()
                 val jsonArray = highscoreRequest[8000, TimeUnit.MILLISECONDS]
 
                 for (i in 0 until jsonArray.length()) {

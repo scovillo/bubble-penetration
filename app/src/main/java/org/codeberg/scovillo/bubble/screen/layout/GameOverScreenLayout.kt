@@ -10,7 +10,7 @@ import android.widget.Toast
 import android.widget.Toast.LENGTH_LONG
 import org.codeberg.scovillo.bubble.MainActivity
 import org.codeberg.scovillo.bubble.R
-import org.codeberg.scovillo.bubble.data.DataConnection
+import org.codeberg.scovillo.bubble.data.ApiService
 import org.codeberg.scovillo.bubble.THREAD_POOL
 import java.util.concurrent.TimeUnit
 
@@ -56,7 +56,7 @@ class GameOverScreenLayout(private val mainActivity: MainActivity) {
         gameOverScore.text = score
         THREAD_POOL.execute {
             try {
-                val matchEndResource = DataConnection.endMatch(mainActivity.currentMatch.id, score.toInt())[6000, TimeUnit.MILLISECONDS]
+                val matchEndResource = ApiService.endMatch(mainActivity.currentMatch.id, score.toInt())[6000, TimeUnit.MILLISECONDS]
                 mainActivity.runOnUiThread {
                     if (matchEndResource.isHighscore) {
                         (mainActivity.findViewById<View>(R.id.highscore_label) as TextView).text = "Great! check your new rank!"

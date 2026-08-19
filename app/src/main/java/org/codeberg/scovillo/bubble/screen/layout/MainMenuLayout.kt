@@ -7,7 +7,7 @@ import android.view.animation.Animation
 import android.widget.*
 import org.codeberg.scovillo.bubble.MainActivity
 import org.codeberg.scovillo.bubble.R
-import org.codeberg.scovillo.bubble.data.DataConnection
+import org.codeberg.scovillo.bubble.data.ApiService
 import org.codeberg.scovillo.bubble.screen.MenuGLSurfaceView
 import org.codeberg.scovillo.bubble.sound.MusicPlayer
 import org.codeberg.scovillo.bubble.THREAD_POOL
@@ -79,7 +79,7 @@ class MainMenuLayout(private val mainActivity: MainActivity, private val musicPl
         THREAD_POOL.execute {
             val championTextView = (mainActivity.findViewById<View>(R.id.champion_text) as TextView)
             try {
-                val highscoreRequest = DataConnection.getHighscoreData()
+                val highscoreRequest = ApiService.getHighscoreData()
                 val jsonArray = highscoreRequest[8000, TimeUnit.MILLISECONDS]
 
                 mainActivity.runOnUiThread {

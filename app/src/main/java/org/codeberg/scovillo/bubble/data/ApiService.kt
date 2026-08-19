@@ -15,7 +15,7 @@ import java.net.URL
 import java.util.concurrent.Callable
 import java.util.concurrent.Future
 
-object DataConnection {
+object ApiService {
 
     private val baseUrl = BuildConfig.BACKEND_BASEURL
 

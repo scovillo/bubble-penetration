@@ -4,8 +4,7 @@ import org.codeberg.scovillo.bubble.objects.Bubble
 import org.codeberg.scovillo.bubble.objects.GameObject
 import org.codeberg.scovillo.bubble.objects.Star
 import org.codeberg.scovillo.bubble.screen.Boundaries
-import org.codeberg.scovillo.bubble.util.BubbleColors
-import org.codeberg.scovillo.bubble.util.normalize
+import org.codeberg.scovillo.bubble.objects.BubbleColors
 import java.util.*
 
 class Generator(private val gameObjects: MutableList<GameObject>, private val boundaries: Boundaries) {

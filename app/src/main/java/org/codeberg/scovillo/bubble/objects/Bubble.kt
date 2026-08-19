@@ -1,12 +1,16 @@
 package org.codeberg.scovillo.bubble.objects
-
-import org.codeberg.scovillo.bubble.util.BubbleColors
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.FloatBuffer
 import javax.microedition.khronos.opengles.GL10
+import kotlin.math.cos
+import kotlin.math.sin
 
-class Bubble(//Object color
+enum class BubbleColors {
+    RED, GREEN, LIGHTBLUE, BLUE, ORANGE
+}
+
+class Bubble(
     val color: BubbleColors?, private val glColor: FloatArray, speed: Float
 ) : GameObject(speed) {
 
@@ -25,7 +29,6 @@ class Bubble(//Object color
             gl.glMultMatrixf(transformationMatrix, 0)
             gl.glScalef(scale * wobbleX, scale, scale * wobbleY)
             gl.glColor4f(glColor[0], glColor[1], glColor[2], glColor[3])
-            var angleA: Float
             var angleB: Float
             var cos: Float
             var sin: Float
@@ -35,26 +38,25 @@ class Bubble(//Object color
             var h2: Float
             val step = 30.0f
             val v = Array(32) { FloatArray(3) }
-            val vbb: ByteBuffer
             val vBuf: FloatBuffer
-            vbb = ByteBuffer.allocateDirect(v.size * v[0].size * 4)
+            val vbb: ByteBuffer = ByteBuffer.allocateDirect(v.size * v[0].size * 4)
             vbb.order(ByteOrder.nativeOrder())
             vBuf = vbb.asFloatBuffer()
             gl.glEnableClientState(GL10.GL_VERTEX_ARRAY)
             gl.glEnableClientState(GL10.GL_NORMAL_ARRAY)
-            angleA = -90.0f
+            var angleA: Float = -90.0f
             while (angleA < 90.0f) {
                 var n = 0
-                r1 = Math.cos(angleA * Math.PI / 180.0).toFloat()
-                r2 = Math.cos((angleA + step) * Math.PI / 180.0).toFloat()
-                h1 = Math.sin(angleA * Math.PI / 180.0).toFloat()
-                h2 = Math.sin((angleA + step) * Math.PI / 180.0).toFloat()
+                r1 = cos(angleA * Math.PI / 180.0).toFloat()
+                r2 = cos((angleA + step) * Math.PI / 180.0).toFloat()
+                h1 = sin(angleA * Math.PI / 180.0).toFloat()
+                h2 = sin((angleA + step) * Math.PI / 180.0).toFloat()
 
                 // Fixed latitude, 360 degrees rotation to traverse a weft
                 angleB = 0.0f
                 while (angleB <= 360.0f) {
-                    cos = Math.cos(angleB * Math.PI / 180.0).toFloat()
-                    sin = (-Math.sin(angleB * Math.PI / 180.0)).toFloat()
+                    cos = cos(angleB * Math.PI / 180.0).toFloat()
+                    sin = (-sin(angleB * Math.PI / 180.0)).toFloat()
                     v[n][0] = r2 * cos
                     v[n][1] = h2
                     v[n][2] = r2 * sin

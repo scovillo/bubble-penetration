@@ -21,7 +21,7 @@ import org.codeberg.scovillo.bubble.objects.Star
 import org.codeberg.scovillo.bubble.screen.hud.ScorePostfix
 import org.codeberg.scovillo.bubble.screen.hud.TimerPostfix
 import org.codeberg.scovillo.bubble.sound.SoundEffects
-import org.codeberg.scovillo.bubble.util.BubbleColors
+import org.codeberg.scovillo.bubble.objects.BubbleColors
 import java.math.RoundingMode
 import java.text.DecimalFormat
 import javax.microedition.khronos.egl.EGLConfig

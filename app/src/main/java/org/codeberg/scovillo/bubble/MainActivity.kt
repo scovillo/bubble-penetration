@@ -9,7 +9,7 @@ import android.view.WindowManager
 import android.widget.*
 import android.widget.Toast.LENGTH_LONG
 import android.widget.Toast.LENGTH_SHORT
-import org.codeberg.scovillo.bubble.data.DataConnection
+import org.codeberg.scovillo.bubble.data.ApiService
 import org.codeberg.scovillo.bubble.data.LocalFileStorage
 import org.codeberg.scovillo.bubble.screen.BubbleGLSurfaceView
 import org.codeberg.scovillo.bubble.screen.layout.*
@@ -62,7 +62,7 @@ class MainActivity : Activity() {
     }
 
     fun startGame(view: View) {
-        currentMatch = DataConnection.startMatch(selectedUser.id)[6000, TimeUnit.MILLISECONDS]
+        currentMatch = ApiService.startMatch(selectedUser.id)[6000, TimeUnit.MILLISECONDS]
         mainMenuLayout.hide()
         areSoundEffectsMuted = !(view.findViewById<View>(R.id.effects_box) as CheckBox).isChecked
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
@@ -108,7 +108,7 @@ class MainActivity : Activity() {
         }
 
         try {
-            val created = DataConnection.registerUsername(value)[6000, TimeUnit.MILLISECONDS]
+            val created = ApiService.registerUsername(value)[6000, TimeUnit.MILLISECONDS]
             users.add(created)
             localFileStorage.writeToFile(users)
             this.selectUser(created)

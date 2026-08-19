@@ -1,4 +1,4 @@
-package org.codeberg.scovillo.bubble.util
+package org.codeberg.scovillo.bubble.logic
 
 import kotlin.math.sqrt
 
