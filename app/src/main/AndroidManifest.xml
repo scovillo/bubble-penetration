@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-        package="de.spicysources.bubblepenetration">
+        package="org.codeberg.scovillo.bubble">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.VIBRATE" />
@@ -12,7 +12,7 @@
             android:supportsRtl="true"
             android:theme="@style/AppTheme">
         <activity
-                android:name="de.spicysources.bubblepenetration.MainActivity"
+                android:name="org.codeberg.scovillo.bubble.MainActivity"
                 android:exported="true"
                 android:configChanges="keyboardHidden|orientation">
             <intent-filter>

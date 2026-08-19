@@ -2,11 +2,11 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 
 android {
-    namespace 'de.spicysources.bubblepenetration'
+    namespace 'org.codeberg.scovillo.bubble'
     compileSdk 34
 
     defaultConfig {
-        applicationId "de.spicysources.bubblepenetration"
+        applicationId "org.codeberg.scovillo.bubble"
         minSdk 14
         targetSdk 34
         versionCode 5

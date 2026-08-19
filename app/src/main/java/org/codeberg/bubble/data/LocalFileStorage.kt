@@ -1,0 +1,53 @@
+package org.codeberg.scovillo.bubble.data
+
+import android.content.Context
+import android.util.Log
+import org.codeberg.scovillo.bubble.MainActivity
+import org.codeberg.scovillo.bubble.UserResource
+import org.json.JSONObject
+import java.io.*
+
+class LocalFileStorage(private val mainActivity: MainActivity) {
+
+    private val filename = "bubblePenetration"
+
+    fun writeToFile(users: List<UserResource>) {
+        try {
+            val output = OutputStreamWriter(mainActivity.openFileOutput(filename, Context.MODE_PRIVATE))
+            val outputWriter = BufferedWriter(output)
+            users.forEach {
+                outputWriter.write(it.toJson().toString())
+                outputWriter.newLine()
+            }
+            outputWriter.flush()
+            outputWriter.close()
+            output.close()
+        } catch (e: IOException) {
+            Log.e("Exception", "File write failed: $e")
+        }
+    }
+
+    fun readFromFile(): MutableList<UserResource> {
+        try {
+            val inputStream: InputStream? = mainActivity.openFileInput(filename)
+            if (inputStream != null) {
+                val inputStreamReader = InputStreamReader(inputStream)
+                val bufferedReader = BufferedReader(inputStreamReader)
+                var readUsername: String?
+                val usernames = mutableListOf<UserResource>()
+                while (bufferedReader.readLine().also { readUsername = it } != null) {
+                    val json = JSONObject(readUsername!!)
+                    usernames.add(UserResource(json.getString("id"), json.getString("name")))
+                }
+                inputStream.close()
+                return usernames
+            }
+        } catch (e: FileNotFoundException) {
+            Log.e("login activity", "File not found: $e")
+        } catch (e: IOException) {
+            Log.e("login activity", "Can not read file: $e")
+        }
+        return mutableListOf()
+    }
+
+}
