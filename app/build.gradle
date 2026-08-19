@@ -1,14 +1,13 @@
 apply plugin: 'com.android.application'
-apply plugin: 'kotlin-android'
 
 android {
     namespace 'org.codeberg.scovillo.bubble'
-    compileSdk 34
+    compileSdk 36
 
     defaultConfig {
         applicationId "org.codeberg.scovillo.bubble"
         minSdk 14
-        targetSdk 34
+        targetSdk 36
         versionCode 5
         versionName "1.1"
 
@@ -37,12 +36,8 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
-    }
-    
-    kotlinOptions {
-        jvmTarget = '1.8'
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
     }
 
     buildFeatures {
