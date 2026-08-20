@@ -92,7 +92,7 @@ class MenuGLSurfaceView(context: Context) : GLSurfaceView(context) {
             // set up modelview matrix for scene
             gl.glMatrixMode(GL10.GL_MODELVIEW)
             gl.glLoadIdentity()
-            val desiredHeight = 10.0f
+            val desiredHeight = if (aspectRatio > 1.0f) 10.0f else 10.0f / aspectRatio
             // We want to be able to see the range of 5 to -5 units at the y
             // axis (height=10).
             // To achieve this we have to pull the camera towards the positive z axis
