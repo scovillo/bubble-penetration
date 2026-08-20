@@ -16,7 +16,7 @@
     <string name="music">Music</string>
     <string name="bubble_penetration">Bubble\nPenetration</string>
     <string name="warning">You can not change back to your old username!</string>
-    <string name="bewerten">app rating</string>
+    <string name="rating">app rating</string>
     <string name="app_ID">ca-app-pub-7068131275474759~3286892226</string>
     <string name="menu_Banner_ID">ca-app-pub-7068131275474759/4763625423</string>
     <string name="highscore_Screen_ID">ca-app-pub-7068131275474759/4454071022</string>
@@ -25,6 +25,6 @@
     <string name="greeting">Hi, who are you?</string>
     <string name="effects">Effects</string>
     <string name="NO_CHAMPION">No current champion...</string>
-    <string name="SUPPORT_US">support us</string>
+    <string name="project">Project</string>
     <string name="MAIN_MENU">main menu</string>
 </resources>

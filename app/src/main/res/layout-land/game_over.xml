@@ -79,8 +79,8 @@
                     android:clickable="true"
                     android:focusable="true"/>
             <Button
-                    android:id="@+id/bewerten_button"
-                    android:text="@string/bewerten"
+                    android:id="@+id/rating_button"
+                    android:text="@string/rating"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textSize="20sp"
@@ -93,7 +93,7 @@
                     android:focusable="true"/>
 
             <Button
-                    android:id="@+id/support_us"
+                    android:id="@+id/project_button"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_margin="6sp"
@@ -103,7 +103,7 @@
                     android:enabled="true"
                     android:focusable="true"
                     android:onClick="openProjectWebsite"
-                    android:text="@string/SUPPORT_US"
+                    android:text="@string/project"
                     android:textColor="@color/gold"
                     android:textSize="20sp" />
         </LinearLayout>

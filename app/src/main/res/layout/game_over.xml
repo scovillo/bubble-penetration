@@ -59,7 +59,7 @@
                     android:enabled="true"/>
         </LinearLayout>
         <LinearLayout
-                android:orientation="horizontal"
+                android:orientation="vertical"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:id="@+id/gameover_buttons"
@@ -70,6 +70,7 @@
                     android:text="@string/highscore_button_text"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:minWidth="200dp"
                     android:textSize="20sp"
                     android:layout_margin="6sp"
                     android:onClick="showHighscores"
@@ -79,13 +80,28 @@
                     android:clickable="true"
                     android:focusable="true"/>
             <Button
-                    android:id="@+id/bewerten_button"
-                    android:text="@string/bewerten"
+                    android:id="@+id/rating_button"
+                    android:text="@string/rating"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:minWidth="200dp"
                     android:textSize="20sp"
                     android:layout_margin="6sp"
                     android:onClick="launchMarket"
+                    android:background="@drawable/button"
+                    android:enabled="true"
+                    android:textColor="@color/gold"
+                    android:clickable="true"
+                    android:focusable="true"/>
+            <Button
+                    android:id="@+id/project_button"
+                    android:text="@string/project"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:minWidth="200dp"
+                    android:textSize="20sp"
+                    android:layout_margin="6sp"
+                    android:onClick="openProjectWebsite"
                     android:background="@drawable/button"
                     android:enabled="true"
                     android:textColor="@color/gold"

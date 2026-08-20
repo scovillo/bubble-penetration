@@ -3,7 +3,6 @@ package org.codeberg.scovillo.bubble.screen.layout
 import android.graphics.Color.WHITE
 import android.graphics.Color.YELLOW
 import android.graphics.Typeface
-import android.view.View
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
@@ -21,58 +20,42 @@ class GameOverScreenLayout(private val mainActivity: MainActivity) {
 
         setHighscoreResultAsync(score)
 
-        (mainActivity.findViewById<View>(R.id.game_over_textview) as TextView).typeface = Typeface.createFromAsset(
-            mainActivity.assets,
-            "fonts/PLUMP.ttf"
-        )
-        (mainActivity.findViewById<View>(R.id.your_score_textview) as TextView).typeface = Typeface.createFromAsset(
-            mainActivity.assets,
-            "fonts/PLUMP.ttf"
-        )
-        (mainActivity.findViewById<View>(R.id.your_score_label) as TextView).typeface = Typeface.createFromAsset(
-            mainActivity.assets,
-            "fonts/PLUMP.ttf"
-        )
-        (mainActivity.findViewById<View>(R.id.highscore_gameover) as Button).typeface = Typeface.createFromAsset(
-            mainActivity.assets,
-            "fonts/PLUMP.ttf"
-        )
-        (mainActivity.findViewById<View>(R.id.bewerten_button) as Button).typeface = Typeface.createFromAsset(
-            mainActivity.assets,
-            "fonts/PLUMP.ttf"
-        )
-        (mainActivity.findViewById<View>(R.id.support_us) as Button).typeface = Typeface.createFromAsset(
-            mainActivity.assets,
-            "fonts/PLUMP.ttf"
-        )
-        (mainActivity.findViewById<View>(R.id.highscore_label) as TextView).typeface = Typeface.createFromAsset(
-            mainActivity.assets,
-            "fonts/PLUMP.ttf"
-        )
+        val font = Typeface.createFromAsset(mainActivity.assets, "fonts/PLUMP.ttf")
+
+        mainActivity.findViewById<TextView>(R.id.game_over_textview)?.typeface = font
+        mainActivity.findViewById<TextView>(R.id.your_score_textview)?.typeface = font
+        mainActivity.findViewById<TextView>(R.id.your_score_label)?.typeface = font
+        mainActivity.findViewById<Button>(R.id.highscore_gameover)?.typeface = font
+        mainActivity.findViewById<Button>(R.id.rating_button)?.typeface = font
+        mainActivity.findViewById<Button>(R.id.project_button)?.typeface = font
+        mainActivity.findViewById<TextView>(R.id.highscore_label)?.typeface = font
     }
 
     private fun setHighscoreResultAsync(score: String) {
-        val gameOverScore = mainActivity.findViewById<View>(R.id.your_score_textview) as TextView
-        gameOverScore.text = score
+        val gameOverScore = mainActivity.findViewById<TextView>(R.id.your_score_textview)
+        gameOverScore?.text = score
         THREAD_POOL.execute {
             try {
                 val isRecord = ApiService.registerHighscore(mainActivity.selectedUser.name, score)[6000, TimeUnit.MILLISECONDS]
                 mainActivity.runOnUiThread {
+                    val highscoreLabel = mainActivity.findViewById<TextView>(R.id.highscore_label)
+                    val yourScoreLabel = mainActivity.findViewById<TextView>(R.id.your_score_label)
                     if (isRecord) {
-                        (mainActivity.findViewById<View>(R.id.highscore_label) as TextView).text = "Great! check your new rank!"
-                        (mainActivity.findViewById<View>(R.id.your_score_label) as TextView).text = "!!! New Highscore !!!"
-                        (mainActivity.findViewById<View>(R.id.your_score_label) as TextView).setTextColor(YELLOW)
+                        highscoreLabel?.text = "Great! check your new rank!"
+                        yourScoreLabel?.text = "!!! New Highscore !!!"
+                        yourScoreLabel?.setTextColor(YELLOW)
                     } else {
-                        (mainActivity.findViewById<View>(R.id.highscore_label) as TextView).text = "you were better...try again!"
-                        (mainActivity.findViewById<View>(R.id.your_score_label) as TextView).text = "Your score"
-                        (mainActivity.findViewById<View>(R.id.your_score_label) as TextView).setTextColor(WHITE)
+                        highscoreLabel?.text = "you were better...try again!"
+                        yourScoreLabel?.text = "Your score"
+                        yourScoreLabel?.setTextColor(WHITE)
                     }
                 }
             } catch (exception: Exception) {
                 mainActivity.runOnUiThread {
-                    (mainActivity.findViewById<View>(R.id.highscore_label) as TextView).text = "Server is currently not available...please try again later!"
-                    (mainActivity.findViewById<View>(R.id.your_score_label) as TextView).text = "Your score"
-                    (mainActivity.findViewById<View>(R.id.your_score_label) as TextView).setTextColor(WHITE)
+                    mainActivity.findViewById<TextView>(R.id.highscore_label)?.text = "Server is currently not available...please try again later!"
+                    val yourScoreLabel = mainActivity.findViewById<TextView>(R.id.your_score_label)
+                    yourScoreLabel?.text = "Your score"
+                    yourScoreLabel?.setTextColor(WHITE)
                     Toast.makeText(mainActivity, "Server is currently not available...please try again later!", LENGTH_LONG).show()
                 }
             }
