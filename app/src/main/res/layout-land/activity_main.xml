@@ -28,13 +28,14 @@
                 android:text="@string/bubble_penetration"
                 android:textAlignment="center"
                 android:textColor="@color/gold"
-                android:textSize="48sp" />
+                android:textSize="36sp" />
 
         <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+            android:orientation="horizontal"
                 android:gravity="center"
-                android:padding="10sp">
+                android:padding="6sp">
 
             <Button
                     android:id="@+id/start_button"
@@ -73,10 +74,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center_horizontal"
-                android:padding="12sp"
+                android:padding="8sp"
                 android:textAlignment="center"
                 android:textColor="@color/gold"
-                android:textSize="28sp" />
+                android:textSize="24sp" />
     </LinearLayout>
 
     <TextView

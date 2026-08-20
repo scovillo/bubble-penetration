@@ -9,9 +9,3 @@ class UserResource(val username: String) {
         return json
     }
 }
-
-class HighscoreResource(val username: String, val score: Int)
-
-class MatchStartResource(val id: String)
-
-class MatchEndResource(val id: String, val score: Int, val isHighscore: Boolean)
