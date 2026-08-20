@@ -21,7 +21,7 @@
                     android:layout_height="wrap_content"
                     android:text="@string/game_over_text"
                     android:textSize="40sp"
-                    android:textColor="@color/title"
+                    android:textColor="@color/gold"
                     android:layout_gravity="center_horizontal"
                     android:textStyle="bold|italic"
                     android:enabled="true"/>

@@ -12,9 +12,10 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="12sp"
+        android:gravity="center_horizontal"
         android:text="@string/greeting"
         android:textAlignment="center"
-        android:textColor="@color/title"
+        android:textColor="@color/gold"
         android:textSize="36sp" />
 
     <ListView

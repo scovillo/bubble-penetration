@@ -27,7 +27,7 @@
                 android:enabled="true"
                 android:text="@string/bubble_penetration"
                 android:textAlignment="center"
-                android:textColor="#ec5108ff"
+                android:textColor="@color/gold"
                 android:textSize="48sp" />
 
         <LinearLayout
