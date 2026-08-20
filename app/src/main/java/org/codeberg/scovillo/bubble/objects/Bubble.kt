@@ -36,7 +36,7 @@ class Bubble(
             var r2: Float
             var h1: Float
             var h2: Float
-            val step = 30.0f
+            val step = 12.0f
             val v = Array(32) { FloatArray(3) }
             val vBuf: FloatBuffer
             val vbb: ByteBuffer = ByteBuffer.allocateDirect(v.size * v[0].size * 4)
