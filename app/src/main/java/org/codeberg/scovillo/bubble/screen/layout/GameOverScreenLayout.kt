@@ -41,22 +41,22 @@ class GameOverScreenLayout(private val mainActivity: MainActivity) {
                     val highscoreLabel = mainActivity.findViewById<TextView>(R.id.highscore_label)
                     val yourScoreLabel = mainActivity.findViewById<TextView>(R.id.your_score_label)
                     if (isRecord) {
-                        highscoreLabel?.text = "Great! check your new rank!"
-                        yourScoreLabel?.text = "!!! New Highscore !!!"
+                        highscoreLabel?.text = mainActivity.getString(R.string.msg_new_rank)
+                        yourScoreLabel?.text = mainActivity.getString(R.string.new_highscore)
                         yourScoreLabel?.setTextColor(YELLOW)
                     } else {
-                        highscoreLabel?.text = "you were better...try again!"
-                        yourScoreLabel?.text = "Your score"
+                        highscoreLabel?.text = mainActivity.getString(R.string.msg_try_again)
+                        yourScoreLabel?.text = mainActivity.getString(R.string.msg_your_score)
                         yourScoreLabel?.setTextColor(WHITE)
                     }
                 }
             } catch (exception: Exception) {
                 mainActivity.runOnUiThread {
-                    mainActivity.findViewById<TextView>(R.id.highscore_label)?.text = "Server is currently not available...please try again later!"
+                    mainActivity.findViewById<TextView>(R.id.highscore_label)?.text = mainActivity.getString(R.string.server_unavailable)
                     val yourScoreLabel = mainActivity.findViewById<TextView>(R.id.your_score_label)
-                    yourScoreLabel?.text = "Your score"
+                    yourScoreLabel?.text = mainActivity.getString(R.string.msg_your_score)
                     yourScoreLabel?.setTextColor(WHITE)
-                    Toast.makeText(mainActivity, "Server is currently not available...please try again later!", LENGTH_LONG).show()
+                    Toast.makeText(mainActivity, mainActivity.getString(R.string.server_unavailable), LENGTH_LONG).show()
                 }
             }
         }

@@ -9,22 +9,34 @@
     <string name="collect_text">Collect!</string>
     <string name="game_over_text">Game Over</string>
     <string name="game_over_score_label">Your score:</string>
-    <string name="save">save</string>
+    <string name="save">Save</string>
     <string name="your_name">Your name?</string>
-    <string name="back_to_menu">back</string>
-    <string name="cancel">cancel</string>
+    <string name="back_to_menu">Back</string>
+    <string name="cancel">Cancel</string>
     <string name="music">Music</string>
     <string name="bubble_penetration">Bubble\nPenetration</string>
     <string name="warning">You can not change back to your old username!</string>
     <string name="rating">app rating</string>
-    <string name="app_ID">ca-app-pub-7068131275474759~3286892226</string>
-    <string name="menu_Banner_ID">ca-app-pub-7068131275474759/4763625423</string>
-    <string name="highscore_Screen_ID">ca-app-pub-7068131275474759/4454071022</string>
+    <string name="app_id" translatable="false">ca-app-pub-7068131275474759~3286892226</string>
+    <string name="menu_banner_id" translatable="false">ca-app-pub-7068131275474759/4763625423</string>
+    <string name="highscore_screen_id" translatable="false">ca-app-pub-7068131275474759/4454071022</string>
     <string name="new_highscore">New Highscore!!</string>
     <string name="add">+</string>
     <string name="greeting">Hi, who are you?</string>
     <string name="effects">Effects</string>
-    <string name="NO_CHAMPION">No current champion...</string>
+    <string name="no_champion">No current champion…</string>
     <string name="project">Project</string>
-    <string name="MAIN_MENU">main menu</string>
+    <string name="main_menu">main menu</string>
+    <string name="rank">Rank</string>
+    <string name="name">Name</string>
+    <string name="score">Score</string>
+    <string name="champion_label">Champion:\n%1$s with %2$s !</string>
+    <string name="server_unavailable">Server is currently not available. Please try again later.</string>
+    <string name="error_empty_username">Sorry, username cannot be empty!</string>
+    <string name="error_username_too_long">Sorry, maximum 10 letters!</string>
+    <string name="error_username_exists">Username already exists!</string>
+    <string name="error_market_app_not_found">Unable to find market app.</string>
+    <string name="msg_new_rank">Great! Check your new rank!</string>
+    <string name="msg_try_again">You were better… try again!</string>
+    <string name="msg_your_score">Your score</string>
 </resources>

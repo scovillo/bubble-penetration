@@ -26,7 +26,7 @@
                     android:layout_gravity="center_horizontal"
                     android:paddingLeft="20sp"
                     android:paddingRight="20sp"
-                    android:text="timer"
+                    android:text="@string/timer_text"
                     android:textAlignment="center"
                     android:textColor="@color/white"
                     android:textSize="18sp" />
@@ -48,7 +48,7 @@
                     android:layout_gravity="center_horizontal|bottom"
                     android:paddingLeft="20sp"
                     android:paddingRight="20sp"
-                    android:text="score"
+                    android:text="@string/score_text"
                     android:textAlignment="center"
                     android:textColor="@color/white"
                     android:textSize="18sp" />

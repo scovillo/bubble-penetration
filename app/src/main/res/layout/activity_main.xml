@@ -103,7 +103,7 @@
         <CheckBox
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="EFFECTS"
+                android:text="@string/effects"
                 android:id="@+id/effects_box"
                 android:textColor="@color/white"
                 android:textSize="20sp"

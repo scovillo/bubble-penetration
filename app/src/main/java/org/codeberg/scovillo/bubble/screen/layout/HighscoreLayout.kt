@@ -81,7 +81,7 @@ class HighscoreLayout(private val mainActivity: MainActivity) {
                 }
             } catch (exception: Exception) {
                 mainActivity.runOnUiThread {
-                    Toast.makeText(mainActivity, "Server is currently not available...please try again later.", LENGTH_LONG).show()
+                    Toast.makeText(mainActivity, mainActivity.getString(R.string.server_unavailable), LENGTH_LONG).show()
                 }
             }
         }

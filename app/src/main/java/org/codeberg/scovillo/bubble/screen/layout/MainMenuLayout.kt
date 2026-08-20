@@ -87,17 +87,21 @@ class MainMenuLayout(private val mainActivity: MainActivity, private val musicPl
                     val championTextView = mainActivity.findViewById<TextView?>(R.id.champion_text)
                         ?: return@runOnUiThread
                     if (jsonArray.length() > 0) {
-                        championTextView.text = "Champion:\n${jsonArray.getJSONObject(0).getString("name")} with ${jsonArray.getJSONObject(0).getString("score")} !"
+                        championTextView.text = mainActivity.getString(
+                            R.string.champion_label,
+                            jsonArray.getJSONObject(0).getString("name"),
+                            jsonArray.getJSONObject(0).getString("score")
+                        )
                     } else {
-                        championTextView.text = mainActivity.getString(R.string.NO_CHAMPION)
+                        championTextView.text = mainActivity.getString(R.string.no_champion)
                     }
                 }
             } catch (exception: Exception) {
                 mainActivity.runOnUiThread {
                     val championTextView = mainActivity.findViewById<TextView?>(R.id.champion_text)
                         ?: return@runOnUiThread
-                    Toast.makeText(mainActivity, "Server is currently not available...please try again later.", Toast.LENGTH_LONG).show()
-                    championTextView.text = mainActivity.getString(R.string.NO_CHAMPION)
+                    Toast.makeText(mainActivity, mainActivity.getString(R.string.server_unavailable), Toast.LENGTH_LONG).show()
+                    championTextView.text = mainActivity.getString(R.string.no_champion)
                 }
             }
         }

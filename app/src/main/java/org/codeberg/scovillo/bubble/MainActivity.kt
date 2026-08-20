@@ -106,11 +106,11 @@ class MainActivity : Activity() {
     fun saveUsername(view: View) {
         val value = (findViewById<View>(R.id.username_field) as EditText).text.toString()
         if (value.isBlank()) {
-            Toast.makeText(this, "sorry, username can not be empty!", LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.error_empty_username), LENGTH_SHORT).show()
             return
         }
         if (value.length > 10) {
-            Toast.makeText(this, "sorry, maximal 10 letters!", LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.error_username_too_long), LENGTH_SHORT).show()
             return
         }
         try {
@@ -119,8 +119,8 @@ class MainActivity : Activity() {
             localFileStorage.writeToFile(users)
             this.selectUser(created)
         } catch (exception: Exception) {
-            Toast.makeText(this, "username already exists!", LENGTH_SHORT).show()
-            Toast.makeText(this, "Server is currently not available...please try again later.", LENGTH_LONG).show()
+            Toast.makeText(this, getString(R.string.error_username_exists), LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.server_unavailable), LENGTH_LONG).show()
         }
     }
 
@@ -143,7 +143,7 @@ class MainActivity : Activity() {
         try {
             startActivity(myAppLinkToMarket)
         } catch (exception: Exception) {
-            Toast.makeText(this, " unable to find market app", LENGTH_LONG).show()
+            Toast.makeText(this, getString(R.string.error_market_app_not_found), LENGTH_LONG).show()
         }
     }
 
