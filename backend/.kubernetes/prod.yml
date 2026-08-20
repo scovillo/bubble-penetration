@@ -1,0 +1,142 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: bubble-prod
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: database-auth
+  namespace: bubble-prod
+  labels:
+    app: bubble-backend
+type: Opaque
+data:
+  POSTGRES_HOST: "bubble-database-service"
+  POSTGRES_DB: "bubble_penetration"
+  POSTGRES_USER: "postgres"
+  POSTGRES_PASSWORD: "postgres"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: bubble-config
+  namespace: bubble-prod
+  labels:
+    app: bubble-backend
+data:
+  LOG_LEVEL: "DEBUG"
+  NODE_ENV: "production"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: bubble-database-service
+  namespace: bubble-prod
+  labels:
+    app: bubble-database
+spec:
+  type: ClusterIP
+  selector:
+    app: bubble-database
+  ports:
+    - protocol: TCP
+      port: 5432
+      targetPort: 5432
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bubble-database
+  namespace: bubble-prod
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bubble-database
+  template:
+    metadata:
+      labels:
+        app: bubble-database
+    spec:
+      containers:
+        - name: bubble-database
+          image: postgres:18-alpine
+          imagePullPolicy: "Always"
+          ports:
+            - containerPort: 5432
+          envFrom:
+            - secretRef:
+                name: database-auth
+          volumeMounts:
+            - mountPath: /var/lib/postgresql
+              name: postgres-data
+      volumes:
+        - name: postgres-data
+          hostPath:
+            path: /data/volumes/bubble-prod/db
+            type: DirectoryOrCreate
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bubble-backend
+  namespace: bubble-prod
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bubble-backend
+  template:
+    metadata:
+      labels:
+        app: bubble-backend
+    spec:
+      containers:
+        - name: bubble-backend
+          image: codeberg.org/spicysources/bubble-penetration-backend:latest
+          imagePullPolicy: "Always"
+          ports:
+            - containerPort: 3000
+          envFrom:
+            - configMapRef:
+                name: bubble-config
+            - secretRef:
+                name: database-auth
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: bubble-backend-service
+  namespace: bubble-prod
+spec:
+  selector:
+    app: bubble-backend
+  ports:
+    - protocol: TCP
+      port: 3000
+      targetPort: 3000
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: bubble-ingress
+  namespace: bubble-prod
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+spec:
+  tls:
+    - hosts:
+        - bubble.lukas-scheerer.de
+      secretName: bubble-tls-secret
+  rules:
+    - host: bubble.lukas-scheerer.de
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: bubble-backend-service
+                port:
+                  number: 3000
