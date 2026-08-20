@@ -61,13 +61,13 @@ class HighscoreLayout(private val mainActivity: MainActivity) {
                     rank.text = "${i + 1}"
                     rank.typeface = Typeface.createFromAsset(mainActivity.assets, "fonts/PLUMP.ttf")
                     val name = generateHighscoreTextView()
-                    name.text = jsonArray.getJSONObject(i).getString("name")
+                    name.text = jsonArray.getJSONObject(i).getString("username")
                     name.typeface = Typeface.createFromAsset(mainActivity.assets, "fonts/PLUMP.ttf")
                     val score = generateHighscoreTextView()
                     score.text = jsonArray.getJSONObject(i).getString("score")
                     score.typeface = Typeface.createFromAsset(mainActivity.assets, "fonts/PLUMP.ttf")
                     val row = TableRow(mainActivity)
-                    if (name.text == mainActivity.selectedUser.name) {
+                    if (name.text == mainActivity.selectedUser.username) {
                         rank.setTextColor(Color.YELLOW)
                         name.setTextColor(Color.YELLOW)
                         score.setTextColor(Color.YELLOW)

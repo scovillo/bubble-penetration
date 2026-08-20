@@ -20,7 +20,7 @@ class UsernameListAdapter(private val mainActivity: MainActivity, private val us
         if (convertView == null) row = inflater.inflate(R.layout.username_list_row, null, true)
         row!!
         val usernameRowTextView = row.findViewById<View>(R.id.username_row_text) as TextView
-        usernameRowTextView.text = users[position].name
+        usernameRowTextView.text = users[position].username
         usernameRowTextView.typeface = Typeface.createFromAsset(mainActivity.assets, "fonts/PLUMP.ttf")
         return row
     }

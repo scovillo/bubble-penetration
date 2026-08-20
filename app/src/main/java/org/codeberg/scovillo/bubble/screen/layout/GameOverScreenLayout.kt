@@ -36,7 +36,7 @@ class GameOverScreenLayout(private val mainActivity: MainActivity) {
         gameOverScore?.text = score
         THREAD_POOL.execute {
             try {
-                val isRecord = ApiService.registerHighscore(mainActivity.selectedUser.name, score)[6000, TimeUnit.MILLISECONDS]
+                val isRecord = ApiService.registerHighscore(mainActivity.selectedUser.username, score)[6000, TimeUnit.MILLISECONDS]
                 mainActivity.runOnUiThread {
                     val highscoreLabel = mainActivity.findViewById<TextView>(R.id.highscore_label)
                     val yourScoreLabel = mainActivity.findViewById<TextView>(R.id.your_score_label)

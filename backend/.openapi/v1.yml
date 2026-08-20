@@ -35,9 +35,7 @@ paths:
                   value:
                     success: true
                     user:
-                      id: Lukas
                       username: Lukas
-                      name: Lukas
         '200':
           description: Username already exists
           content:
@@ -75,7 +73,7 @@ paths:
                 default:
                   value:
                     highscores:
-                      - name: Lukas
+                      - username: Lukas
                         score: 4711
                         timestamp: 20.08.2026
     post:
@@ -105,7 +103,7 @@ paths:
                     success: true
                     isNewHighscore: true
                     highscore:
-                      name: Lukas
+                      username: Lukas
                       score: 4711
                       timestamp: 20.08.2026
         '201':
@@ -120,7 +118,7 @@ paths:
                     success: true
                     isNewHighscore: true
                     highscore:
-                      name: Lukas
+                      username: Lukas
                       score: 4711
                       timestamp: 20.08.2026
         '400':
@@ -166,25 +164,19 @@ components:
       type: object
       additionalProperties: false
       required:
-        - id
         - username
-        - name
       properties:
-        id:
-          type: string
         username:
-          type: string
-        name:
           type: string
     Highscore:
       type: object
       additionalProperties: false
       required:
-        - name
+        - username
         - score
         - timestamp
       properties:
-        name:
+        username:
           type: string
         score:
           type: integer

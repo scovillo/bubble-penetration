@@ -14,7 +14,7 @@
         <activity
                 android:name="org.codeberg.scovillo.bubble.MainActivity"
                 android:exported="true"
-                android:configChanges="keyboardHidden|orientation">
+                android:configChanges="keyboardHidden|orientation|screenSize|screenLayout|smallestScreenSize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />

@@ -45,15 +45,54 @@ class MainActivity : Activity() {
         private set
     private var users = mutableListOf<UserResource>()
 
+    private var isGameRunning = false
+    private var currentBubbleView: BubbleGLSurfaceView? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         settingsModel.load(this)
         musicPlayer.init()
         users = localFileStorage.readFromFile()
-        if(users.isEmpty()) {
-            usernameCreationLayout.showWith(false)
-        } else {
-            usernameSelectionLayout.showWith(users)
+
+        var restoredScore = 0
+        var restoredTimer = 25.0f
+
+        if (savedInstanceState != null) {
+            isGameRunning = savedInstanceState.getBoolean("isGameRunning", false)
+            val userName = savedInstanceState.getString("selectedUserName")
+            if (userName != null) {
+                selectedUser = UserResource(userName)
+            }
+            restoredScore = savedInstanceState.getInt("savedScore", 0)
+            restoredTimer = savedInstanceState.getFloat("savedTimer", 25.0f)
+        }
+
+        when {
+            isGameRunning -> {
+                mainMenuLayout.show()
+                startGame(null, restoredScore, restoredTimer)
+            }
+            ::selectedUser.isInitialized -> {
+                mainMenuLayout.show()
+            }
+            users.isEmpty() -> {
+                usernameCreationLayout.showWith(false)
+            }
+            else -> {
+                usernameSelectionLayout.showWith(users)
+            }
+        }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putBoolean("isGameRunning", isGameRunning)
+        if (::selectedUser.isInitialized) {
+            outState.putString("selectedUserName", selectedUser.username)
+        }
+        currentBubbleView?.let {
+            outState.putInt("savedScore", it.getScore())
+            outState.putFloat("savedTimer", it.getTimer())
         }
     }
 
@@ -67,17 +106,26 @@ class MainActivity : Activity() {
         musicPlayer.pause()
     }
 
-    fun startGame(view: View) {
+    fun startGame(view: View?, score: Int = 0, timer: Float = 25.0f) {
+        isGameRunning = true
         mainMenuLayout.hide()
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         setContentView(R.layout.game_hud)
         val bubbleGLSurfaceView = BubbleGLSurfaceView(this)
         bubbleGLSurfaceView.isMuted(settingsModel.areSoundEffectsMuted)
+        
+        if (score > 0 || timer != 25.0f) {
+            bubbleGLSurfaceView.setGameState(score, timer)
+        }
+        
+        currentBubbleView = bubbleGLSurfaceView
         val glSurfaceViewHolder = findViewById<View>(R.id.GLSurfaceViewHolder) as FrameLayout
         glSurfaceViewHolder.addView(bubbleGLSurfaceView)
     }
 
     fun showGameOverScreenWith(score: String) {
+        isGameRunning = false
+        currentBubbleView = null
         val glSurfaceViewHolder = this.findViewById<View>(R.id.GLSurfaceViewHolder) as FrameLayout?
         glSurfaceViewHolder?.removeAllViews()
         gameOverScreenLayout.showWith(score)
@@ -88,6 +136,8 @@ class MainActivity : Activity() {
     }
 
     fun backToMenu(view: View) {
+        isGameRunning = false
+        currentBubbleView = null
         mainMenuLayout.show()
     }
 

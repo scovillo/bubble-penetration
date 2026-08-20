@@ -33,19 +33,19 @@ class LocalFileStorage(private val mainActivity: MainActivity) {
             if (inputStream != null) {
                 val inputStreamReader = InputStreamReader(inputStream)
                 val bufferedReader = BufferedReader(inputStreamReader)
-                var readUsername: String?
-                val usernames = mutableListOf<UserResource>()
-                while (bufferedReader.readLine().also { readUsername = it } != null) {
-                    val json = JSONObject(readUsername!!)
-                    usernames.add(UserResource(json.getString("id"), json.getString("name")))
+                var line: String?
+                val users = mutableListOf<UserResource>()
+                while (bufferedReader.readLine().also { line = it } != null) {
+                    val json = JSONObject(line!!)
+                    users.add(UserResource(json.getString("username")))
                 }
                 inputStream.close()
-                return usernames
+                return users
             }
         } catch (e: FileNotFoundException) {
-            Log.e("login activity", "File not found: $e")
+            Log.e("LocalFileStorage", "File not found: $e")
         } catch (e: IOException) {
-            Log.e("login activity", "Can not read file: $e")
+            Log.e("LocalFileStorage", "Can not read file: $e")
         }
         return mutableListOf()
     }

@@ -65,9 +65,8 @@ object ApiService {
                         throw IllegalStateException(result.optString("message", "username already exists"))
                     }
                     val user = result.getJSONObject("user")
-                    val id = user.getString("id")
-                    val username = user.optString("name", user.optString("username"))
-                    return@Callable UserResource(id, username)
+                    val username = user.getString("username")
+                    return@Callable UserResource(username)
                 } catch (e: Exception) {
                     Log.e(TAG, "Error registering username", e)
                     throw e

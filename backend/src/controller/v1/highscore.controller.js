@@ -6,7 +6,7 @@ export const highscoreController = express.Router();
 
 function toHighscoreResponse(row) {
   return {
-    name: row.username,
+    username: row.username,
     score: row.highscore,
     timestamp: row.timestamp.toLocaleDateString("de-DE"),
   };
@@ -35,9 +35,7 @@ highscoreController.post("/username", function (req, res, next) {
           res.status(201).json({
             success: true,
             user: {
-              id: createdUser.username,
               username: createdUser.username,
-              name: createdUser.username,
             },
           }),
         );

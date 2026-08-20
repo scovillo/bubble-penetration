@@ -48,7 +48,7 @@ class BubbleGLSurfaceView(context: Context) : GLSurfaceView(context) {
     private var isTouch = false
     private val objectsToBeRemoved = ArrayList<GameObject>()
     private val targetsToBeRemoved = ArrayList<GameObject>()
-    private val timerText: TextView
+    private val timerText: TextView = mainActivity.findViewById<View>(R.id.Timer) as TextView
     private var scoreText: TextView
     private val renderer: BubbleRenderer
     private val timeLogic = Time()
@@ -56,7 +56,6 @@ class BubbleGLSurfaceView(context: Context) : GLSurfaceView(context) {
     private val firstDigitFormat = DecimalFormat("0.0")
 
     init {
-        timerText = mainActivity.findViewById<View>(R.id.Timer) as TextView
         timerText.typeface = Typeface.createFromAsset(this.assets, "fonts/PLUMP.ttf")
 
         scoreText = mainActivity.findViewById<View>(R.id.Score) as TextView
@@ -74,12 +73,17 @@ class BubbleGLSurfaceView(context: Context) : GLSurfaceView(context) {
         effectPlayer.isMuted = value
     }
 
-    //Collect Bubbles
+    fun getScore(): Int = score
+    fun getTimer(): Float = timer
+
+    fun setGameState(score: Int, timer: Float) {
+        this.score = score
+        this.timer = timer
+    }
+
     override fun onTouchEvent(event: MotionEvent): Boolean {
         when (event.action and MotionEvent.ACTION_MASK) {
             MotionEvent.ACTION_DOWN -> {
-                //Checks if Object is hit by touch
-                //isTouch locks remove loops in update method as long as the touch event is executet
                 isTouch = true
                 var targetIndex = -1
                 var targetCounter = 0
@@ -144,12 +148,9 @@ class BubbleGLSurfaceView(context: Context) : GLSurfaceView(context) {
         }
 
         override fun onDrawFrame(gl: GL10) {
-            // update time calculation
             val delta = System.currentTimeMillis() - lastFrameTime
             val fracSec = delta.toFloat() / 1000
             lastFrameTime = System.currentTimeMillis()
-
-            // scene updates
             if (timer < 10 && !alarmed) {
                 effectPlayer.playSound(R.raw.alarm)
                 alarmed = true
@@ -159,9 +160,7 @@ class BubbleGLSurfaceView(context: Context) : GLSurfaceView(context) {
             } else {
                 timer -= fracSec
             }
-            // update color to collect
             collectColor = generator.generateCollectColor(collectColor, score)
-            // refresh HUD
             mainActivity.runOnUiThread {
                 if (alarmed) {
                     if (timerText.animation == null) {
@@ -181,17 +180,12 @@ class BubbleGLSurfaceView(context: Context) : GLSurfaceView(context) {
                     setHUDColor(generator.getGLColor(collectColor))
                 }
             }
-            //update gameobjects
             updateGameobjects(fracSec)
             combo.update()
-            // clear screen and depth buffer
             gl.glClear(GL10.GL_COLOR_BUFFER_BIT or GL10.GL_DEPTH_BUFFER_BIT)
             val gl11 = gl as GL11
-
-            // load local system to draw scene items
             gl.glMatrixMode(GL10.GL_MODELVIEW)
             gl11.glLoadMatrixf(modelViewScene, 0)
-            //draw gameobjects
             gameObjects.forEach { it.draw(gl) }
         }
 
@@ -199,8 +193,6 @@ class BubbleGLSurfaceView(context: Context) : GLSurfaceView(context) {
 
             gameObjects.forEach {
                 it.update(fracSec)
-                // offset makes sure that the gameobjects don't get deleted or set
-                // inactive while visible to the player.
                 val offset = it.scale
                 if (it.x > boundaries.right + offset
                     || it.x < boundaries.left - offset
@@ -214,10 +206,8 @@ class BubbleGLSurfaceView(context: Context) : GLSurfaceView(context) {
                 if (isTouch) {
                     break
                 }
-                // collected bubble or star
                 when (gameObject) {
                     is Bubble -> {
-                        //Check if hit bubble have the right color
                         if (gameObject.color == collectColor) {
                             val time = timeLogic.getBubbleTimeFor(gameObject.speed)
                             timer += time
@@ -265,23 +255,17 @@ class BubbleGLSurfaceView(context: Context) : GLSurfaceView(context) {
                 gameObjects.remove(gameObject)
             }
             objectsToBeRemoved.clear()
-            //spawn new gameobjects
             generator.generateGameobject(collectColor, score)
         }
 
-        // Called when surface is created or the viewport gets resized
-        // set projection matrix
-        // precalculate modelview matrix
         override fun onSurfaceChanged(gl: GL10, width: Int, height: Int) {
             val gl11 = gl as GL11
             gl.glViewport(0, 0, width, height)
             val aspectRatio = width.toFloat() / height
             val fovy = 45.0f
-            // set up projection matrix for scene
             gl.glMatrixMode(GL10.GL_PROJECTION)
             gl.glLoadIdentity()
             GLU.gluPerspective(gl, fovy, aspectRatio, 0.001f, 100.0f)
-            // set up modelview matrix for scene
             gl.glMatrixMode(GL10.GL_MODELVIEW)
             gl.glLoadIdentity()
             val desiredHeight = if (aspectRatio > 1.0f) 10.0f else 10.0f / aspectRatio
@@ -294,14 +278,14 @@ class BubbleGLSurfaceView(context: Context) : GLSurfaceView(context) {
                 (desiredHeight / 2 / tan(fovy / 2 * (Math.PI / 180.0f))).toFloat()
             // forward for the camera is backward for the scene
             gl.glTranslatef(0.0f, 0.0f, -z)
-            // rotate local to achive top down view from negative y down to xz-plane
+            // rotate local to achieve top down view from negative y down to xz-plane
             // z range is the desired height
             gl.glRotatef(-90.0f, 1.0f, 0.0f, 0.0f)
             // save local system as a basis to draw scene items
             gl11.glGetFloatv(GL11.GL_MODELVIEW_MATRIX, modelViewScene, 0)
             // window boundaries
             boundaries.updateWith(desiredHeight, aspectRatio)
-            // tochevent pixel coordinates to openGL coordinates
+            // touch event pixel coordinates to openGL coordinates
             unitsPerPixelZ = desiredHeight / height
             unitsPerPixelX = desiredHeight * aspectRatio / width
         }
