@@ -98,10 +98,12 @@ class MainActivity : Activity() {
 
     public override fun onResume() {
         super.onResume()
+        currentBubbleView?.resumeGame()
         musicPlayer.isMuted = settingsModel.isMusicMuted
     }
 
     public override fun onPause() {
+        currentBubbleView?.pauseGame()
         super.onPause()
         musicPlayer.pause()
     }

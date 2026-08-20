@@ -73,6 +73,15 @@ class BubbleGLSurfaceView(context: Context) : GLSurfaceView(context) {
         effectPlayer.isMuted = value
     }
 
+    fun pauseGame() {
+        onPause()
+    }
+
+    fun resumeGame() {
+        renderer.lastFrameTime = System.currentTimeMillis()
+        onResume()
+    }
+
     fun getScore(): Int = score
     fun getTimer(): Float = timer
 
