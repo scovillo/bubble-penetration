@@ -12,7 +12,7 @@ function toHighscoreResponse(row) {
   };
 }
 
-highscoreController.post("/username", function (req, res, next) {
+highscoreController.post("/users", function (req, res, next) {
   const username = req.body?.username?.trim();
 
   if (!username) {

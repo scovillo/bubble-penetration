@@ -9,7 +9,7 @@ servers:
   - url: https://dev.bubble.lukas-scheerer.de/api
     description: Development
 paths:
-  /v1/username:
+  /v1/users:
     post:
       summary: Register username
       description: Creates a user with initial highscore 0 when the username does not yet exist.
@@ -18,41 +18,41 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreateUsernameRequest'
+              $ref: "#/components/schemas/CreateUsernameRequest"
             examples:
               default:
                 value:
                   username: Lukas
       responses:
-        '201':
+        "201":
           description: User created
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CreateUsernameSuccessResponse'
+                $ref: "#/components/schemas/CreateUsernameSuccessResponse"
               examples:
                 created:
                   value:
                     success: true
                     user:
                       username: Lukas
-        '200':
+        "200":
           description: Username already exists
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
               examples:
                 alreadyExists:
                   value:
                     success: false
                     message: username already exists
-        '400':
+        "400":
           description: Invalid payload
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
               examples:
                 invalidUsername:
                   value:
@@ -63,12 +63,12 @@ paths:
       summary: List highscores
       description: Returns all highscores sorted descending.
       responses:
-        '200':
+        "200":
           description: Highscores loaded
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GetHighscoresResponse'
+                $ref: "#/components/schemas/GetHighscoresResponse"
               examples:
                 default:
                   value:
@@ -84,19 +84,19 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/SaveHighscoreRequest'
+              $ref: "#/components/schemas/SaveHighscoreRequest"
             examples:
               default:
                 value:
                   username: Lukas
                   highscore: 4711
       responses:
-        '200':
+        "200":
           description: Existing user highscore processed
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SaveHighscoreResponse'
+                $ref: "#/components/schemas/SaveHighscoreResponse"
               examples:
                 updatedOrUnchanged:
                   value:
@@ -106,12 +106,12 @@ paths:
                       username: Lukas
                       score: 4711
                       timestamp: 20.08.2026
-        '201':
+        "201":
           description: New user created with highscore
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SaveHighscoreResponse'
+                $ref: "#/components/schemas/SaveHighscoreResponse"
               examples:
                 created:
                   value:
@@ -121,12 +121,12 @@ paths:
                       username: Lukas
                       score: 4711
                       timestamp: 20.08.2026
-        '400':
+        "400":
           description: Invalid payload
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
               examples:
                 invalidUsername:
                   value:
@@ -196,7 +196,7 @@ components:
           type: boolean
           enum: [true]
         user:
-          $ref: '#/components/schemas/User'
+          $ref: "#/components/schemas/User"
     SaveHighscoreResponse:
       type: object
       additionalProperties: false
@@ -211,7 +211,7 @@ components:
         isNewHighscore:
           type: boolean
         highscore:
-          $ref: '#/components/schemas/Highscore'
+          $ref: "#/components/schemas/Highscore"
     GetHighscoresResponse:
       type: object
       additionalProperties: false
@@ -221,7 +221,7 @@ components:
         highscores:
           type: array
           items:
-            $ref: '#/components/schemas/Highscore'
+            $ref: "#/components/schemas/Highscore"
     ErrorResponse:
       type: object
       additionalProperties: false

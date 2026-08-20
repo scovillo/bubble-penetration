@@ -106,6 +106,7 @@ class MainActivity : Activity() {
         musicPlayer.pause()
     }
 
+    @JvmOverloads
     fun startGame(view: View?, score: Int = 0, timer: Float = 25.0f) {
         isGameRunning = true
         mainMenuLayout.hide()
@@ -113,11 +114,11 @@ class MainActivity : Activity() {
         setContentView(R.layout.game_hud)
         val bubbleGLSurfaceView = BubbleGLSurfaceView(this)
         bubbleGLSurfaceView.isMuted(settingsModel.areSoundEffectsMuted)
-        
+
         if (score > 0 || timer != 25.0f) {
             bubbleGLSurfaceView.setGameState(score, timer)
         }
-        
+
         currentBubbleView = bubbleGLSurfaceView
         val glSurfaceViewHolder = findViewById<View>(R.id.GLSurfaceViewHolder) as FrameLayout
         glSurfaceViewHolder.addView(bubbleGLSurfaceView)

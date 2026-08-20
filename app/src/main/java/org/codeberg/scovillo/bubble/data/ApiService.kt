@@ -46,7 +46,7 @@ object ApiService {
     fun registerUsername(username: String): Future<UserResource> {
         return THREAD_POOL.submit(
             Callable {
-                val url = "$baseUrl/v1/username"
+                val url = "$baseUrl/v1/users"
                 Log.d(TAG, "POST request to: $url | payload: { username: $username }")
                 val httpConn = URL(url).openConnection() as HttpURLConnection
                 httpConn.requestMethod = "POST"
