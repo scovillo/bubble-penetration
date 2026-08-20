@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
-        android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@color/black">
@@ -58,54 +57,54 @@
                     android:layout_marginTop="8dp"
                     android:enabled="true"/>
         </LinearLayout>
-        <LinearLayout
-                android:orientation="horizontal"
-                android:layout_width="wrap_content"
+        <Button
+                android:id="@+id/highscore_gameover"
+                android:text="@string/highscore_button_text"
+                android:layout_width="300dp"
                 android:layout_height="wrap_content"
-                android:id="@+id/gameover_buttons"
+                android:textSize="20sp"
                 android:layout_marginTop="8dp"
-                android:layout_gravity="center">
-            <Button
-                    android:id="@+id/highscore_gameover"
-                    android:text="@string/highscore_button_text"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textSize="20sp"
-                    android:layout_margin="6sp"
-                    android:onClick="showHighscores"
-                    android:background="@drawable/button"
-                    android:enabled="true"
-                    android:textColor="@color/gold"
-                    android:clickable="true"
-                    android:focusable="true"/>
-            <Button
-                    android:id="@+id/rating_button"
-                    android:text="@string/rating"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textSize="20sp"
-                    android:layout_margin="6sp"
-                    android:onClick="launchMarket"
-                    android:background="@drawable/button"
-                    android:enabled="true"
-                    android:textColor="@color/gold"
-                    android:clickable="true"
-                    android:focusable="true"/>
+                android:layout_gravity="center"
+                android:onClick="showHighscores"
+                android:background="@drawable/button"
+                android:enabled="true"
+                android:textColor="@color/gold"
+                android:clickable="true"
+                android:focusable="true"/>
+    </LinearLayout>
 
-            <Button
-                    android:id="@+id/project_button"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="6sp"
-                    android:layout_weight="1"
-                    android:background="@drawable/button"
-                    android:clickable="true"
-                    android:enabled="true"
-                    android:focusable="true"
-                    android:onClick="openProjectWebsite"
-                    android:text="@string/project"
-                    android:textColor="@color/gold"
-                    android:textSize="20sp" />
-        </LinearLayout>
+    <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="8dp">
+        <Button
+                android:id="@+id/rating_button"
+                android:text="@string/rating"
+                android:layout_width="300dp"
+                android:layout_height="wrap_content"
+                android:textSize="20sp"
+                android:layout_margin="6dp"
+                android:onClick="launchMarket"
+                android:background="@drawable/button"
+                android:enabled="true"
+                android:textColor="@color/gold"
+                android:clickable="true"
+                android:focusable="true"/>
+        <Button
+                android:id="@+id/project_button"
+                android:text="@string/project"
+                android:layout_width="300dp"
+                android:layout_height="wrap_content"
+                android:textSize="20sp"
+                android:layout_margin="6dp"
+                android:onClick="openProjectWebsite"
+                android:background="@drawable/button"
+                android:enabled="true"
+                android:textColor="@color/gold"
+                android:clickable="true"
+                android:focusable="true"/>
     </LinearLayout>
 </RelativeLayout>
