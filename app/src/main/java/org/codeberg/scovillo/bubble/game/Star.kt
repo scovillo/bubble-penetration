@@ -32,10 +32,10 @@ class Star(speed: Float) : GameObject(speed) {
                 currentColor[3]
             )
             for (i in 0 until triangles.size / 3) {
-                trianglesBuffer!!.position(3 * i)
+                trianglesBuffer.position(3 * i)
                 gl.glDrawElements(GL10.GL_TRIANGLES, 3, GL10.GL_UNSIGNED_SHORT, trianglesBuffer)
             }
-            trianglesBuffer!!.position(0)
+            trianglesBuffer.position(0)
             gl.glDisableClientState(GL10.GL_VERTEX_ARRAY)
         }
         gl.glPopMatrix()
@@ -57,15 +57,15 @@ class Star(speed: Float) : GameObject(speed) {
     companion object {
         private var currentColor = FloatArray(4)
         private val vertices = floatArrayOf(
-            0.0f, 0.0f, 1.0f,  //0
-            -0.5f, 0.0f, 0.0f,  //1
-            0.5f, 0.0f, 0.0f,  //2
-            -1.5f, 0.0f, 0.0f,  //3
-            -0.75f, 0.0f, -0.75f,  //4
-            -1.0f, 0.0f, -1.75f,  //5
-            0.0f, 0.0f, -1.25f,  //6
-            1.5f, 0.0f, 0.0f,  //7
-            0.75f, 0.0f, -0.75f,  //8
+            0.0f, 0.0f, 1.0f,
+            -0.5f, 0.0f, 0.0f,
+            0.5f, 0.0f, 0.0f,
+            -1.5f, 0.0f, 0.0f,
+            -0.75f, 0.0f, -0.75f,
+            -1.0f, 0.0f, -1.75f,
+            0.0f, 0.0f, -1.25f,
+            1.5f, 0.0f, 0.0f,
+            0.75f, 0.0f, -0.75f,
             1.0f, 0.0f, -1.75f
         )
         private val triangles = shortArrayOf(
@@ -86,8 +86,6 @@ class Star(speed: Float) : GameObject(speed) {
     init {
         if (!buffersInitialized) {
             currentColor = floatArrayOf(1.0f, 0.875f, 0.0f, 0.7f)
-
-            // Initialize buffers
             val verticesBB = ByteBuffer.allocateDirect(vertices.size * 4)
             verticesBB.order(ByteOrder.nativeOrder())
             verticesBuffer = verticesBB.asFloatBuffer()

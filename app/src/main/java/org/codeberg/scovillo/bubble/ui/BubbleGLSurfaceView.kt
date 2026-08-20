@@ -12,16 +12,16 @@ import android.view.animation.Animation
 import android.widget.TextView
 import org.codeberg.scovillo.bubble.MainActivity
 import org.codeberg.scovillo.bubble.R
-import org.codeberg.scovillo.bubble.game.Combo
-import org.codeberg.scovillo.bubble.game.Generator
-import org.codeberg.scovillo.bubble.game.Time
 import org.codeberg.scovillo.bubble.game.Bubble
 import org.codeberg.scovillo.bubble.game.BubbleColors
+import org.codeberg.scovillo.bubble.game.Combo
 import org.codeberg.scovillo.bubble.game.GameObject
+import org.codeberg.scovillo.bubble.game.Generator
 import org.codeberg.scovillo.bubble.game.Star
+import org.codeberg.scovillo.bubble.game.Time
+import org.codeberg.scovillo.bubble.sound.SoundEffects
 import org.codeberg.scovillo.bubble.ui.hud.ScorePostfix
 import org.codeberg.scovillo.bubble.ui.hud.TimerPostfix
-import org.codeberg.scovillo.bubble.sound.SoundEffects
 import java.math.RoundingMode
 import java.text.DecimalFormat
 import javax.microedition.khronos.egl.EGLConfig
@@ -189,7 +189,7 @@ class BubbleGLSurfaceView(context: Context) : GLSurfaceView(context) {
                     setHUDColor(generator.getGLColor(collectColor))
                 }
             }
-            updateGameobjects(fracSec)
+            updateGameObjects(fracSec)
             combo.update()
             gl.glClear(GL10.GL_COLOR_BUFFER_BIT or GL10.GL_DEPTH_BUFFER_BIT)
             val gl11 = gl as GL11
@@ -198,7 +198,7 @@ class BubbleGLSurfaceView(context: Context) : GLSurfaceView(context) {
             gameObjects.forEach { it.draw(gl) }
         }
 
-        private fun updateGameobjects(fracSec: Float) {
+        private fun updateGameObjects(fracSec: Float) {
 
             gameObjects.forEach {
                 it.update(fracSec)

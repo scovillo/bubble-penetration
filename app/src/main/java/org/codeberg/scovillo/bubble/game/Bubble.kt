@@ -52,7 +52,6 @@ class Bubble(
                 h1 = sin(angleA * Math.PI / 180.0).toFloat()
                 h2 = sin((angleA + step) * Math.PI / 180.0).toFloat()
 
-                // Fixed latitude, 360 degrees rotation to traverse a weft
                 angleB = 0.0f
                 while (angleB <= 360.0f) {
                     cos = cos(angleB * Math.PI / 180.0).toFloat()
@@ -91,7 +90,6 @@ class Bubble(
     override fun update(fracSec: Float) {
         updatePosition(fracSec)
 
-        //Wobble update
         if (wobbleX + 0.015 <= 1.1 && wobbleXup) {
             wobbleX += 0.015f
         } else {

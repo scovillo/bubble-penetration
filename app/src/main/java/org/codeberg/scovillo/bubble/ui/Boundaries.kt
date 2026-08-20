@@ -11,11 +11,11 @@ class Boundaries {
     var right: Float = 0.0f
         private set
 
-    fun updateWith(desired_height: Float, aspectRatio: Float) {
-        top = desired_height / 2
-        bottom = -desired_height / 2
-        left = -(desired_height / 2 * aspectRatio)
-        right = desired_height / 2 * aspectRatio
+    fun updateWith(desiredHeight: Float, aspectRatio: Float) {
+        top = desiredHeight / 2
+        bottom = -desiredHeight / 2
+        left = -(desiredHeight / 2 * aspectRatio)
+        right = desiredHeight / 2 * aspectRatio
     }
 
 }

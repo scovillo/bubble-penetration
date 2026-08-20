@@ -2,17 +2,15 @@ package org.codeberg.scovillo.bubble.game
 
 import android.opengl.Matrix
 import javax.microedition.khronos.opengles.GL10
+import kotlin.math.acos
+import kotlin.math.sqrt
 
 abstract class GameObject(val speed: Float) {
-    // current transformation matrix
-    var transformationMatrix: FloatArray
-
-    // current velocity (x,y,z)
-    var velocity: FloatArray
-
-    // current y-rotation, positive is z to x direction; angle zero is z-axis
+    var transformationMatrix: FloatArray = FloatArray(16)
+    var velocity: FloatArray = FloatArray(3)
     var yRot = 0f
     var scale = 1.0f
+
     abstract fun draw(gl: GL10)
     abstract fun update(fracSec: Float)
     fun setVelocity(vx: Float, vy: Float, vz: Float) {
@@ -23,8 +21,8 @@ abstract class GameObject(val speed: Float) {
 
     fun setYRot() {
         if (velocity[0] * velocity[0] + velocity[1] * velocity[1] + velocity[2] * velocity[2] > 1E-20
-        ) yRot = (Math.acos(
-            velocity[2] / Math.sqrt(
+        ) yRot = (acos(
+            velocity[2] / sqrt(
                 velocity[0] * velocity[0] + velocity[2] * velocity[2].toDouble()
             )
         ) * 180 / Math.PI).toFloat()
@@ -73,8 +71,6 @@ abstract class GameObject(val speed: Float) {
         }
 
     init {
-        transformationMatrix = FloatArray(16)
-        velocity = FloatArray(3)
         Matrix.setIdentityM(transformationMatrix, 0)
     }
 }
