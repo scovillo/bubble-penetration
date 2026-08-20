@@ -6,13 +6,20 @@ import android.net.Uri
 import android.os.Bundle
 import android.view.View
 import android.view.WindowManager
-import android.widget.*
+import android.widget.CheckBox
+import android.widget.EditText
+import android.widget.FrameLayout
+import android.widget.Toast
 import android.widget.Toast.LENGTH_LONG
 import android.widget.Toast.LENGTH_SHORT
 import org.codeberg.scovillo.bubble.data.ApiService
 import org.codeberg.scovillo.bubble.data.LocalFileStorage
 import org.codeberg.scovillo.bubble.screen.BubbleGLSurfaceView
-import org.codeberg.scovillo.bubble.screen.layout.*
+import org.codeberg.scovillo.bubble.screen.layout.GameOverScreenLayout
+import org.codeberg.scovillo.bubble.screen.layout.HighscoreLayout
+import org.codeberg.scovillo.bubble.screen.layout.MainMenuLayout
+import org.codeberg.scovillo.bubble.screen.layout.UsernameCreationLayout
+import org.codeberg.scovillo.bubble.screen.layout.UsernameSelectionLayout
 import org.codeberg.scovillo.bubble.sound.MusicPlayer
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
@@ -35,8 +42,6 @@ class MainActivity : Activity() {
     private val mainMenuLayout = MainMenuLayout(this, musicPlayer)
 
     lateinit var selectedUser: UserResource
-        private set
-    lateinit var currentMatch: MatchStartResource
         private set
     private var users = mutableListOf<UserResource>()
 
@@ -62,7 +67,6 @@ class MainActivity : Activity() {
     }
 
     fun startGame(view: View) {
-        currentMatch = ApiService.startMatch(selectedUser.id)[6000, TimeUnit.MILLISECONDS]
         mainMenuLayout.hide()
         areSoundEffectsMuted = !(view.findViewById<View>(R.id.effects_box) as CheckBox).isChecked
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
@@ -106,7 +110,6 @@ class MainActivity : Activity() {
             Toast.makeText(this, "sorry, maximal 10 letters!", LENGTH_SHORT).show()
             return
         }
-
         try {
             val created = ApiService.registerUsername(value)[6000, TimeUnit.MILLISECONDS]
             users.add(created)
@@ -141,8 +144,8 @@ class MainActivity : Activity() {
         }
     }
 
-    fun openSpicySourcesWebsite(view: View) {
-        val uri = Uri.parse("https://www.spicysources.de/support/support.html")
+    fun openProjectWebsite(view: View) {
+        val uri = Uri.parse("https://codeberg.org/scovillo/bubble-penetration")
         val myAppLinkToMarket = Intent(Intent.ACTION_VIEW, uri)
         startActivity(myAppLinkToMarket)
     }

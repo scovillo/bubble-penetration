@@ -1,8 +1,7 @@
 package org.codeberg.scovillo.bubble.data
 
+import android.util.Log
 import org.codeberg.scovillo.bubble.BuildConfig
-import org.codeberg.scovillo.bubble.MatchEndResource
-import org.codeberg.scovillo.bubble.MatchStartResource
 import org.codeberg.scovillo.bubble.THREAD_POOL
 import org.codeberg.scovillo.bubble.UserResource
 import org.json.JSONArray
@@ -17,17 +16,28 @@ import java.util.concurrent.Future
 
 object ApiService {
 
+    private const val TAG = "ApiService"
     private val baseUrl = BuildConfig.BACKEND_BASEURL
 
     fun getHighscoreData(): Future<JSONArray> {
         return THREAD_POOL.submit(
             Callable {
+                val url = "$baseUrl/v1/highscores"
+                Log.d(TAG, "GET request to: $url")
                 val httpConn =
-                    URL("$baseUrl/v1/matches/highscores").openConnection() as HttpURLConnection
+                    URL(url).openConnection() as HttpURLConnection
                 httpConn.requestMethod = "GET"
                 httpConn.doOutput = false
-                val result = readResponseFrom(httpConn)
-                return@Callable JSONArray(result)
+                try {
+                    val result = readResponseFrom(httpConn)
+                    Log.d(TAG, "Highscore response: $result")
+                    return@Callable JSONArray(result)
+                } catch (e: Exception) {
+                    Log.e(TAG, "Error fetching highscores", e)
+                    throw e
+                } finally {
+                    httpConn.disconnect()
+                }
             }
         )
     }
@@ -35,62 +45,50 @@ object ApiService {
     fun registerUsername(username: String): Future<UserResource> {
         return THREAD_POOL.submit(
             Callable {
+                val url = "$baseUrl/v1/username"
+                Log.d(TAG, "POST request to: $url | payload: { username: $username }")
+                val httpConn = URL(url).openConnection() as HttpURLConnection
+                httpConn.requestMethod = "POST"
+                httpConn.doOutput = true
+
+                val body = JSONObject("{}")
+                body.put("username", username)
+
+                sendPost(httpConn, body)
+
+                try {
+                    val resultString = readResponseFrom(httpConn)
+                    Log.d(TAG, "Register user response: $resultString")
+                    val result = JSONObject(resultString)
+                    return@Callable UserResource(result.getString("id"), result.getString("username"))
+                } catch (e: Exception) {
+                    Log.e(TAG, "Error registering username", e)
+                    throw e
+                } finally {
+                    httpConn.disconnect()
+                }
+            }
+        )
+    }
+
+    fun registerHighscore(username: String, score: String): Future<Boolean> {
+        return THREAD_POOL.submit(
+            Callable {
                 val httpConn = URL(
-                    "$baseUrl/v1/users"
+                    "https://$baseUrl/v1/highscores"
                 ).openConnection() as HttpURLConnection
                 httpConn.requestMethod = "POST"
                 httpConn.doOutput = true
 
                 val body = JSONObject("{}")
-                body.put("name", username)
+                body.put("username", username)
+                body.put("highscore", score)
 
                 sendPost(httpConn, body)
 
-                val result = JSONObject(readResponseFrom(httpConn))
+                val result = readResponseFrom(httpConn)
                 httpConn.disconnect()
-                return@Callable UserResource(result.getString("id"), result.getString("name"))
-            }
-        )
-    }
-
-    fun startMatch(userId: String): Future<MatchStartResource> {
-        return THREAD_POOL.submit(
-            Callable {
-                val httpConn = URL(
-                    "$baseUrl/v1/matches"
-                ).openConnection() as HttpURLConnection
-                httpConn.requestMethod = "POST"
-                httpConn.doOutput = true
-
-                val body = JSONObject("{}")
-                body.put("userId", userId)
-
-                sendPost(httpConn, body)
-
-                val result = JSONObject(readResponseFrom(httpConn))
-                httpConn.disconnect()
-                return@Callable MatchStartResource(result.getString("id"))
-            }
-        )
-    }
-
-    fun endMatch(matchId: String, score: Int): Future<MatchEndResource> {
-        return THREAD_POOL.submit(
-            Callable {
-                val httpConn = URL(
-                    "$baseUrl/v1/matches/$matchId"
-                ).openConnection() as HttpURLConnection
-                httpConn.requestMethod = "PUT"
-                httpConn.doOutput = true
-
-                val body = JSONObject("{}")
-                body.put("score", score)
-
-                sendPost(httpConn, body)
-
-                val result = JSONObject(readResponseFrom(httpConn))
-                httpConn.disconnect()
-                return@Callable MatchEndResource(result.getString("id"), result.getInt("score"), result.getBoolean("isHighscore"))
+                return@Callable result == "true"
             }
         )
     }

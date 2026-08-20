@@ -10,8 +10,8 @@ import android.widget.Toast
 import android.widget.Toast.LENGTH_LONG
 import org.codeberg.scovillo.bubble.MainActivity
 import org.codeberg.scovillo.bubble.R
-import org.codeberg.scovillo.bubble.data.ApiService
 import org.codeberg.scovillo.bubble.THREAD_POOL
+import org.codeberg.scovillo.bubble.data.ApiService
 import java.util.concurrent.TimeUnit
 
 class GameOverScreenLayout(private val mainActivity: MainActivity) {
@@ -56,9 +56,9 @@ class GameOverScreenLayout(private val mainActivity: MainActivity) {
         gameOverScore.text = score
         THREAD_POOL.execute {
             try {
-                val matchEndResource = ApiService.endMatch(mainActivity.currentMatch.id, score.toInt())[6000, TimeUnit.MILLISECONDS]
+                val isRecord = ApiService.registerHighscore(mainActivity.selectedUser.name, score)[6000, TimeUnit.MILLISECONDS]
                 mainActivity.runOnUiThread {
-                    if (matchEndResource.isHighscore) {
+                    if (isRecord) {
                         (mainActivity.findViewById<View>(R.id.highscore_label) as TextView).text = "Great! check your new rank!"
                         (mainActivity.findViewById<View>(R.id.your_score_label) as TextView).text = "!!! New Highscore !!!"
                         (mainActivity.findViewById<View>(R.id.your_score_label) as TextView).setTextColor(YELLOW)

@@ -102,7 +102,7 @@
                     android:clickable="true"
                     android:enabled="true"
                     android:focusable="true"
-                    android:onClick="openSpicySourcesWebsite"
+                    android:onClick="openProjectWebsite"
                     android:text="@string/SUPPORT_US"
                     android:textColor="@color/gold"
                     android:textSize="20sp" />
