@@ -4,16 +4,43 @@ import * as highscoreService from "../../services/highscore.service.js";
 
 export const highscoreController = express.Router();
 
+function toHighscoreResponse(row) {
+  return {
+    name: row.username,
+    score: row.highscore,
+    timestamp: row.timestamp.toLocaleDateString("de-DE"),
+  };
+}
+
 highscoreController.post("/username", function (req, res, next) {
-  const { username } = req.body;
+  const username = req.body?.username?.trim();
+
+  if (!username) {
+    return res.status(400).json({
+      success: false,
+      message: "username must not be empty",
+    });
+  }
 
   highscoreService
     .findHighscore(username)
     .then((isExisting) => {
       if (isExisting) {
-        return res.end("false");
+        return res.json({
+          success: false,
+          message: "username already exists",
+        });
       } else {
-        highscoreService.create(username, 0).then(() => res.end("true"));
+        return highscoreService.create(username, 0).then((createdUser) =>
+          res.status(201).json({
+            success: true,
+            user: {
+              id: createdUser.username,
+              username: createdUser.username,
+              name: createdUser.username,
+            },
+          }),
+        );
       }
     })
     .catch((error) => {
@@ -26,11 +53,8 @@ highscoreController.get("/highscores", function (req, res, next) {
   highscoreService
     .findAll()
     .then((highscores) => {
-      highscores.forEach(
-        (row) => (row.timestamp = row.timestamp.toLocaleDateString("de-DE")),
-      );
       const body = {
-        highscores,
+        highscores: highscores.map(toHighscoreResponse),
       };
       res.json(body);
     })
@@ -42,6 +66,14 @@ highscoreController.get("/highscores", function (req, res, next) {
 
 highscoreController.post("/highscores", function (req, res, next) {
   const { username, highscore } = req.body;
+
+  if (!username?.trim()) {
+    return res.status(400).json({
+      success: false,
+      message: "username must not be empty",
+    });
+  }
+
   highscoreService
     .findHighscore(username)
     .then((existingHighscore) => {
@@ -52,11 +84,12 @@ highscoreController.post("/highscores", function (req, res, next) {
       return highscoreService
         .save(username, highscore)
         .then((savedHighscore) => {
-          if (savedHighscore.highscore > highscoreBefore) {
-            return res.end("true");
-          }
-
-          return res.end("false");
+          const isNewHighscore = savedHighscore.highscore > highscoreBefore;
+          return res.status(existingHighscore ? 200 : 201).json({
+            success: true,
+            isNewHighscore,
+            highscore: toHighscoreResponse(savedHighscore),
+          });
         });
     })
     .catch((error) => {

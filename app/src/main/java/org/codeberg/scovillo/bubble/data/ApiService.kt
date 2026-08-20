@@ -31,7 +31,8 @@ object ApiService {
                 try {
                     val result = readResponseFrom(httpConn)
                     Log.d(TAG, "Highscore response: $result")
-                    return@Callable JSONArray(result)
+                    val response = JSONObject(result)
+                    return@Callable response.getJSONArray("highscores")
                 } catch (e: Exception) {
                     Log.e(TAG, "Error fetching highscores", e)
                     throw e
@@ -60,7 +61,13 @@ object ApiService {
                     val resultString = readResponseFrom(httpConn)
                     Log.d(TAG, "Register user response: $resultString")
                     val result = JSONObject(resultString)
-                    return@Callable UserResource(result.getString("id"), result.getString("username"))
+                    if (!result.optBoolean("success", false)) {
+                        throw IllegalStateException(result.optString("message", "username already exists"))
+                    }
+                    val user = result.getJSONObject("user")
+                    val id = user.getString("id")
+                    val username = user.optString("name", user.optString("username"))
+                    return@Callable UserResource(id, username)
                 } catch (e: Exception) {
                     Log.e(TAG, "Error registering username", e)
                     throw e
@@ -74,9 +81,9 @@ object ApiService {
     fun registerHighscore(username: String, score: String): Future<Boolean> {
         return THREAD_POOL.submit(
             Callable {
-                val httpConn = URL(
-                    "https://$baseUrl/v1/highscores"
-                ).openConnection() as HttpURLConnection
+                val url = "$baseUrl/v1/highscores"
+                Log.d(TAG, "POST request to: $url | payload: { username: $username, highscore: $score }")
+                val httpConn = URL(url).openConnection() as HttpURLConnection
                 httpConn.requestMethod = "POST"
                 httpConn.doOutput = true
 
@@ -86,22 +93,44 @@ object ApiService {
 
                 sendPost(httpConn, body)
 
-                val result = readResponseFrom(httpConn)
-                httpConn.disconnect()
-                return@Callable result == "true"
+                try {
+                    val result = readResponseFrom(httpConn)
+                    Log.d(TAG, "Register highscore response: $result")
+                    val response = JSONObject(result)
+                    return@Callable response.getBoolean("isNewHighscore")
+                } finally {
+                    httpConn.disconnect()
+                }
             }
         )
     }
 
     private fun readResponseFrom(httpURLConnection: HttpURLConnection): String {
-        val reader = BufferedReader(InputStreamReader(httpURLConnection.inputStream))
+        val responseCode = httpURLConnection.responseCode
+        val responseStream = if (responseCode in 200..299) {
+            httpURLConnection.inputStream
+        } else {
+            httpURLConnection.errorStream
+        }
+
+        if (responseStream == null) {
+            throw IllegalStateException("HTTP $responseCode without response body")
+        }
+
+        val reader = BufferedReader(InputStreamReader(responseStream))
         var inputLine: String?
         val content = StringBuffer()
         while (reader.readLine().also { inputLine = it } != null) {
             content.append(inputLine)
         }
         reader.close()
-        return content.toString()
+        val responseBody = content.toString()
+
+        if (responseCode !in 200..299) {
+            throw IllegalStateException("HTTP $responseCode: $responseBody")
+        }
+
+        return responseBody
     }
 
     private fun sendPost(httpURLConnection: HttpURLConnection, body: JSONObject) {

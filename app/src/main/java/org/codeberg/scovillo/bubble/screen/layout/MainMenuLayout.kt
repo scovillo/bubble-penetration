@@ -4,13 +4,17 @@ import android.graphics.Typeface
 import android.view.View
 import android.view.animation.AlphaAnimation
 import android.view.animation.Animation
-import android.widget.*
+import android.widget.Button
+import android.widget.CheckBox
+import android.widget.FrameLayout
+import android.widget.TextView
+import android.widget.Toast
 import org.codeberg.scovillo.bubble.MainActivity
 import org.codeberg.scovillo.bubble.R
+import org.codeberg.scovillo.bubble.THREAD_POOL
 import org.codeberg.scovillo.bubble.data.ApiService
 import org.codeberg.scovillo.bubble.screen.MenuGLSurfaceView
 import org.codeberg.scovillo.bubble.sound.MusicPlayer
-import org.codeberg.scovillo.bubble.THREAD_POOL
 import java.util.concurrent.TimeUnit
 
 class MainMenuLayout(private val mainActivity: MainActivity, private val musicPlayer: MusicPlayer) {
@@ -23,8 +27,8 @@ class MainMenuLayout(private val mainActivity: MainActivity, private val musicPl
         loadCurrentChampionAsync()
 
         menuGLSurfaceView = MenuGLSurfaceView(mainActivity)
-        val championTextView = (mainActivity.findViewById<View>(R.id.champion_text) as TextView)
-        championTextView.typeface = Typeface.createFromAsset(
+        val championTextView = mainActivity.findViewById<TextView?>(R.id.champion_text)
+        championTextView?.typeface = Typeface.createFromAsset(
             mainActivity.assets,
             "fonts/PLUMP.ttf"
         )
@@ -77,12 +81,13 @@ class MainMenuLayout(private val mainActivity: MainActivity, private val musicPl
 
     private fun loadCurrentChampionAsync() {
         THREAD_POOL.execute {
-            val championTextView = (mainActivity.findViewById<View>(R.id.champion_text) as TextView)
             try {
                 val highscoreRequest = ApiService.getHighscoreData()
                 val jsonArray = highscoreRequest[8000, TimeUnit.MILLISECONDS]
 
                 mainActivity.runOnUiThread {
+                    val championTextView = mainActivity.findViewById<TextView?>(R.id.champion_text)
+                        ?: return@runOnUiThread
                     if (jsonArray.length() > 0) {
                         championTextView.text = "Champion:\n${jsonArray.getJSONObject(0).getString("name")} with ${jsonArray.getJSONObject(0).getString("score")} !"
                     } else {
@@ -91,6 +96,8 @@ class MainMenuLayout(private val mainActivity: MainActivity, private val musicPl
                 }
             } catch (exception: Exception) {
                 mainActivity.runOnUiThread {
+                    val championTextView = mainActivity.findViewById<TextView?>(R.id.champion_text)
+                        ?: return@runOnUiThread
                     Toast.makeText(mainActivity, "Server is currently not available...please try again later.", Toast.LENGTH_LONG).show()
                     championTextView.text = mainActivity.getString(R.string.NO_CHAMPION)
                 }
