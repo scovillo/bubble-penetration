@@ -47,6 +47,7 @@ class MainActivity : Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        settingsModel.load(this)
         musicPlayer.init()
         users = localFileStorage.readFromFile()
         if(users.isEmpty()) {
@@ -94,12 +95,14 @@ class MainActivity : Activity() {
         if (view is CheckBox) {
             settingsModel.isMusicMuted = !view.isChecked
             musicPlayer.isMuted = settingsModel.isMusicMuted
+            settingsModel.save(this)
         }
     }
 
     fun setEffects(view: View) {
         if (view is CheckBox) {
             settingsModel.areSoundEffectsMuted = !view.isChecked
+            settingsModel.save(this)
         }
     }
 
