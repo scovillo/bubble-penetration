@@ -1,4 +1,4 @@
-package org.codeberg.scovillo.bubble.data
+package org.codeberg.scovillo.bubble.persistence
 
 import android.content.Context
 

@@ -1,12 +1,12 @@
-package org.codeberg.scovillo.bubble.screen
+package org.codeberg.scovillo.bubble.ui
 
 import android.content.Context
 import android.opengl.GLSurfaceView
 import android.opengl.GLU
 import org.codeberg.scovillo.bubble.MainActivity
-import org.codeberg.scovillo.bubble.objects.GameObject
-import org.codeberg.scovillo.bubble.objects.BubbleColors
-import org.codeberg.scovillo.bubble.logic.Generator
+import org.codeberg.scovillo.bubble.game.GameObject
+import org.codeberg.scovillo.bubble.game.BubbleColors
+import org.codeberg.scovillo.bubble.game.Generator
 import java.lang.Math.*
 import java.util.*
 import javax.microedition.khronos.egl.EGLConfig

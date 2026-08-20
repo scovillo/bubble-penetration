@@ -1,4 +1,4 @@
-package org.codeberg.scovillo.bubble
+package org.codeberg.scovillo.bubble.api
 
 import org.json.JSONObject
 

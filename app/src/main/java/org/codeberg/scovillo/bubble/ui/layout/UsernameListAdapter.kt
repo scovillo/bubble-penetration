@@ -1,4 +1,4 @@
-package org.codeberg.scovillo.bubble.screen.layout
+package org.codeberg.scovillo.bubble.ui.layout
 
 import android.content.Context.LAYOUT_INFLATER_SERVICE
 import android.graphics.Typeface
@@ -9,7 +9,7 @@ import android.widget.ArrayAdapter
 import android.widget.TextView
 import org.codeberg.scovillo.bubble.MainActivity
 import org.codeberg.scovillo.bubble.R
-import org.codeberg.scovillo.bubble.UserResource
+import org.codeberg.scovillo.bubble.api.UserResource
 
 class UsernameListAdapter(private val mainActivity: MainActivity, private val users: MutableList<UserResource>) : ArrayAdapter<UserResource>(mainActivity, R.layout.username_list_row, users) {
 

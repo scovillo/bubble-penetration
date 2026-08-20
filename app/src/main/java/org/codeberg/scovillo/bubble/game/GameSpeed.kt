@@ -1,4 +1,4 @@
-package org.codeberg.scovillo.bubble.logic
+package org.codeberg.scovillo.bubble.game
 
 import java.lang.Math.random
 import kotlin.math.log

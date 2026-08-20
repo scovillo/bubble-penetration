@@ -1,9 +1,9 @@
-package org.codeberg.scovillo.bubble.data
+package org.codeberg.scovillo.bubble.persistence
 
 import android.content.Context
 import android.util.Log
 import org.codeberg.scovillo.bubble.MainActivity
-import org.codeberg.scovillo.bubble.UserResource
+import org.codeberg.scovillo.bubble.api.UserResource
 import org.json.JSONObject
 import java.io.*
 

@@ -1,4 +1,4 @@
-package org.codeberg.scovillo.bubble.screen.layout
+package org.codeberg.scovillo.bubble.ui.layout
 
 import android.graphics.Typeface
 import android.view.View
@@ -12,8 +12,8 @@ import android.widget.Toast
 import org.codeberg.scovillo.bubble.MainActivity
 import org.codeberg.scovillo.bubble.R
 import org.codeberg.scovillo.bubble.THREAD_POOL
-import org.codeberg.scovillo.bubble.data.ApiService
-import org.codeberg.scovillo.bubble.screen.MenuGLSurfaceView
+import org.codeberg.scovillo.bubble.api.ApiService
+import org.codeberg.scovillo.bubble.ui.MenuGLSurfaceView
 import org.codeberg.scovillo.bubble.sound.MusicPlayer
 import java.util.concurrent.TimeUnit
 

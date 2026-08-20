@@ -1,10 +1,6 @@
-package org.codeberg.scovillo.bubble.logic
+package org.codeberg.scovillo.bubble.game
 
-import org.codeberg.scovillo.bubble.objects.Bubble
-import org.codeberg.scovillo.bubble.objects.GameObject
-import org.codeberg.scovillo.bubble.objects.Star
-import org.codeberg.scovillo.bubble.screen.Boundaries
-import org.codeberg.scovillo.bubble.objects.BubbleColors
+import org.codeberg.scovillo.bubble.ui.Boundaries
 import java.util.*
 
 class Generator(private val gameObjects: MutableList<GameObject>, private val boundaries: Boundaries) {

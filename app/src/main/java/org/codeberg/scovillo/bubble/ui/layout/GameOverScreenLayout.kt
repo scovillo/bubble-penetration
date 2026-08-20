@@ -1,4 +1,4 @@
-package org.codeberg.scovillo.bubble.screen.layout
+package org.codeberg.scovillo.bubble.ui.layout
 
 import android.graphics.Color.WHITE
 import android.graphics.Color.YELLOW
@@ -10,7 +10,7 @@ import android.widget.Toast.LENGTH_LONG
 import org.codeberg.scovillo.bubble.MainActivity
 import org.codeberg.scovillo.bubble.R
 import org.codeberg.scovillo.bubble.THREAD_POOL
-import org.codeberg.scovillo.bubble.data.ApiService
+import org.codeberg.scovillo.bubble.api.ApiService
 import java.util.concurrent.TimeUnit
 
 class GameOverScreenLayout(private val mainActivity: MainActivity) {

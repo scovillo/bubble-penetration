@@ -1,4 +1,4 @@
-package org.codeberg.scovillo.bubble.screen.layout
+package org.codeberg.scovillo.bubble.ui.layout
 
 import android.graphics.Typeface
 import android.view.View
@@ -8,7 +8,7 @@ import android.widget.ListView
 import android.widget.TextView
 import org.codeberg.scovillo.bubble.MainActivity
 import org.codeberg.scovillo.bubble.R
-import org.codeberg.scovillo.bubble.UserResource
+import org.codeberg.scovillo.bubble.api.UserResource
 
 class UsernameSelectionLayout(private val mainActivity: MainActivity) {
 

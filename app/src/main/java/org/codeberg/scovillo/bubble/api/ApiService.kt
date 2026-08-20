@@ -1,9 +1,8 @@
-package org.codeberg.scovillo.bubble.data
+package org.codeberg.scovillo.bubble.api
 
 import android.util.Log
 import org.codeberg.scovillo.bubble.BuildConfig
 import org.codeberg.scovillo.bubble.THREAD_POOL
-import org.codeberg.scovillo.bubble.UserResource
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.BufferedReader

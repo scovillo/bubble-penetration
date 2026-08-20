@@ -1,4 +1,4 @@
-package org.codeberg.scovillo.bubble.objects
+package org.codeberg.scovillo.bubble.game
 
 import android.opengl.Matrix
 import java.nio.ByteBuffer

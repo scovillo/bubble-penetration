@@ -1,4 +1,4 @@
-package org.codeberg.scovillo.bubble.screen
+package org.codeberg.scovillo.bubble.ui
 
 import android.content.Context
 import android.graphics.Color
@@ -12,15 +12,15 @@ import android.view.animation.Animation
 import android.widget.TextView
 import org.codeberg.scovillo.bubble.MainActivity
 import org.codeberg.scovillo.bubble.R
-import org.codeberg.scovillo.bubble.logic.Combo
-import org.codeberg.scovillo.bubble.logic.Generator
-import org.codeberg.scovillo.bubble.logic.Time
-import org.codeberg.scovillo.bubble.objects.Bubble
-import org.codeberg.scovillo.bubble.objects.BubbleColors
-import org.codeberg.scovillo.bubble.objects.GameObject
-import org.codeberg.scovillo.bubble.objects.Star
-import org.codeberg.scovillo.bubble.screen.hud.ScorePostfix
-import org.codeberg.scovillo.bubble.screen.hud.TimerPostfix
+import org.codeberg.scovillo.bubble.game.Combo
+import org.codeberg.scovillo.bubble.game.Generator
+import org.codeberg.scovillo.bubble.game.Time
+import org.codeberg.scovillo.bubble.game.Bubble
+import org.codeberg.scovillo.bubble.game.BubbleColors
+import org.codeberg.scovillo.bubble.game.GameObject
+import org.codeberg.scovillo.bubble.game.Star
+import org.codeberg.scovillo.bubble.ui.hud.ScorePostfix
+import org.codeberg.scovillo.bubble.ui.hud.TimerPostfix
 import org.codeberg.scovillo.bubble.sound.SoundEffects
 import java.math.RoundingMode
 import java.text.DecimalFormat

@@ -1,4 +1,4 @@
-package org.codeberg.scovillo.bubble.screen.layout
+package org.codeberg.scovillo.bubble.ui.layout
 
 import android.graphics.Typeface
 import android.view.View

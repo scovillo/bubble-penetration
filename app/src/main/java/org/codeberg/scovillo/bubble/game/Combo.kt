@@ -1,4 +1,4 @@
-package org.codeberg.scovillo.bubble.logic
+package org.codeberg.scovillo.bubble.game
 
 import android.content.Context.VIBRATOR_SERVICE
 import android.graphics.Typeface

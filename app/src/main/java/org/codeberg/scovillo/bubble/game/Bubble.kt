@@ -1,4 +1,4 @@
-package org.codeberg.scovillo.bubble.objects
+package org.codeberg.scovillo.bubble.game
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.FloatBuffer
