@@ -1,49 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/black"
+    android:gravity="center"
+    android:orientation="vertical"
+    android:padding="12sp">
+
+    <TextView
+        android:id="@+id/greeting"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@color/black"
-        android:orientation="vertical">
-
-    <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingLeft="12sp"
-            android:paddingTop="12sp"
-            android:paddingRight="12sp">
-
-        <TextView
-                android:id="@+id/greeting"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_margin="12sp"
-                android:text="@string/greeting"
-                android:textAlignment="center"
-                android:textColor="@color/gold"
-                android:textSize="36sp" />
-
-        <Button
-                android:id="@+id/username_creation_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignEnd="@id/greeting"
-                android:layout_alignRight="@id/greeting"
-                android:layout_gravity="center"
-                android:layout_margin="12sp"
-                android:background="@drawable/button"
-                android:onClick="showUsernameCreationScreen"
-                android:text="@string/add"
-                android:textColor="@color/gold"
-                android:textSize="28sp" />
-    </RelativeLayout>
+        android:layout_height="wrap_content"
+        android:layout_margin="12sp"
+        android:text="@string/greeting"
+        android:textAlignment="center"
+        android:textColor="@color/gold"
+        android:textSize="36sp" />
 
     <ListView
-            android:id="@+id/username_list"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center_horizontal"
-            android:textAlignment="center"
-            android:textColor="@color/white" />
+        android:id="@+id/username_list"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:divider="@null"
+        android:dividerHeight="0dp" />
+
+    <Button
+        android:id="@+id/username_creation_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24sp"
+        android:layout_marginBottom="12sp"
+        android:background="@drawable/button"
+        android:onClick="showUsernameCreationScreen"
+        android:text="@string/add"
+        android:textColor="@color/gold"
+        android:textSize="28sp" />
 
 </LinearLayout>

@@ -1,17 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<GridLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-    <TextView
-            android:id="@+id/username_row_text"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_row="0"
-            android:layout_column="1"
-            android:gravity="center_horizontal"
-            android:padding="4sp"
-            android:textAlignment="center"
-            android:textColor="@color/white"
-            android:textSize="30sp" />
-</GridLayout>
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/username_row_text"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_horizontal"
+    android:padding="8sp"
+    android:textAlignment="center"
+    android:textColor="@color/white"
+    android:textSize="30sp" />
