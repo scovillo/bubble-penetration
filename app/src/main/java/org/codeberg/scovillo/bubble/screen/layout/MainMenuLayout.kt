@@ -59,12 +59,10 @@ class MainMenuLayout(private val mainActivity: MainActivity, private val musicPl
             mainActivity.assets,
             "fonts/PLUMP.ttf"
         )
-        if (musicPlayer.isMuted) {
-            (mainActivity.findViewById<View>(R.id.music_box) as CheckBox).isChecked = false
-        }
-        if (mainActivity.areSoundEffectsMuted) {
-            (mainActivity.findViewById<View>(R.id.effects_box) as CheckBox).isChecked = false
-        }
+
+        (mainActivity.findViewById<View>(R.id.music_box) as CheckBox).isChecked = !mainActivity.settingsModel.isMusicMuted
+        (mainActivity.findViewById<View>(R.id.effects_box) as CheckBox).isChecked = !mainActivity.settingsModel.areSoundEffectsMuted
+        
         val anim: Animation = AlphaAnimation(0.35f, 1.0f)
         anim.duration = 300
         anim.startOffset = 20

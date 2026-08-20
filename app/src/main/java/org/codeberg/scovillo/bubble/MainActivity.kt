@@ -14,6 +14,7 @@ import android.widget.Toast.LENGTH_LONG
 import android.widget.Toast.LENGTH_SHORT
 import org.codeberg.scovillo.bubble.data.ApiService
 import org.codeberg.scovillo.bubble.data.LocalFileStorage
+import org.codeberg.scovillo.bubble.data.SettingsModel
 import org.codeberg.scovillo.bubble.screen.BubbleGLSurfaceView
 import org.codeberg.scovillo.bubble.screen.layout.GameOverScreenLayout
 import org.codeberg.scovillo.bubble.screen.layout.HighscoreLayout
@@ -29,8 +30,7 @@ val THREAD_POOL: ExecutorService = Executors.newCachedThreadPool()
 
 class MainActivity : Activity() {
 
-    var areSoundEffectsMuted = false
-        private set
+    val settingsModel = SettingsModel()
 
     private val musicPlayer = MusicPlayer(this)
     private val localFileStorage = LocalFileStorage(this)
@@ -58,7 +58,7 @@ class MainActivity : Activity() {
 
     public override fun onResume() {
         super.onResume()
-        musicPlayer.start()
+        musicPlayer.isMuted = settingsModel.isMusicMuted
     }
 
     public override fun onPause() {
@@ -68,11 +68,10 @@ class MainActivity : Activity() {
 
     fun startGame(view: View) {
         mainMenuLayout.hide()
-        areSoundEffectsMuted = !(view.findViewById<View>(R.id.effects_box) as CheckBox).isChecked
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         setContentView(R.layout.game_hud)
         val bubbleGLSurfaceView = BubbleGLSurfaceView(this)
-        bubbleGLSurfaceView.isMuted(areSoundEffectsMuted)
+        bubbleGLSurfaceView.isMuted(settingsModel.areSoundEffectsMuted)
         val glSurfaceViewHolder = findViewById<View>(R.id.GLSurfaceViewHolder) as FrameLayout
         glSurfaceViewHolder.addView(bubbleGLSurfaceView)
     }
@@ -92,12 +91,16 @@ class MainActivity : Activity() {
     }
 
     fun setMusic(view: View) {
-        val isMusicMuted = !(findViewById<View>(R.id.music_box) as CheckBox).isChecked
-        musicPlayer.isMuted = isMusicMuted
+        if (view is CheckBox) {
+            settingsModel.isMusicMuted = !view.isChecked
+            musicPlayer.isMuted = settingsModel.isMusicMuted
+        }
     }
 
     fun setEffects(view: View) {
-        areSoundEffectsMuted = !(findViewById<View>(R.id.effects_box) as CheckBox).isChecked
+        if (view is CheckBox) {
+            settingsModel.areSoundEffectsMuted = !view.isChecked
+        }
     }
 
     fun saveUsername(view: View) {
