@@ -1,6 +1,6 @@
 {
   "name": "bubble-penetration-backend",
-  "version": "1.0.3",
+  "version": "1.0.0",
   "description": "Microservice to exchange highscores globally",
   "main": "src/app.js",
   "type": "module",
