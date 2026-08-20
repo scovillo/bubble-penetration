@@ -73,7 +73,7 @@ class MainMenuLayout(private val mainActivity: MainActivity, private val musicPl
     }
 
     fun hide() {
-        val glSurfaceViewHolder = mainActivity.findViewById<View>(R.id.menuGLSurfaceViewHolder) as FrameLayout
+        val glSurfaceViewHolder = mainActivity.findViewById<View?>(R.id.menuGLSurfaceViewHolder) as? FrameLayout ?: return
         glSurfaceViewHolder.removeAllViews()
     }
 

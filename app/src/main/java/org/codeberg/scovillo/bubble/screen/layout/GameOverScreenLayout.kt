@@ -25,6 +25,7 @@ class GameOverScreenLayout(private val mainActivity: MainActivity) {
         mainActivity.findViewById<TextView>(R.id.game_over_textview)?.typeface = font
         mainActivity.findViewById<TextView>(R.id.your_score_textview)?.typeface = font
         mainActivity.findViewById<TextView>(R.id.your_score_label)?.typeface = font
+        mainActivity.findViewById<Button>(R.id.play_again_button)?.typeface = font
         mainActivity.findViewById<Button>(R.id.highscore_gameover)?.typeface = font
         mainActivity.findViewById<Button>(R.id.rating_button)?.typeface = font
         mainActivity.findViewById<Button>(R.id.project_button)?.typeface = font
