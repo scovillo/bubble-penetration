@@ -1,0 +1,17 @@
+Bubble Penetration ist ein schnelles Arcade-Spiel fuer kurze Pausen und lange Highscore-Jagden.
+
+Im Spielfeld treiben bunte Blasen und goldene Sterne durch den Raum - du musst blitzschnell entscheiden, was du antippst.
+
+So funktioniert es:
+- Sammle die aktuell geforderte Farbe, um Punkte und Zeit zu gewinnen.
+- Tippe die falsche Blase an und du verlierst wertvolle Sekundenund die aktive Combo.
+- Schnapp dir Sterne fuer Extra-Zeit und Extra-Punkte.
+- Halte Serien am Leben und entfessele Combo-Multiplikatoren bis x16.
+
+Was dich erwartet:
+- Direktes, reaktionsbasiertes Gameplay ohne Umwege.
+- Ansteigende Geschwindigkeit fuer echten Nervenkitzel.
+- Lokale Bestleistung und globale Highscore-Liste.
+- Komplett kostenlos und Open Source.
+
+Jede Runde ist anders, jede Sekunde zählt - wie lange haeltst du durch?

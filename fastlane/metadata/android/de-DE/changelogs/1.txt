@@ -1,0 +1,4 @@
+Erster F-Droid-Release.
+- Rasantes Bubble-Arcade-Gameplay mit Zeitdruck.
+- Combo-System mit Multiplikator bis x16.
+- Globale Bestenliste fuer Highscore-Jaeger.

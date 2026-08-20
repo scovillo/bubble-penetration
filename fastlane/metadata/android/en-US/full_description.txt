@@ -1,0 +1,17 @@
+Bubble Penetration is a fast-paced arcade game built for quick sessions and serious highscore runs.
+
+Colorful bubbles and golden stars drift across the field - your job is to tap the right targets before time runs out.
+
+How it works:
+- Collect the currently required color to gain points and time.
+- Tap the wrong bubble and you lose precious seconds and the active combo.
+- Grab stars for bonus time and extra score.
+- Keep your streak alive to trigger combo multipliers up to x16.
+
+What you get:
+- Pure reaction-based gameplay with no fluff.
+- Increasing speed that keeps every round intense.
+- Local best score plus a global leaderboard.
+- Fully free and open source.
+
+Every run feels different, and every second matters - how long can you survive?
