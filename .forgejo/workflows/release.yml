@@ -1,0 +1,93 @@
+name: Android Release
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: https://data.forgejo.org/actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Set up JDK 17
+        uses: https://data.forgejo.org/actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Extract version
+        shell: bash
+        run: |
+          VERSION_NAME=$(grep 'versionName ' app/build.gradle | head -1 | sed -E 's/.*"([^"]+)".*/\1/')
+          VERSION_CODE=$(grep 'versionCode ' app/build.gradle | head -1 | awk '{print $2}')
+
+          echo "VERSION_NAME=$VERSION_NAME" >> "$FORGEJO_ENV"
+          echo "VERSION_CODE=$VERSION_CODE" >> "$FORGEJO_ENV"
+          echo "TAG=v$VERSION_NAME" >> "$FORGEJO_ENV"
+
+          echo "Version: $VERSION_NAME ($VERSION_CODE)"
+          echo "Tag: v$VERSION_NAME"
+
+      - name: Generate release notes
+        shell: bash
+        run: |
+          LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || true)
+
+          echo "Last tag: $LAST_TAG"
+
+          if [ -n "$LAST_TAG" ]; then
+            RELEASE_NOTES=$(git log "${LAST_TAG}..HEAD" --pretty=format:"- %s")
+          else
+            RELEASE_NOTES=$(git log --pretty=format:"- %s")
+          fi
+
+          if [ -z "$RELEASE_NOTES" ]; then
+            RELEASE_NOTES="Release ${VERSION_NAME}"
+          fi
+
+          {
+            echo "RELEASE_NOTES<<EOF"
+            echo "$RELEASE_NOTES"
+            echo "EOF"
+          } >> "$FORGEJO_ENV"
+
+      - name: Decode keystore
+        shell: bash
+        run: |
+          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > release.keystore
+
+      - name: Build signed release APK
+        shell: bash
+        run: ./gradlew assembleRelease
+        env:
+          KEYSTORE_FILE: ${{ forge.workspace }}/release.keystore
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+
+      - name: Prepare release APK
+        shell: bash
+        run: |
+          cp app/build/outputs/apk/release/app-release.apk \
+            "bubble-penetration-${VERSION_NAME}.apk"
+
+          ls -lh "bubble-penetration-${VERSION_NAME}.apk"
+
+      - name: Create Codeberg release
+        uses: https://data.forgejo.org/actions/forgejo-release@v2
+        with:
+          direction: upload
+          url: ${{ forge.server_url }}
+          repo: ${{ forge.repository }}
+          token: ${{ secrets.RELEASE_TOKEN }}
+          tag: ${{ env.TAG }}
+          title: Release ${{ env.VERSION_NAME }}
+          release-notes: ${{ env.RELEASE_NOTES }}
+          release-dir: .
