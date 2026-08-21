@@ -123,6 +123,35 @@ ${descText.trim()}
 
 The game is built using free and open-source software libraries.
 
+## 🎁 Support Bubble Penetration
+
+Bubble Penetration is free, open source, and developed independently.
+
+If you enjoy the game, you can support its continued development with a voluntary donation.
+
+Donations help with:
+
+- Server and infrastructure costs, including the global leaderboard
+- Maintenance, bug fixes, and new features
+- Continued development of this free and open-source game
+
+Bubble Penetration will remain fully playable without any donation.
+
+[![Donate using Liberapay](https://liberapay.com/assets/widgets/donate.svg)](https://liberapay.com/scovillo/donate)
+
+[![Donate using PayPal](https://www.paypalobjects.com/webstatic/icon/pp50.png)](https://paypal.me/muemmelmaus)
+
+[![Donate using GitHub Sponsors](https://img.shields.io/badge/GitHub%20Sponsors-❤️-pink?logo=github&style=flat-square)](https://github.com/sponsors/scovillo)
+
+You can also support the project without donating:
+
+- ⭐ Star the project on [Codeberg](https://codeberg.org/scovillo/bubble-penetration)
+- Share Bubble Penetration with others
+- Send feedback or report bugs
+- Contribute code or translations
+
+Thank you for every kind of support! ❤️
+
 ## 🛠️ Build Instructions
 
 ```bash
