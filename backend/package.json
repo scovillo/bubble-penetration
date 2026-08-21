@@ -9,7 +9,7 @@
     "migrate:dev": "prisma migrate dev",
     "migrate:deploy": "prisma migrate deploy",
     "start": "node src/app.js | pino-pretty",
-    "start:prod": "npm run prestart && npm run migrate:deploy && node src/app.js"
+    "start:prod": "npm run migrate:deploy && node src/app.js"
   },
   "author": "Lukas Scheerer",
   "license": "ISC",

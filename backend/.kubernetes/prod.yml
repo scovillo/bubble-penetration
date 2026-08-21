@@ -45,12 +45,14 @@ spec:
       targetPort: 5432
 ---
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   name: bubble-database
   namespace: bubble-prod
 spec:
+  serviceName: bubble-database-service
   replicas: 1
+  revisionHistoryLimit: 1
   selector:
     matchLabels:
       app: bubble-database
@@ -62,7 +64,7 @@ spec:
       containers:
         - name: bubble-database
           image: postgres:18-alpine
-          imagePullPolicy: "Always"
+          imagePullPolicy: "IfNotPresent"
           ports:
             - containerPort: 5432
           envFrom:
@@ -83,7 +85,13 @@ metadata:
   name: bubble-backend
   namespace: bubble-prod
 spec:
-  replicas: 1
+  replicas: 2
+  revisionHistoryLimit: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
   selector:
     matchLabels:
       app: bubble-backend
@@ -92,10 +100,15 @@ spec:
       labels:
         app: bubble-backend
     spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
       containers:
         - name: bubble-backend
-          image: codeberg.org/spicysources/bubble-penetration-backend:latest
-          imagePullPolicy: "Always"
+          image: vcs.lukas-scheerer.de/spicysources/bubble-penetration-backend:1.0.0
+          imagePullPolicy: "IfNotPresent"
           ports:
             - containerPort: 3000
           envFrom:
