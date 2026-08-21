@@ -30,10 +30,10 @@ jobs:
 
           echo "VERSION_NAME=$VERSION_NAME" >> "$FORGEJO_ENV"
           echo "VERSION_CODE=$VERSION_CODE" >> "$FORGEJO_ENV"
-          echo "TAG=v$VERSION_NAME" >> "$FORGEJO_ENV"
+          echo "TAG=$VERSION_NAME" >> "$FORGEJO_ENV"
 
           echo "Version: $VERSION_NAME ($VERSION_CODE)"
-          echo "Tag: v$VERSION_NAME"
+          echo "Tag: $VERSION_NAME"
 
       - name: Generate release notes
         shell: bash
@@ -86,7 +86,7 @@ jobs:
           direction: upload
           url: ${{ forge.server_url }}
           repo: ${{ forge.repository }}
-          token: ${{ secrets.RELEASE_TOKEN }}
+          token: ${{ forge.token }}
           tag: ${{ env.TAG }}
           title: Release ${{ env.VERSION_NAME }}
           release-notes: ${{ env.RELEASE_NOTES }}
