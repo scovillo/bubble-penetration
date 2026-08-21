@@ -5,7 +5,7 @@ on:
 
 jobs:
   build-and-release:
-    runs-on: codeberg-small
+    runs-on: codeberg-medium
 
     steps:
       - name: Checkout code
