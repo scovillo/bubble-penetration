@@ -35,7 +35,7 @@ jobs:
           echo "Version: $VERSION_NAME ($VERSION_CODE)"
           echo "Tag: $VERSION_NAME"
 
-      - name: Generate release notes
+      - name: Generate Release Notes
         shell: bash
         run: |
           LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || true)
@@ -49,7 +49,8 @@ jobs:
           fi
 
           if [ -z "$RELEASE_NOTES" ]; then
-            RELEASE_NOTES="Release ${VERSION_NAME}"
+            echo "No commits found since the last tag. Aborting release."
+            exit 1
           fi
 
           {
@@ -80,14 +81,26 @@ jobs:
 
           ls -lh "bubble-penetration-${VERSION_NAME}.apk"
 
-      - name: Create Codeberg release
-        uses: https://data.forgejo.org/actions/forgejo-release@v2
-        with:
-          direction: upload
-          url: ${{ forge.server_url }}
-          repo: ${{ forge.repository }}
-          token: ${{ forge.token }}
-          tag: ${{ env.TAG }}
-          title: Release ${{ env.VERSION_NAME }}
-          release-notes: ${{ env.RELEASE_NOTES }}
-          release-dir: .
+      - name: Create Codeberg Release
+        shell: bash
+        env:
+          TOKEN: ${{ forge.token }}
+        run: |
+          curl --fail-with-body \
+            -X POST \
+            -H "Authorization: token ${TOKEN}" \
+            -H "Content-Type: application/json" \
+            "${{ forge.server_url }}/api/v1/repos/${{ forge.repository }}/releases" \
+            -d "$(jq -n \
+              --arg tag "${VERSION_NAME}" \
+              --arg title "Release ${VERSION_NAME}" \
+              --arg body "${RELEASE_NOTES}" \
+              --arg target "${{ forge.sha }}" \
+              '{
+                tag_name: $tag,
+                target_commitish: $target,
+                name: $title,
+                body: $body,
+                draft: false,
+                prerelease: false
+              }')"
