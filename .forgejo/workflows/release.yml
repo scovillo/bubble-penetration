@@ -104,3 +104,22 @@ jobs:
                 draft: false,
                 prerelease: false
               }')"
+
+      - name: Upload APK to Codeberg Release
+        shell: bash
+        env:
+          TOKEN: ${{ forge.token }}
+        run: |
+          RELEASE=$(curl --fail-with-body \
+            -H "Authorization: token ${TOKEN}" \
+            "${{ forge.server_url }}/api/v1/repos/${{ forge.repository }}/releases/tags/${VERSION_NAME}")
+
+          RELEASE_ID=$(echo "$RELEASE" | jq -r '.id')
+
+          echo "Release ID: ${RELEASE_ID}"
+
+          curl --fail-with-body \
+            -X POST \
+            -H "Authorization: token ${TOKEN}" \
+            -F "attachment=@bubble-penetration-${VERSION_NAME}.apk" \
+            "${{ forge.server_url }}/api/v1/repos/${{ forge.repository }}/releases/${RELEASE_ID}/assets?name=bubble-penetration-${VERSION_NAME}.apk"
