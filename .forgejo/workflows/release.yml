@@ -73,53 +73,21 @@ jobs:
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
 
-      - name: Prepare release APK
-        shell: bash
+      - name: Prepare release
         run: |
+          mkdir -p release
           cp app/build/outputs/apk/release/app-release.apk \
-            "bubble-penetration-${VERSION_NAME}.apk"
+            "release/bubble-penetration-${VERSION_NAME}.apk"
 
-          ls -lh "bubble-penetration-${VERSION_NAME}.apk"
-
-      - name: Create Codeberg Release
-        shell: bash
-        env:
-          TOKEN: ${{ forge.token }}
-        run: |
-          curl --fail-with-body \
-            -X POST \
-            -H "Authorization: token ${TOKEN}" \
-            -H "Content-Type: application/json" \
-            "${{ forge.server_url }}/api/v1/repos/${{ forge.repository }}/releases" \
-            -d "$(jq -n \
-              --arg tag "${VERSION_NAME}" \
-              --arg title "Release ${VERSION_NAME}" \
-              --arg body "${RELEASE_NOTES}" \
-              --arg target "${{ forge.sha }}" \
-              '{
-                tag_name: $tag,
-                target_commitish: $target,
-                name: $title,
-                body: $body,
-                draft: false,
-                prerelease: false
-              }')"
-
-      - name: Upload APK to Codeberg Release
-        shell: bash
-        env:
-          TOKEN: ${{ forge.token }}
-        run: |
-          RELEASE=$(curl --fail-with-body \
-            -H "Authorization: token ${TOKEN}" \
-            "${{ forge.server_url }}/api/v1/repos/${{ forge.repository }}/releases/tags/${VERSION_NAME}")
-
-          RELEASE_ID=$(echo "$RELEASE" | jq -r '.id')
-
-          echo "Release ID: ${RELEASE_ID}"
-
-          curl --fail-with-body \
-            -X POST \
-            -H "Authorization: token ${TOKEN}" \
-            -F "attachment=@bubble-penetration-${VERSION_NAME}.apk" \
-            "${{ forge.server_url }}/api/v1/repos/${{ forge.repository }}/releases/${RELEASE_ID}/assets?name=bubble-penetration-${VERSION_NAME}.apk"
+      - name: Create Codeberg release
+        uses: https://data.forgejo.org/actions/forgejo-release@v2
+        with:
+          direction: upload
+          url: ${{ forge.server_url }}
+          repo: ${{ forge.repository }}
+          token: ${{ forge.token }}
+          tag: ${{ env.VERSION_NAME }}
+          sha: ${{ forge.sha }}
+          title: Release ${{ env.VERSION_NAME }}
+          release-notes: ${{ env.RELEASE_NOTES }}
+          release-dir: release
