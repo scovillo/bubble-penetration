@@ -9,6 +9,7 @@ class SettingsModel {
 
     var isMusicMuted: Boolean = false
     var areSoundEffectsMuted: Boolean = false
+    var useOnlineLeaderboard: Boolean = true
     var backendBaseUrl: String = DEFAULT_BACKEND_BASE_URL
 
     fun save(context: Context) {
@@ -16,6 +17,7 @@ class SettingsModel {
         prefs.edit().apply {
             putBoolean("music_muted", isMusicMuted)
             putBoolean("effects_muted", areSoundEffectsMuted)
+            putBoolean("use_online_leaderboard", useOnlineLeaderboard)
             putString("backend_base_url", backendBaseUrl)
             apply()
         }
@@ -25,6 +27,7 @@ class SettingsModel {
         val prefs = context.getSharedPreferences("settings", Context.MODE_PRIVATE)
         isMusicMuted = prefs.getBoolean("music_muted", false)
         areSoundEffectsMuted = prefs.getBoolean("effects_muted", false)
+        useOnlineLeaderboard = prefs.getBoolean("use_online_leaderboard", true)
         backendBaseUrl = prefs.getString("backend_base_url", DEFAULT_BACKEND_BASE_URL)
             ?.trim()
             ?.ifBlank { DEFAULT_BACKEND_BASE_URL }

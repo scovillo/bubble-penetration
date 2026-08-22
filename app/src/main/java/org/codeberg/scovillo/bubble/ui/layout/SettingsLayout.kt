@@ -35,6 +35,9 @@ class SettingsLayout(
         backendUrlField.setText(backendUrl ?: settingsModel.backendBaseUrl)
         mainActivity.findViewById<CheckBox>(R.id.music_box).isChecked = !settingsModel.isMusicMuted
         mainActivity.findViewById<CheckBox>(R.id.effects_box).isChecked = !settingsModel.areSoundEffectsMuted
+        val onlineLeaderboardBox = mainActivity.findViewById<CheckBox>(R.id.online_leaderboard_box)
+        onlineLeaderboardBox.isChecked = settingsModel.useOnlineLeaderboard
+        setBackendSettingsEnabled(settingsModel.useOnlineLeaderboard)
         applyBubbleFont()
         backendUrlField.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) = Unit
@@ -48,6 +51,7 @@ class SettingsLayout(
 
         mainActivity.findViewById<CheckBox>(R.id.music_box).setOnClickListener { setMusic(it) }
         mainActivity.findViewById<CheckBox>(R.id.effects_box).setOnClickListener { setEffects(it) }
+        onlineLeaderboardBox.setOnClickListener { setOnlineLeaderboard(it) }
         mainActivity.findViewById<Button>(R.id.test_connection_button).setOnClickListener { testBackendConnection() }
         mainActivity.findViewById<Button>(R.id.reset_backend_url_button).setOnClickListener { resetBackendUrl() }
         mainActivity.findViewById<Button>(R.id.back_to_menu_button).setOnClickListener { backToMenu() }
@@ -85,6 +89,23 @@ class SettingsLayout(
         if (view is CheckBox) {
             settingsModel.areSoundEffectsMuted = !view.isChecked
             settingsModel.save(mainActivity)
+        }
+    }
+
+    private fun setOnlineLeaderboard(view: View) {
+        if (view !is CheckBox) return
+        settingsModel.useOnlineLeaderboard = view.isChecked
+        settingsModel.save(mainActivity)
+        setBackendSettingsEnabled(view.isChecked)
+    }
+
+    private fun setBackendSettingsEnabled(enabled: Boolean) {
+        mainActivity.findViewById<View>(R.id.backend_settings).apply {
+            alpha = if (enabled) 1f else 0.4f
+            isEnabled = enabled
+        }
+        listOf(R.id.backend_url_field, R.id.test_connection_button, R.id.reset_backend_url_button).forEach { id ->
+            mainActivity.findViewById<View>(id).isEnabled = enabled
         }
     }
 
@@ -138,6 +159,7 @@ class SettingsLayout(
             R.id.settings_title,
             R.id.music_box,
             R.id.effects_box,
+            R.id.online_leaderboard_box,
             R.id.backend_url_label,
             R.id.test_connection_button,
             R.id.reset_backend_url_button,

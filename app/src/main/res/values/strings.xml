@@ -18,15 +18,13 @@
     <string name="bubble_penetration">Bubble\nPenetration</string>
     <string name="warning">You can not change back to your old username!</string>
     <string name="rating">app rating</string>
-    <string name="app_id" translatable="false">ca-app-pub-7068131275474759~3286892226</string>
-    <string name="menu_banner_id" translatable="false">ca-app-pub-7068131275474759/4763625423</string>
-    <string name="highscore_screen_id" translatable="false">ca-app-pub-7068131275474759/4454071022</string>
     <string name="new_highscore">New Highscore!!</string>
     <string name="add">+</string>
     <string name="greeting">Hi, who are you?</string>
     <string name="effects">Effects</string>
+    <string name="use_online_leaderboard">Use online leaderboard</string>
     <string name="settings_icon">⚙</string>
-    <string name="game_server_address">Game server address</string>
+    <string name="game_server_address">Leaderboard address</string>
     <string name="reset_server_address">Standard</string>
     <string name="connection_successful">Connection successful!</string>
     <string name="connection_failed">Connection failed.</string>

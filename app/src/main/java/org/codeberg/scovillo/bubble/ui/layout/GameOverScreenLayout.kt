@@ -35,21 +35,19 @@ class GameOverScreenLayout(private val mainActivity: MainActivity) {
     private fun setHighscoreResultAsync(score: String) {
         val gameOverScore = mainActivity.findViewById<TextView>(R.id.your_score_textview)
         gameOverScore?.text = score
+        if (!mainActivity.settingsModel.useOnlineLeaderboard) {
+            val isRecord = mainActivity.localHighscoreStorage.saveIfHigher(
+                mainActivity.selectedUser.username,
+                score.toInt(),
+            )
+            updateHighscoreResult(isRecord)
+            return
+        }
         THREAD_POOL.execute {
             try {
                 val isRecord = ApiService.registerHighscore(mainActivity.selectedUser.username, score)[6000, TimeUnit.MILLISECONDS]
                 mainActivity.runOnUiThread {
-                    val highscoreLabel = mainActivity.findViewById<TextView>(R.id.highscore_label)
-                    val yourScoreLabel = mainActivity.findViewById<TextView>(R.id.your_score_label)
-                    if (isRecord) {
-                        highscoreLabel?.text = mainActivity.getString(R.string.msg_new_rank)
-                        yourScoreLabel?.text = mainActivity.getString(R.string.new_highscore)
-                        yourScoreLabel?.setTextColor(YELLOW)
-                    } else {
-                        highscoreLabel?.text = mainActivity.getString(R.string.msg_try_again)
-                        yourScoreLabel?.text = mainActivity.getString(R.string.msg_your_score)
-                        yourScoreLabel?.setTextColor(WHITE)
-                    }
+                    updateHighscoreResult(isRecord)
                 }
             } catch (exception: Exception) {
                 mainActivity.runOnUiThread {
@@ -60,6 +58,20 @@ class GameOverScreenLayout(private val mainActivity: MainActivity) {
                     Toast.makeText(mainActivity, mainActivity.getString(R.string.server_unavailable), LENGTH_LONG).show()
                 }
             }
+        }
+    }
+
+    private fun updateHighscoreResult(isRecord: Boolean) {
+        val highscoreLabel = mainActivity.findViewById<TextView>(R.id.highscore_label)
+        val yourScoreLabel = mainActivity.findViewById<TextView>(R.id.your_score_label)
+        if (isRecord) {
+            highscoreLabel?.text = mainActivity.getString(R.string.msg_new_rank)
+            yourScoreLabel?.text = mainActivity.getString(R.string.new_highscore)
+            yourScoreLabel?.setTextColor(YELLOW)
+        } else {
+            highscoreLabel?.text = mainActivity.getString(R.string.msg_try_again)
+            yourScoreLabel?.text = mainActivity.getString(R.string.msg_your_score)
+            yourScoreLabel?.setTextColor(WHITE)
         }
     }
 

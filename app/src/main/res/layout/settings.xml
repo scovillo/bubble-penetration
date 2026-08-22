@@ -45,34 +45,49 @@
                     android:textSize="20sp" />
         </LinearLayout>
 
-        <TextView
-                android:id="@+id/backend_url_label"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:text="@string/game_server_address"
-                android:textColor="@color/white"
-                android:textSize="18sp" />
-
-        <EditText
-                android:id="@+id/backend_url_field"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
-                android:background="@drawable/input_background"
-                android:hint="@string/backend_default_url"
-                android:inputType="textUri"
-                android:padding="12dp"
-                android:singleLine="true"
-                android:textColor="@color/white"
-                android:textColorHint="@color/white"
-                android:textSize="18sp" />
-
-        <LinearLayout
+        <CheckBox
+                android:id="@+id/online_leaderboard_box"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
-                android:orientation="horizontal">
+                android:layout_marginTop="8dp"
+                android:text="@string/use_online_leaderboard"
+                android:textColor="@color/white"
+                android:textSize="20sp" />
+
+        <LinearLayout
+                android:id="@+id/backend_settings"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+            <TextView
+                    android:id="@+id/backend_url_label"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="@string/game_server_address"
+                    android:textColor="@color/white"
+                    android:textSize="18sp" />
+
+            <EditText
+                    android:id="@+id/backend_url_field"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="24dp"
+                    android:background="@drawable/input_background"
+                    android:hint="@string/backend_default_url"
+                    android:inputType="textUri"
+                    android:padding="12dp"
+                    android:singleLine="true"
+                    android:textColor="@color/white"
+                    android:textColorHint="@color/white"
+                    android:textSize="18sp" />
+
+            <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="24dp"
+                    android:orientation="horizontal">
 
             <Button
                     android:id="@+id/test_connection_button"
@@ -91,6 +106,7 @@
                     android:text="@string/reset_server_address"
                     android:textColor="@color/gold"
                     android:textSize="14sp" />
+            </LinearLayout>
         </LinearLayout>
 
         <Space

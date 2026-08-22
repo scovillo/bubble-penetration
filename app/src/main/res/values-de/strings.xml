@@ -22,8 +22,9 @@
     <string name="add">+</string>
     <string name="greeting">Hallo, wer bist du?</string>
     <string name="effects">Effekte</string>
+    <string name="use_online_leaderboard">Online-Bestenliste verwenden</string>
     <string name="settings_icon">⚙</string>
-    <string name="game_server_address">Adresse des Spiel-Servers</string>
+    <string name="game_server_address">Adresse der Bestenliste</string>
     <string name="reset_server_address">Standard</string>
     <string name="connection_successful">Verbindung erfolgreich!</string>
     <string name="connection_failed">Verbindung fehlgeschlagen.</string>

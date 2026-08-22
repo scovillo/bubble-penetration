@@ -66,6 +66,14 @@ class MainMenuLayout(private val mainActivity: MainActivity, private val musicPl
     }
 
     private fun loadCurrentChampionAsync() {
+        if (!mainActivity.settingsModel.useOnlineLeaderboard) {
+            val champion = mainActivity.localHighscoreStorage.read().firstOrNull()
+            val championTextView = mainActivity.findViewById<TextView?>(R.id.champion_text) ?: return
+            championTextView.text = champion?.let {
+                mainActivity.getString(R.string.champion_label, it.username, it.score.toString())
+            } ?: mainActivity.getString(R.string.no_champion)
+            return
+        }
         THREAD_POOL.execute {
             try {
                 val highscoreRequest = ApiService.getHighscoreData()

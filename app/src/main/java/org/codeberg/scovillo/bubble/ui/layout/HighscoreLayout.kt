@@ -50,39 +50,53 @@ class HighscoreLayout(private val mainActivity: MainActivity) {
     }
 
     private fun loadHighscoresAsync() {
+        if (!mainActivity.settingsModel.useOnlineLeaderboard) {
+            addHighscores(mainActivity.localHighscoreStorage.read().map { it.username to it.score.toString() })
+            return
+        }
         THREAD_POOL.execute {
-            val table = mainActivity.findViewById<View>(R.id.highscore_table) as TableLayout
             try {
                 val highscoreRequest = ApiService.getHighscoreData()
                 val jsonArray = highscoreRequest[8000, TimeUnit.MILLISECONDS]
 
-                for (i in 0 until jsonArray.length()) {
-                    val rank = generateHighscoreTextView()
-                    rank.text = "${i + 1}"
-                    rank.typeface = Typeface.createFromAsset(mainActivity.assets, "fonts/PLUMP.ttf")
-                    val name = generateHighscoreTextView()
-                    name.text = jsonArray.getJSONObject(i).getString("username")
-                    name.typeface = Typeface.createFromAsset(mainActivity.assets, "fonts/PLUMP.ttf")
-                    val score = generateHighscoreTextView()
-                    score.text = jsonArray.getJSONObject(i).getString("score")
-                    score.typeface = Typeface.createFromAsset(mainActivity.assets, "fonts/PLUMP.ttf")
-                    val row = TableRow(mainActivity)
-                    if (name.text == mainActivity.selectedUser.username) {
-                        rank.setTextColor(Color.YELLOW)
-                        name.setTextColor(Color.YELLOW)
-                        score.setTextColor(Color.YELLOW)
-                    }
-                    mainActivity.runOnUiThread {
-                        row.addView(rank)
-                        row.addView(name)
-                        row.addView(score)
-                        table.addView(row)
-                    }
-                }
+                addHighscores((0 until jsonArray.length()).map { index ->
+                    jsonArray.getJSONObject(index).getString("username") to
+                        jsonArray.getJSONObject(index).getString("score")
+                })
             } catch (exception: Exception) {
                 mainActivity.runOnUiThread {
                     Toast.makeText(mainActivity, mainActivity.getString(R.string.server_unavailable), LENGTH_LONG).show()
                 }
+            }
+        }
+    }
+
+    private fun addHighscores(highscores: List<Pair<String, String>>) {
+        mainActivity.runOnUiThread {
+            val table = mainActivity.findViewById<View>(R.id.highscore_table) as TableLayout
+            highscores.forEachIndexed { index, (username, scoreValue) ->
+                val rank = generateHighscoreTextView().apply {
+                    text = "${index + 1}"
+                    typeface = Typeface.createFromAsset(mainActivity.assets, "fonts/PLUMP.ttf")
+                }
+                val name = generateHighscoreTextView().apply {
+                    text = username
+                    typeface = Typeface.createFromAsset(mainActivity.assets, "fonts/PLUMP.ttf")
+                }
+                val score = generateHighscoreTextView().apply {
+                    text = scoreValue
+                    typeface = Typeface.createFromAsset(mainActivity.assets, "fonts/PLUMP.ttf")
+                }
+                if (username == mainActivity.selectedUser.username) {
+                    rank.setTextColor(Color.YELLOW)
+                    name.setTextColor(Color.YELLOW)
+                    score.setTextColor(Color.YELLOW)
+                }
+                table.addView(TableRow(mainActivity).apply {
+                    addView(rank)
+                    addView(name)
+                    addView(score)
+                })
             }
         }
     }

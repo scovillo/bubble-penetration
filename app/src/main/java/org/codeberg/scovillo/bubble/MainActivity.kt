@@ -13,6 +13,7 @@ import android.widget.Toast.LENGTH_LONG
 import android.widget.Toast.LENGTH_SHORT
 import org.codeberg.scovillo.bubble.api.ApiService
 import org.codeberg.scovillo.bubble.persistence.LocalFileStorage
+import org.codeberg.scovillo.bubble.persistence.LocalHighscoreStorage
 import org.codeberg.scovillo.bubble.persistence.SettingsModel
 import org.codeberg.scovillo.bubble.api.UserResource
 import org.codeberg.scovillo.bubble.ui.BubbleGLSurfaceView
@@ -35,6 +36,7 @@ class MainActivity : Activity() {
 
     private val musicPlayer = MusicPlayer(this)
     private val localFileStorage = LocalFileStorage(this)
+    val localHighscoreStorage = LocalHighscoreStorage(this)
 
     private val gameOverScreenLayout = GameOverScreenLayout(this)
     private val usernameSelectionLayout = UsernameSelectionLayout(this)
@@ -170,6 +172,13 @@ class MainActivity : Activity() {
         }
         if (value.length > 10) {
             Toast.makeText(this, getString(R.string.error_username_too_long), LENGTH_SHORT).show()
+            return
+        }
+        if (!settingsModel.useOnlineLeaderboard) {
+            val created = UserResource(value)
+            users.add(created)
+            localFileStorage.writeToFile(users)
+            selectUser(created)
             return
         }
         try {
