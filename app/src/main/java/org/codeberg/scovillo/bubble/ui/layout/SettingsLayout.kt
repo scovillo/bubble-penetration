@@ -35,6 +35,7 @@ class SettingsLayout(
         backendUrlField.setText(backendUrl ?: settingsModel.backendBaseUrl)
         mainActivity.findViewById<CheckBox>(R.id.music_box).isChecked = !settingsModel.isMusicMuted
         mainActivity.findViewById<CheckBox>(R.id.effects_box).isChecked = !settingsModel.areSoundEffectsMuted
+        mainActivity.findViewById<CheckBox>(R.id.vibration_box).isChecked = settingsModel.isVibrationEnabled
         val onlineLeaderboardBox = mainActivity.findViewById<CheckBox>(R.id.online_leaderboard_box)
         onlineLeaderboardBox.isChecked = settingsModel.useOnlineLeaderboard
         setBackendSettingsEnabled(settingsModel.useOnlineLeaderboard)
@@ -51,6 +52,7 @@ class SettingsLayout(
 
         mainActivity.findViewById<CheckBox>(R.id.music_box).setOnClickListener { setMusic(it) }
         mainActivity.findViewById<CheckBox>(R.id.effects_box).setOnClickListener { setEffects(it) }
+        mainActivity.findViewById<CheckBox>(R.id.vibration_box).setOnClickListener { setVibration(it) }
         onlineLeaderboardBox.setOnClickListener { setOnlineLeaderboard(it) }
         mainActivity.findViewById<Button>(R.id.test_connection_button).setOnClickListener { testBackendConnection() }
         mainActivity.findViewById<Button>(R.id.reset_backend_url_button).setOnClickListener { resetBackendUrl() }
@@ -88,6 +90,13 @@ class SettingsLayout(
     private fun setEffects(view: View) {
         if (view is CheckBox) {
             settingsModel.areSoundEffectsMuted = !view.isChecked
+            settingsModel.save(mainActivity)
+        }
+    }
+
+    private fun setVibration(view: View) {
+        if (view is CheckBox) {
+            settingsModel.isVibrationEnabled = view.isChecked
             settingsModel.save(mainActivity)
         }
     }
@@ -159,6 +168,7 @@ class SettingsLayout(
             R.id.settings_title,
             R.id.music_box,
             R.id.effects_box,
+            R.id.vibration_box,
             R.id.online_leaderboard_box,
             R.id.backend_url_label,
             R.id.test_connection_button,

@@ -95,6 +95,7 @@ class Combo(private val mainActivity: MainActivity, private val effectPlayer: So
     }
 
     fun giveHapticFeedBack() {
+        if (!mainActivity.settingsModel.isVibrationEnabled) return
         Log.d("Combo", "hasVibrator=${vibrator.hasVibrator()}")
         if (vibrator.hasVibrator()) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {

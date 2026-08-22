@@ -25,6 +25,7 @@
     <string name="add">+</string>
     <string name="greeting">Hi, who are you?</string>
     <string name="effects">Effects</string>
+    <string name="vibration">Vibration</string>
     <string name="use_online_leaderboard">Use online leaderboard</string>
     <string name="settings_icon">⚙</string>
     <string name="game_server_address">Leaderboard address</string>

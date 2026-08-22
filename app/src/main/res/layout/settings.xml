@@ -30,6 +30,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:checked="true"
+                    android:buttonTint="@color/gold"
                     android:text="@string/music"
                     android:textColor="@color/white"
                     android:textSize="20sp" />
@@ -39,7 +40,18 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:checked="true"
+                    android:buttonTint="@color/gold"
                     android:text="@string/effects"
+                    android:textColor="@color/white"
+                    android:textSize="20sp" />
+
+            <CheckBox
+                    android:id="@+id/vibration_box"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checked="true"
+                    android:buttonTint="@color/gold"
+                    android:text="@string/vibration"
                     android:textColor="@color/white"
                     android:textSize="20sp" />
         </LinearLayout>
@@ -49,6 +61,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
+                android:buttonTint="@color/gold"
                 android:text="@string/use_online_leaderboard"
                 android:textColor="@color/white"
                 android:textSize="20sp" />

@@ -25,6 +25,7 @@
     <string name="add">+</string>
     <string name="greeting">Hallo, wer bist du?</string>
     <string name="effects">Effekte</string>
+    <string name="vibration">Vibration</string>
     <string name="use_online_leaderboard">Online-Bestenliste verwenden</string>
     <string name="settings_icon">⚙</string>
     <string name="game_server_address">Adresse der Bestenliste</string>
