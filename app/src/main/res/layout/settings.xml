@@ -31,7 +31,6 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:checked="true"
-                    android:onClick="setMusic"
                     android:text="@string/music"
                     android:textColor="@color/white"
                     android:textSize="20sp" />
@@ -41,7 +40,6 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:checked="true"
-                    android:onClick="setEffects"
                     android:text="@string/effects"
                     android:textColor="@color/white"
                     android:textSize="20sp" />
@@ -82,7 +80,6 @@
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="8dp"
                     android:background="@drawable/button"
-                    android:onClick="testBackendConnection"
                     android:text="@string/save"
                     android:textColor="@color/gold" />
 
@@ -91,7 +88,6 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:background="@drawable/button"
-                    android:onClick="resetBackendUrl"
                     android:text="@string/reset_server_address"
                     android:textColor="@color/gold"
                     android:textSize="14sp" />
@@ -108,7 +104,6 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="24dp"
                 android:background="@drawable/button"
-                android:onClick="backToMenuFromSettings"
                 android:text="@string/back_to_menu"
                 android:textColor="@color/gold" />
     </LinearLayout>
