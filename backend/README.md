@@ -2,6 +2,30 @@
 
 The backend for the game Bubble Penetration, which manages the high scores.
 
+## Running the backend
+
+For a local development start, install the dependencies and start the service:
+
+```sh
+npm install
+npm start
+```
+
+Configure the database connection through the environment variables listed
+below before using the highscore API.
+
+The latest container image can be downloaded from Codeberg:
+
+```sh
+docker pull codeberg.org/scovillo/bubble-penetration-backend:latest
+```
+
+## Service information
+
+`GET /` returns basic service metadata as JSON, including the backend version
+and the available API versions. It also links to the health check (`/health`)
+and the current API base path (`/api/v1`).
+
 ## Configuration
 
 ### Environment Variables

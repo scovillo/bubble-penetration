@@ -1,4 +1,5 @@
 import "dotenv/config";
+import { createRequire } from "node:module";
 import express from "express";
 import { installApiV1 } from "./controller/v1/api.js";
 import { installCorsMiddleware } from "./middlewares/cors.middleware.js";
@@ -8,12 +9,27 @@ import {
 } from "./middlewares/logging.middleware.js";
 import { installParserMiddleware } from "./middlewares/parser.middleware.js";
 
+const require = createRequire(import.meta.url);
+const packageMetadata = require("../package.json");
+
 const app = express();
 installCorsMiddleware(app);
 installParserMiddleware(app);
 installLoggingMiddleware(app);
 
 app.use(express.static("src/public"));
+
+app.get("/", (_request, response) => {
+  response.status(200).json({
+    service: packageMetadata.name,
+    version: packageMetadata.version,
+    apiVersions: ["v1"],
+    endpoints: {
+      health: "/health",
+      api: "/api/v1",
+    },
+  });
+});
 
 app.get("/health", (_request, response) => {
   response.status(200).json({ status: "ok" });
