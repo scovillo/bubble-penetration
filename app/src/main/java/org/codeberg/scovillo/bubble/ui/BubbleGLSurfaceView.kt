@@ -228,14 +228,14 @@ class BubbleGLSurfaceView(context: Context) : GLSurfaceView(context) {
                             timer += time
                             timerPostfix.animateWith(time)
 
-                            val collectScore = gameObject.score * combo.multiplikator
+                            val collectScore = gameObject.score * combo.multiplier
                             score += collectScore
                             scorePostfix.animateWith(collectScore)
 
-                            if(combo.isActive) {
+                            combo.increment()
+                            if (combo.isActive) {
                                 combo.giveHapticFeedBack()
                             }
-                            combo.increment()
                             effectPlayer.playSound(R.raw.blubb)
                         } else {
                             val time = -timeLogic.getBubblePunishmentTimeFor(gameObject.speed)
@@ -250,7 +250,7 @@ class BubbleGLSurfaceView(context: Context) : GLSurfaceView(context) {
                         timer += time
                         timerPostfix.animateWith(time)
 
-                        val collectScore = gameObject.score * combo.multiplikator
+                        val collectScore = gameObject.score * combo.multiplier
                         score += collectScore
                         scorePostfix.animateWith(collectScore)
 

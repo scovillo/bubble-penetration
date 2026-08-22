@@ -4,6 +4,7 @@ import android.graphics.Typeface
 import android.os.Build
 import android.os.VibrationEffect
 import android.os.Vibrator
+import android.util.Log
 import android.view.View
 import android.view.animation.AlphaAnimation
 import android.view.animation.Animation
@@ -17,17 +18,17 @@ import kotlin.math.pow
 
 class Combo(private val mainActivity: MainActivity, private val effectPlayer: SoundEffects) {
 
-    val multiplikator
+    val multiplier
         get() = run {
             val factor = counter / comboCollectFactor
             if (factor > 0) {
-                val multiplikator = 2.0.pow(factor.toDouble()).toInt()
-                if (multiplikator > 16) 16 else multiplikator
+                val multiplier = 2.0.pow(factor.toDouble()).toInt()
+                if (multiplier > 16) 16 else multiplier
             } else 1
         }
 
     val isActive
-        get() = multiplikator > 1
+        get() = multiplier > 1
 
     private var counter = 0
 
@@ -61,7 +62,7 @@ class Combo(private val mainActivity: MainActivity, private val effectPlayer: So
             var comboProgressText = ""
 
             if (isActive) {
-                comboProgressText = "Combo x$multiplikator "
+                comboProgressText = "Combo x$multiplier "
                 if (textView.animation == null) {
                     textView.startAnimation(textAnimation)
                 }
@@ -76,11 +77,11 @@ class Combo(private val mainActivity: MainActivity, private val effectPlayer: So
     }
 
     fun increment() {
-        val oldMultiplikator = multiplikator
+        val oldMultiplier = multiplier
         counter++
         lastBubble = currentTimeMillis()
-        if (multiplikator > oldMultiplikator && !effectPlayer.isMuted) {
-            when (multiplikator) {
+        if (multiplier > oldMultiplier && !effectPlayer.isMuted) {
+            when (multiplier) {
                 2 -> effectPlayer.playSound(R.raw.combo)
                 4 -> effectPlayer.playSound(R.raw.wow)
                 8 -> effectPlayer.playSound(R.raw.yeah)
@@ -94,23 +95,28 @@ class Combo(private val mainActivity: MainActivity, private val effectPlayer: So
     }
 
     fun giveHapticFeedBack() {
+        Log.d("Combo", "hasVibrator=${vibrator.hasVibrator()}")
         if (vibrator.hasVibrator()) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                vibrator.vibrate(VibrationEffect.createOneShot(25, getAmplitude()))
+                Log.d("Combo", "Vibrate for sdk=${Build.VERSION.SDK_INT}")
+                vibrator.vibrate(VibrationEffect.createOneShot(50, getAmplitude()))
             } else {
+                Log.d("Combo", "Vibrate legacy")
                 vibrateLegacy()
             }
         }
     }
 
     private fun getAmplitude(): Int {
-        return when (multiplikator) {
+        val value = when (multiplier) {
             2 -> 75
             4 -> 125
             8 -> 175
             16 -> 255
             else -> 0
         }
+        Log.d("Combo", "Multiplier ${multiplier}=${value} Amplitude")
+        return value
     }
 
     @Suppress("DEPRECATION")
