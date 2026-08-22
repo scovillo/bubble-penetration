@@ -111,6 +111,18 @@ spec:
           imagePullPolicy: "IfNotPresent"
           ports:
             - containerPort: 3000
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 3000
+            initialDelaySeconds: 3
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 3000
+            initialDelaySeconds: 10
+            periodSeconds: 20
           envFrom:
             - configMapRef:
                 name: bubble-config

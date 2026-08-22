@@ -11,6 +11,7 @@
             android:layout_alignParentStart="true"
             android:layout_alignParentLeft="true"/>
     <LinearLayout
+            android:id="@+id/main_menu_actions"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
@@ -59,14 +60,14 @@
     <TextView
             android:id="@+id/champion_text"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center_horizontal"
+            android:layout_height="match_parent"
+            android:layout_below="@id/main_menu_actions"
+            android:layout_above="@id/menu_username"
+            android:gravity="center"
             android:padding="12sp"
             android:textAlignment="center"
             android:textColor="@color/gold"
-            android:textSize="28sp"
-            android:layout_alignParentBottom="true"
-            android:layout_marginBottom="80sp"/>
+            android:textSize="28sp" />
     <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -82,37 +83,17 @@
             android:layout_marginStart="8sp"
             android:focusable="true"
             android:layout_alignParentBottom="true"/>
-    <LinearLayout
+    <Button
+            android:id="@+id/settings_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
             android:layout_alignParentBottom="true"
             android:layout_alignParentRight="true"
-            android:layout_alignParentEnd="true">
-        <CheckBox
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/music"
-                android:id="@+id/music_box"
-                android:textColor="@color/white"
-                android:textSize="20sp"
-                android:checked="true"
-                android:onClick="setMusic"
-                android:enabled="true"
-                android:layout_marginRight="8sp"
-                android:layout_marginEnd="8sp"/>
-        <CheckBox
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/effects"
-                android:id="@+id/effects_box"
-                android:textColor="@color/white"
-                android:textSize="20sp"
-                android:checked="true"
-                android:enabled="true"
-                android:onClick="setEffects"
-                android:layout_marginRight="8sp"
-                android:layout_marginEnd="8sp"
-                android:layout_marginBottom="8sp"/>
-    </LinearLayout>
+            android:layout_alignParentEnd="true"
+            android:layout_margin="8dp"
+            android:background="@drawable/button"
+            android:onClick="showSettings"
+            android:text="@string/settings_icon"
+            android:textColor="@color/gold"
+            android:textSize="28sp" />
 </RelativeLayout>

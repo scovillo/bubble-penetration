@@ -12,7 +12,7 @@
     <string name="game_over_score_label">Deine Punkte:</string>
     <string name="save">Speichern</string>
     <string name="your_name">Dein Name?</string>
-    <string name="back_to_menu">Zurück</string>
+    <string name="back_to_menu">Menu</string>
     <string name="cancel">Abbrechen</string>
     <string name="music">Musik</string>
     <string name="bubble_penetration">Bubble\nPenetration</string>
@@ -22,9 +22,15 @@
     <string name="add">+</string>
     <string name="greeting">Hallo, wer bist du?</string>
     <string name="effects">Effekte</string>
+    <string name="settings_icon">⚙</string>
+    <string name="game_server_address">Adresse des Spiel-Servers</string>
+    <string name="reset_server_address">Standard</string>
+    <string name="connection_successful">Verbindung erfolgreich!</string>
+    <string name="connection_failed">Verbindung fehlgeschlagen.</string>
+    <string name="invalid_backend_url">Bitte gib eine gültige HTTPS-URL ein.</string>
     <string name="no_champion">Kein aktueller Champion…</string>
     <string name="project">Projekt</string>
-    <string name="main_menu">Hauptmenü</string>
+    <string name="main_menu">Hauptmenu</string>
     <string name="rank">Rang</string>
     <string name="name">Name</string>
     <string name="score">Punkte</string>

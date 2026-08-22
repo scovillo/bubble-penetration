@@ -37,22 +37,16 @@ android {
 
     buildTypes {
         debug {
-            buildConfigField "String", "BACKEND_BASEURL", "\"${project.findProperty("backendUrl") ?: "https://dev.bubble.lukas-scheerer.de/api"}\""
         }
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             signingConfig signingConfigs.release
-            buildConfigField "String", "BACKEND_BASEURL", "\"${project.findProperty("backendUrl") ?: "https://bubble.lukas-scheerer.de/api"}\""
         }
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_11
         targetCompatibility JavaVersion.VERSION_11
-    }
-
-    buildFeatures {
-        buildConfig = true
     }
 
     testOptions {

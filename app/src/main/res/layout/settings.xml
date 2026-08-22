@@ -1,0 +1,114 @@
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true"
+        android:background="@color/black">
+
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            android:padding="24dp">
+
+        <TextView
+                android:id="@+id/settings_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="24dp"
+                android:text="@string/action_settings"
+                android:textColor="@color/gold"
+                android:textSize="28sp" />
+
+        <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="24dp"
+                android:orientation="vertical">
+
+            <CheckBox
+                    android:id="@+id/music_box"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checked="true"
+                    android:onClick="setMusic"
+                    android:text="@string/music"
+                    android:textColor="@color/white"
+                    android:textSize="20sp" />
+
+            <CheckBox
+                    android:id="@+id/effects_box"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checked="true"
+                    android:onClick="setEffects"
+                    android:text="@string/effects"
+                    android:textColor="@color/white"
+                    android:textSize="20sp" />
+        </LinearLayout>
+
+        <TextView
+                android:id="@+id/backend_url_label"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/game_server_address"
+                android:textColor="@color/white"
+                android:textSize="18sp" />
+
+        <EditText
+                android:id="@+id/backend_url_field"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:background="@drawable/input_background"
+                android:hint="@string/backend_default_url"
+                android:inputType="textUri"
+                android:padding="12dp"
+                android:singleLine="true"
+                android:textColor="@color/white"
+                android:textColorHint="@color/white"
+                android:textSize="18sp" />
+
+        <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:orientation="horizontal">
+
+            <Button
+                    android:id="@+id/test_connection_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    android:background="@drawable/button"
+                    android:onClick="testBackendConnection"
+                    android:text="@string/save"
+                    android:textColor="@color/gold" />
+
+            <Button
+                    android:id="@+id/reset_backend_url_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/button"
+                    android:onClick="resetBackendUrl"
+                    android:text="@string/reset_server_address"
+                    android:textColor="@color/gold"
+                    android:textSize="14sp" />
+        </LinearLayout>
+
+        <Space
+                android:layout_width="1dp"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
+
+        <Button
+                android:id="@+id/back_to_menu_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/button"
+                android:onClick="backToMenuFromSettings"
+                android:text="@string/back_to_menu"
+                android:textColor="@color/gold" />
+    </LinearLayout>
+</ScrollView>

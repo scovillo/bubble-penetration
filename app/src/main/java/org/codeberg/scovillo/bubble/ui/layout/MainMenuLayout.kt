@@ -5,7 +5,6 @@ import android.view.View
 import android.view.animation.AlphaAnimation
 import android.view.animation.Animation
 import android.widget.Button
-import android.widget.CheckBox
 import android.widget.FrameLayout
 import android.widget.TextView
 import android.widget.Toast
@@ -35,14 +34,6 @@ class MainMenuLayout(private val mainActivity: MainActivity, private val musicPl
         val glSurfaceViewHolder = mainActivity.findViewById<View>(R.id.menuGLSurfaceViewHolder) as FrameLayout
         glSurfaceViewHolder.addView(menuGLSurfaceView)
         (mainActivity.findViewById<View>(R.id.menu_username) as TextView).text = mainActivity.selectedUser.username
-        (mainActivity.findViewById<View>(R.id.effects_box) as CheckBox).typeface = Typeface.createFromAsset(
-            mainActivity.assets,
-            "fonts/PLUMP.ttf"
-        )
-        (mainActivity.findViewById<View>(R.id.music_box) as CheckBox).typeface = Typeface.createFromAsset(
-            mainActivity.assets,
-            "fonts/PLUMP.ttf"
-        )
         (mainActivity.findViewById<View>(R.id.menu_title) as TextView).typeface = Typeface.createFromAsset(
             mainActivity.assets,
             "fonts/PLUMP.ttf"
@@ -60,9 +51,6 @@ class MainMenuLayout(private val mainActivity: MainActivity, private val musicPl
             "fonts/PLUMP.ttf"
         )
 
-        (mainActivity.findViewById<View>(R.id.music_box) as CheckBox).isChecked = !mainActivity.settingsModel.isMusicMuted
-        (mainActivity.findViewById<View>(R.id.effects_box) as CheckBox).isChecked = !mainActivity.settingsModel.areSoundEffectsMuted
-        
         val anim: Animation = AlphaAnimation(0.35f, 1.0f)
         anim.duration = 300
         anim.startOffset = 20

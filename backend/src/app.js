@@ -15,6 +15,10 @@ installLoggingMiddleware(app);
 
 app.use(express.static("src/public"));
 
+app.get("/health", (_request, response) => {
+  response.status(200).json({ status: "ok" });
+});
+
 installApiV1(app);
 
 const serverPort = Number.parseInt(process.env.SERVER_PORT ?? "3000", 10);

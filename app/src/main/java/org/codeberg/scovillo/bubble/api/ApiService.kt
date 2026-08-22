@@ -1,8 +1,8 @@
 package org.codeberg.scovillo.bubble.api
 
 import android.util.Log
-import org.codeberg.scovillo.bubble.BuildConfig
 import org.codeberg.scovillo.bubble.THREAD_POOL
+import org.codeberg.scovillo.bubble.persistence.SettingsModel
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.BufferedReader
@@ -16,12 +16,40 @@ import java.util.concurrent.Future
 object ApiService {
 
     private const val TAG = "ApiService"
-    private val baseUrl = BuildConfig.BACKEND_BASEURL
+    @Volatile
+    private var configuredBaseUrl = SettingsModel.DEFAULT_BACKEND_BASE_URL
+
+    fun setBaseUrl(baseUrl: String) {
+        configuredBaseUrl = baseUrl.trim().trimEnd('/')
+    }
+
+    private fun baseUrl(): String = configuredBaseUrl
+
+    private fun apiUrl(path: String): String = "${baseUrl()}/api/v1/$path"
+
+    fun testConnection(baseUrl: String): Future<Boolean> {
+        return THREAD_POOL.submit(
+            Callable {
+                val url = "${baseUrl.trim().trimEnd('/')}/health"
+                Log.d(TAG, "GET request to: $url")
+                val httpConn = URL(url).openConnection() as HttpURLConnection
+                httpConn.requestMethod = "GET"
+                httpConn.connectTimeout = 6000
+                httpConn.readTimeout = 6000
+                try {
+                    readResponseFrom(httpConn)
+                    true
+                } finally {
+                    httpConn.disconnect()
+                }
+            }
+        )
+    }
 
     fun getHighscoreData(): Future<JSONArray> {
         return THREAD_POOL.submit(
             Callable {
-                val url = "$baseUrl/v1/highscores"
+                val url = apiUrl("highscores")
                 Log.d(TAG, "GET request to: $url")
                 val httpConn =
                     URL(url).openConnection() as HttpURLConnection
@@ -45,7 +73,7 @@ object ApiService {
     fun registerUsername(username: String): Future<UserResource> {
         return THREAD_POOL.submit(
             Callable {
-                val url = "$baseUrl/v1/users"
+                val url = apiUrl("users")
                 Log.d(TAG, "POST request to: $url | payload: { username: $username }")
                 val httpConn = URL(url).openConnection() as HttpURLConnection
                 httpConn.requestMethod = "POST"
@@ -79,7 +107,7 @@ object ApiService {
     fun registerHighscore(username: String, score: String): Future<Boolean> {
         return THREAD_POOL.submit(
             Callable {
-                val url = "$baseUrl/v1/highscores"
+                val url = apiUrl("highscores")
                 Log.d(TAG, "POST request to: $url | payload: { username: $username, highscore: $score }")
                 val httpConn = URL(url).openConnection() as HttpURLConnection
                 httpConn.requestMethod = "POST"

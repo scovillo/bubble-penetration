@@ -2,13 +2,17 @@ package org.codeberg.scovillo.bubble
 
 import android.app.Activity
 import android.content.Intent
+import android.graphics.Typeface
 import android.net.Uri
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.View
 import android.view.WindowManager
 import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.FrameLayout
+import android.widget.TextView
 import android.widget.Toast
 import android.widget.Toast.LENGTH_LONG
 import android.widget.Toast.LENGTH_SHORT
@@ -52,6 +56,7 @@ class MainActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         settingsModel.load(this)
+        ApiService.setBaseUrl(settingsModel.backendBaseUrl)
         musicPlayer.init()
         users = localFileStorage.readFromFile()
 
@@ -109,6 +114,15 @@ class MainActivity : Activity() {
         musicPlayer.pause()
     }
 
+    @Deprecated("Deprecated in Java")
+    override fun onBackPressed() {
+        if (findViewById<EditText?>(R.id.backend_url_field) != null) {
+            backToMenuFromSettings(findViewById(R.id.backend_url_field))
+        } else {
+            super.onBackPressed()
+        }
+    }
+
     @JvmOverloads
     fun startGame(view: View?, score: Int = 0, timer: Float = 25.0f) {
         isGameRunning = true
@@ -158,6 +172,96 @@ class MainActivity : Activity() {
             settingsModel.areSoundEffectsMuted = !view.isChecked
             settingsModel.save(this)
         }
+    }
+
+    fun showSettings(view: View) {
+        mainMenuLayout.hide()
+        setContentView(R.layout.settings)
+
+        val backendUrlField = findViewById<EditText>(R.id.backend_url_field)
+        backendUrlField.setText(settingsModel.backendBaseUrl)
+        findViewById<CheckBox>(R.id.music_box).isChecked = !settingsModel.isMusicMuted
+        findViewById<CheckBox>(R.id.effects_box).isChecked = !settingsModel.areSoundEffectsMuted
+        applyBubbleFontToSettings()
+        backendUrlField.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) = Unit
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) = Unit
+
+            override fun afterTextChanged(s: Editable?) {
+                backendUrlField.setBackgroundResource(R.drawable.input_background)
+            }
+        })
+    }
+
+    fun backToMenuFromSettings(view: View) {
+        mainMenuLayout.show()
+    }
+
+    fun testBackendConnection(view: View) {
+        val testedBaseUrl = backendUrlToTest() ?: return
+
+        THREAD_POOL.execute {
+            try {
+                ApiService.testConnection(testedBaseUrl)[8, TimeUnit.SECONDS]
+                runOnUiThread {
+                    settingsModel.backendBaseUrl = testedBaseUrl
+                    settingsModel.save(this)
+                    ApiService.setBaseUrl(testedBaseUrl)
+                    setConnectionFieldBackground(testedBaseUrl, R.drawable.input_background_success)
+                    Toast.makeText(this, getString(R.string.connection_successful), LENGTH_SHORT).show()
+                }
+            } catch (exception: Exception) {
+                runOnUiThread {
+                    settingsModel.backendBaseUrl = SettingsModel.DEFAULT_BACKEND_BASE_URL
+                    settingsModel.save(this)
+                    ApiService.setBaseUrl(SettingsModel.DEFAULT_BACKEND_BASE_URL)
+                    setConnectionFieldBackground(testedBaseUrl, R.drawable.input_background_failure)
+                    Toast.makeText(this, getString(R.string.connection_failed), LENGTH_LONG).show()
+                }
+            }
+        }
+    }
+
+    private fun backendUrlToTest(): String? {
+        val value = findViewById<EditText>(R.id.backend_url_field)?.text?.toString()?.trim()
+            ?: return null
+        if (value.isBlank() || !(value.startsWith("https://") || value.startsWith("http://"))) {
+            findViewById<EditText>(R.id.backend_url_field)?.setBackgroundResource(R.drawable.input_background_failure)
+            Toast.makeText(this, getString(R.string.invalid_backend_url), LENGTH_LONG).show()
+            return null
+        }
+
+        return value.trimEnd('/')
+    }
+
+    private fun applyBubbleFontToSettings() {
+        val bubbleFont = Typeface.createFromAsset(assets, "fonts/PLUMP.ttf")
+        listOf(
+            R.id.settings_title,
+            R.id.music_box,
+            R.id.effects_box,
+            R.id.backend_url_label,
+            R.id.test_connection_button,
+            R.id.reset_backend_url_button,
+            R.id.back_to_menu_button,
+        ).forEach { id ->
+            findViewById<TextView>(id).typeface = bubbleFont
+        }
+    }
+
+    private fun setConnectionFieldBackground(testedBaseUrl: String, backgroundRes: Int) {
+        val backendUrlField = findViewById<EditText>(R.id.backend_url_field) ?: return
+        if (backendUrlField.text.toString().trim().trimEnd('/') == testedBaseUrl) {
+            backendUrlField.setBackgroundResource(backgroundRes)
+        }
+    }
+
+    fun resetBackendUrl(view: View) {
+        settingsModel.backendBaseUrl = SettingsModel.DEFAULT_BACKEND_BASE_URL
+        settingsModel.save(this)
+        ApiService.setBaseUrl(settingsModel.backendBaseUrl)
+        findViewById<EditText>(R.id.backend_url_field).setText(settingsModel.backendBaseUrl)
     }
 
     fun saveUsername(view: View) {
