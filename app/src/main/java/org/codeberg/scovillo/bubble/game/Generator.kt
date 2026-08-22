@@ -2,7 +2,10 @@ package org.codeberg.scovillo.bubble.game
 
 import org.codeberg.scovillo.bubble.ui.Boundaries
 
-class Generator(private val gameObjects: MutableList<GameObject>, private val boundaries: Boundaries) {
+class Generator(
+    private val gameObjects: MutableList<GameObject>,
+    private val boundaries: Boundaries
+) {
 
     private val colorCast = HashMap<BubbleColors, FloatArray>()
 
