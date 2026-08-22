@@ -19,7 +19,6 @@ import org.codeberg.scovillo.bubble.game.GameObject
 import org.codeberg.scovillo.bubble.game.Generator
 import org.codeberg.scovillo.bubble.game.Star
 import org.codeberg.scovillo.bubble.game.Time
-import org.codeberg.scovillo.bubble.sound.SoundEffects
 import org.codeberg.scovillo.bubble.ui.hud.ScorePostfix
 import org.codeberg.scovillo.bubble.ui.hud.TimerPostfix
 import java.math.RoundingMode
@@ -35,8 +34,7 @@ class BubbleGLSurfaceView(context: Context) : GLSurfaceView(context) {
 
     private val mainActivity = context as MainActivity
     private val assets = context.assets
-
-    private val effectPlayer = SoundEffects(context)
+    private val effectPlayer = mainActivity.soundEffects
 
     private var alarmed = false
     private val boundaries = Boundaries()
@@ -66,7 +64,6 @@ class BubbleGLSurfaceView(context: Context) : GLSurfaceView(context) {
         renderer = BubbleRenderer()
         setRenderer(renderer)
         renderMode = RENDERMODE_CONTINUOUSLY
-        Thread(effectPlayer).start()
     }
 
     fun isMuted(value: Boolean) {
@@ -187,7 +184,6 @@ class BubbleGLSurfaceView(context: Context) : GLSurfaceView(context) {
                     alarmed = false
                 }
                 if (timer <= 0.0) {
-                    effectPlayer.ingame = false
                     mainActivity.showGameOverScreenWith(score.toString())
                 } else {
                     timerText.text = context.getString(R.string.timer_value, firstDigitFormat.format(timer))

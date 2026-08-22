@@ -14,10 +14,12 @@ import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
 import org.codeberg.scovillo.bubble.api.ApiService
 import org.codeberg.scovillo.bubble.api.HttpStatusException
+import org.codeberg.scovillo.bubble.api.UserResource
 import org.codeberg.scovillo.bubble.persistence.LocalFileStorage
 import org.codeberg.scovillo.bubble.persistence.LocalHighscoreStorage
 import org.codeberg.scovillo.bubble.persistence.SettingsModel
-import org.codeberg.scovillo.bubble.api.UserResource
+import org.codeberg.scovillo.bubble.sound.MusicPlayer
+import org.codeberg.scovillo.bubble.sound.SoundEffects
 import org.codeberg.scovillo.bubble.ui.BubbleGLSurfaceView
 import org.codeberg.scovillo.bubble.ui.layout.GameOverScreenLayout
 import org.codeberg.scovillo.bubble.ui.layout.HighscoreLayout
@@ -25,11 +27,10 @@ import org.codeberg.scovillo.bubble.ui.layout.MainMenuLayout
 import org.codeberg.scovillo.bubble.ui.layout.SettingsLayout
 import org.codeberg.scovillo.bubble.ui.layout.UsernameCreationLayout
 import org.codeberg.scovillo.bubble.ui.layout.UsernameSelectionLayout
-import org.codeberg.scovillo.bubble.sound.MusicPlayer
+import java.util.concurrent.ExecutionException
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
-import java.util.concurrent.ExecutionException
 
 val THREAD_POOL: ExecutorService = Executors.newCachedThreadPool()
 
@@ -38,6 +39,7 @@ class MainActivity : ComponentActivity() {
     val settingsModel = SettingsModel()
 
     private val musicPlayer = MusicPlayer(this)
+    internal lateinit var soundEffects: SoundEffects
     private val localFileStorage = LocalFileStorage(this)
     val localHighscoreStorage = LocalHighscoreStorage(this)
 
@@ -58,6 +60,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        soundEffects = SoundEffects(this)
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 if (settingsLayout.isShowing()) {
@@ -168,6 +171,13 @@ class MainActivity : ComponentActivity() {
 
     fun showSettings(view: View) {
         settingsLayout.show()
+    }
+
+    override fun onDestroy() {
+        if (::soundEffects.isInitialized) {
+            soundEffects.release()
+        }
+        super.onDestroy()
     }
 
     fun saveUsername(view: View) {
