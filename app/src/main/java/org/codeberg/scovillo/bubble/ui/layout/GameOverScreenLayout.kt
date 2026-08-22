@@ -5,8 +5,6 @@ import android.graphics.Color.YELLOW
 import android.graphics.Typeface
 import android.widget.Button
 import android.widget.TextView
-import android.widget.Toast
-import android.widget.Toast.LENGTH_LONG
 import org.codeberg.scovillo.bubble.MainActivity
 import org.codeberg.scovillo.bubble.R
 import org.codeberg.scovillo.bubble.THREAD_POOL
@@ -47,16 +45,19 @@ class GameOverScreenLayout(private val mainActivity: MainActivity) {
             try {
                 val isRecord = ApiService.registerHighscore(mainActivity.selectedUser.username, score)[6000, TimeUnit.MILLISECONDS]
                 mainActivity.runOnUiThread {
+                    mainActivity.onBackendRequestSucceeded()
                     updateHighscoreResult(isRecord)
                 }
             } catch (exception: Exception) {
                 mainActivity.runOnUiThread {
-                    mainActivity.findViewById<TextView>(R.id.highscore_label)?.text = mainActivity.getString(R.string.server_unavailable)
-                    val yourScoreLabel = mainActivity.findViewById<TextView>(R.id.your_score_label)
-                    yourScoreLabel?.text = mainActivity.getString(R.string.msg_your_score)
-                    yourScoreLabel?.setTextColor(WHITE)
-                    Toast.makeText(mainActivity, mainActivity.getString(R.string.server_unavailable), LENGTH_LONG).show()
+                    val isRecord = mainActivity.localHighscoreStorage.saveIfHigher(
+                        mainActivity.selectedUser.username,
+                        score.toInt(),
+                    )
+                    updateHighscoreResult(isRecord)
+                    mainActivity.showOfflineFallbackMessageOnce()
                 }
+                exception.printStackTrace()
             }
         }
     }

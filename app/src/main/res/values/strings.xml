@@ -37,6 +37,7 @@
     <string name="score">Score</string>
     <string name="champion_label">Champion:\n%1$s with %2$s !</string>
     <string name="server_unavailable">Server is currently not available. Please try again later.</string>
+    <string name="server_unavailable_offline">Server is not available, offline game progress is being used.</string>
     <string name="error_empty_username">Sorry, username cannot be empty!</string>
     <string name="error_username_too_long">Sorry, maximum 10 letters!</string>
     <string name="error_username_exists">Username already exists!</string>

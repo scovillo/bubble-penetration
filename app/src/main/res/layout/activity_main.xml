@@ -83,17 +83,19 @@
             android:layout_marginStart="8sp"
             android:focusable="true"
             android:layout_alignParentBottom="true"/>
+
     <Button
-            android:id="@+id/settings_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentEnd="true"
-            android:layout_margin="8dp"
-            android:background="@drawable/button"
-            android:onClick="showSettings"
-            android:text="@string/settings_icon"
-            android:textColor="@color/gold"
-            android:textSize="28sp" />
+        android:id="@+id/settings_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentBottom="true"
+        android:layout_margin="8dp"
+        android:background="@drawable/button"
+        android:onClick="showSettings"
+        android:text="@string/settings_icon"
+        android:textColor="@color/gold"
+        android:textSize="28sp"
+        android:textStyle="bold" />
 </RelativeLayout>

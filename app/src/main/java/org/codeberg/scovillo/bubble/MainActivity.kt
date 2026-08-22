@@ -12,6 +12,7 @@ import android.widget.Toast
 import android.widget.Toast.LENGTH_LONG
 import android.widget.Toast.LENGTH_SHORT
 import org.codeberg.scovillo.bubble.api.ApiService
+import org.codeberg.scovillo.bubble.api.HttpStatusException
 import org.codeberg.scovillo.bubble.persistence.LocalFileStorage
 import org.codeberg.scovillo.bubble.persistence.LocalHighscoreStorage
 import org.codeberg.scovillo.bubble.persistence.SettingsModel
@@ -27,6 +28,7 @@ import org.codeberg.scovillo.bubble.sound.MusicPlayer
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.ExecutionException
 
 val THREAD_POOL: ExecutorService = Executors.newCachedThreadPool()
 
@@ -51,6 +53,7 @@ class MainActivity : Activity() {
 
     private var isGameRunning = false
     private var currentBubbleView: BubbleGLSurfaceView? = null
+    private var isUsingOfflineFallback = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -183,12 +186,21 @@ class MainActivity : Activity() {
         }
         try {
             val created = ApiService.registerUsername(value)[6000, TimeUnit.MILLISECONDS]
+            onBackendRequestSucceeded()
             users.add(created)
             localFileStorage.writeToFile(users)
             this.selectUser(created)
         } catch (exception: Exception) {
-            Toast.makeText(this, getString(R.string.error_username_exists), LENGTH_SHORT).show()
-            Toast.makeText(this, getString(R.string.server_unavailable), LENGTH_LONG).show()
+            val httpException = (exception as? ExecutionException)?.cause as? HttpStatusException
+            if (httpException?.statusCode == 409) {
+                Toast.makeText(this, getString(R.string.error_username_exists), LENGTH_SHORT).show()
+                return
+            }
+            val created = UserResource(value)
+            users.add(created)
+            localFileStorage.writeToFile(users)
+            selectUser(created)
+            showOfflineFallbackMessageOnce()
         }
     }
 
@@ -205,6 +217,18 @@ class MainActivity : Activity() {
         mainMenuLayout.show()
     }
 
+    @Synchronized
+    fun onBackendRequestSucceeded() {
+        isUsingOfflineFallback = false
+    }
+
+    @Synchronized
+    fun showOfflineFallbackMessageOnce() {
+        if (isUsingOfflineFallback) return
+        isUsingOfflineFallback = true
+        Toast.makeText(this, getString(R.string.server_unavailable_offline), LENGTH_LONG).show()
+    }
+
     fun launchMarket(view: View) {
         val uri = Uri.parse("market://details?id=$packageName")
         val myAppLinkToMarket = Intent(Intent.ACTION_VIEW, uri)
@@ -212,6 +236,7 @@ class MainActivity : Activity() {
             startActivity(myAppLinkToMarket)
         } catch (exception: Exception) {
             Toast.makeText(this, getString(R.string.error_market_app_not_found), LENGTH_LONG).show()
+            exception.printStackTrace()
         }
     }
 

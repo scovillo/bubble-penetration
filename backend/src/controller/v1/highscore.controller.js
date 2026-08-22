@@ -26,7 +26,7 @@ highscoreController.post("/users", function (req, res, next) {
     .findHighscore(username)
     .then((isExisting) => {
       if (isExisting) {
-        return res.json({
+        return res.status(409).json({
           success: false,
           message: "username already exists",
         });

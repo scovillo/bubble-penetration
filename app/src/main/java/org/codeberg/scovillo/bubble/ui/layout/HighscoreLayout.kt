@@ -4,7 +4,6 @@ import android.graphics.Color
 import android.graphics.Typeface
 import android.view.View
 import android.widget.*
-import android.widget.Toast.LENGTH_LONG
 import org.codeberg.scovillo.bubble.MainActivity
 import org.codeberg.scovillo.bubble.R
 import org.codeberg.scovillo.bubble.api.ApiService
@@ -58,6 +57,7 @@ class HighscoreLayout(private val mainActivity: MainActivity) {
             try {
                 val highscoreRequest = ApiService.getHighscoreData()
                 val jsonArray = highscoreRequest[8000, TimeUnit.MILLISECONDS]
+                mainActivity.onBackendRequestSucceeded()
 
                 addHighscores((0 until jsonArray.length()).map { index ->
                     jsonArray.getJSONObject(index).getString("username") to
@@ -65,8 +65,10 @@ class HighscoreLayout(private val mainActivity: MainActivity) {
                 })
             } catch (exception: Exception) {
                 mainActivity.runOnUiThread {
-                    Toast.makeText(mainActivity, mainActivity.getString(R.string.server_unavailable), LENGTH_LONG).show()
+                    addHighscores(mainActivity.localHighscoreStorage.read().map { it.username to it.score.toString() })
+                    mainActivity.showOfflineFallbackMessageOnce()
                 }
+                exception.printStackTrace()
             }
         }
     }

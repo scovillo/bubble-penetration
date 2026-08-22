@@ -13,6 +13,10 @@ import java.net.URL
 import java.util.concurrent.Callable
 import java.util.concurrent.Future
 
+class HttpStatusException(val statusCode: Int, responseBody: String) : Exception(
+    "HTTP $statusCode: $responseBody",
+)
+
 object ApiService {
 
     private const val TAG = "ApiService"
@@ -89,7 +93,7 @@ object ApiService {
                     Log.d(TAG, "Register user response: $resultString")
                     val result = JSONObject(resultString)
                     if (!result.optBoolean("success", false)) {
-                        throw IllegalStateException(result.optString("message", "username already exists"))
+                        throw IllegalStateException("Unexpected unsuccessful user registration response")
                     }
                     val user = result.getJSONObject("user")
                     val username = user.getString("username")
@@ -153,7 +157,7 @@ object ApiService {
         val responseBody = content.toString()
 
         if (responseCode !in 200..299) {
-            throw IllegalStateException("HTTP $responseCode: $responseBody")
+            throw HttpStatusException(responseCode, responseBody)
         }
 
         return responseBody

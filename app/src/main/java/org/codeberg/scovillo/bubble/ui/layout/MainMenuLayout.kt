@@ -7,7 +7,6 @@ import android.view.animation.Animation
 import android.widget.Button
 import android.widget.FrameLayout
 import android.widget.TextView
-import android.widget.Toast
 import org.codeberg.scovillo.bubble.MainActivity
 import org.codeberg.scovillo.bubble.R
 import org.codeberg.scovillo.bubble.THREAD_POOL
@@ -67,17 +66,14 @@ class MainMenuLayout(private val mainActivity: MainActivity, private val musicPl
 
     private fun loadCurrentChampionAsync() {
         if (!mainActivity.settingsModel.useOnlineLeaderboard) {
-            val champion = mainActivity.localHighscoreStorage.read().firstOrNull()
-            val championTextView = mainActivity.findViewById<TextView?>(R.id.champion_text) ?: return
-            championTextView.text = champion?.let {
-                mainActivity.getString(R.string.champion_label, it.username, it.score.toString())
-            } ?: mainActivity.getString(R.string.no_champion)
+            showLocalChampion()
             return
         }
         THREAD_POOL.execute {
             try {
                 val highscoreRequest = ApiService.getHighscoreData()
                 val jsonArray = highscoreRequest[8000, TimeUnit.MILLISECONDS]
+                mainActivity.onBackendRequestSucceeded()
 
                 mainActivity.runOnUiThread {
                     val championTextView = mainActivity.findViewById<TextView?>(R.id.champion_text)
@@ -94,13 +90,20 @@ class MainMenuLayout(private val mainActivity: MainActivity, private val musicPl
                 }
             } catch (exception: Exception) {
                 mainActivity.runOnUiThread {
-                    val championTextView = mainActivity.findViewById<TextView?>(R.id.champion_text)
-                        ?: return@runOnUiThread
-                    Toast.makeText(mainActivity, mainActivity.getString(R.string.server_unavailable), Toast.LENGTH_LONG).show()
-                    championTextView.text = mainActivity.getString(R.string.no_champion)
+                    showLocalChampion()
+                    mainActivity.showOfflineFallbackMessageOnce()
                 }
+                exception.printStackTrace()
             }
         }
+    }
+
+    private fun showLocalChampion() {
+        val champion = mainActivity.localHighscoreStorage.read().firstOrNull()
+        val championTextView = mainActivity.findViewById<TextView?>(R.id.champion_text) ?: return
+        championTextView.text = champion?.let {
+            mainActivity.getString(R.string.champion_label, it.username, it.score.toString())
+        } ?: mainActivity.getString(R.string.no_champion)
     }
 
 }
