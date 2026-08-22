@@ -1,6 +1,5 @@
 package org.codeberg.scovillo.bubble
 
-import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -11,6 +10,8 @@ import android.widget.FrameLayout
 import android.widget.Toast
 import android.widget.Toast.LENGTH_LONG
 import android.widget.Toast.LENGTH_SHORT
+import androidx.activity.ComponentActivity
+import androidx.activity.OnBackPressedCallback
 import org.codeberg.scovillo.bubble.api.ApiService
 import org.codeberg.scovillo.bubble.api.HttpStatusException
 import org.codeberg.scovillo.bubble.persistence.LocalFileStorage
@@ -32,7 +33,7 @@ import java.util.concurrent.ExecutionException
 
 val THREAD_POOL: ExecutorService = Executors.newCachedThreadPool()
 
-class MainActivity : Activity() {
+class MainActivity : ComponentActivity() {
 
     val settingsModel = SettingsModel()
 
@@ -57,6 +58,17 @@ class MainActivity : Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                if (settingsLayout.isShowing()) {
+                    settingsLayout.backToMenu()
+                } else {
+                    isEnabled = false
+                    onBackPressedDispatcher.onBackPressed()
+                    isEnabled = true
+                }
+            }
+        })
         settingsModel.load(this)
         ApiService.setBaseUrl(settingsModel.backendBaseUrl)
         musicPlayer.init()
@@ -116,15 +128,6 @@ class MainActivity : Activity() {
         currentBubbleView?.pauseGame()
         super.onPause()
         musicPlayer.pause()
-    }
-
-    @Deprecated("Deprecated in Java")
-    override fun onBackPressed() {
-        if (settingsLayout.isShowing()) {
-            settingsLayout.backToMenu()
-        } else {
-            super.onBackPressed()
-        }
     }
 
     @JvmOverloads

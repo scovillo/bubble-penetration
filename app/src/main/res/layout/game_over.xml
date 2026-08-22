@@ -2,8 +2,7 @@
 <RelativeLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@color/black">
+        android:layout_height="match_parent">
     <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -38,7 +37,7 @@
                     android:id="@+id/your_score_textview"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="0"
+                    android:text="@string/initial_score"
                     android:textSize="36sp"
                     android:textColor="@color/white"
                     android:layout_gravity="center_horizontal"
@@ -59,6 +58,7 @@
         </LinearLayout>
 
         <Button
+                    style="?android:attr/buttonBarButtonStyle"
                 android:id="@+id/play_again_button"
                 android:text="@string/play_again_button_text"
                 android:layout_width="300dp"
@@ -73,6 +73,7 @@
                 android:clickable="true"
                 android:focusable="true"/>
         <Button
+                    style="?android:attr/buttonBarButtonStyle"
                 android:id="@+id/highscore_gameover"
                 android:text="@string/highscore_button_text"
                 android:layout_width="300dp"
@@ -96,6 +97,7 @@
             android:layout_centerHorizontal="true"
             android:layout_marginBottom="32dp">
         <Button
+                    style="?android:attr/buttonBarButtonStyle"
                 android:id="@+id/rating_button"
                 android:text="@string/rating"
                 android:layout_width="300dp"
@@ -109,6 +111,7 @@
                 android:clickable="true"
                 android:focusable="true"/>
         <Button
+                    style="?android:attr/buttonBarButtonStyle"
                 android:id="@+id/project_button"
                 android:text="@string/project"
                 android:layout_width="300dp"

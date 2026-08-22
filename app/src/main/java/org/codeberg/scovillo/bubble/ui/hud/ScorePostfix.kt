@@ -16,7 +16,7 @@ class ScorePostfix(private val mainActivity: MainActivity) {
 
     fun animateWith(score: Int) {
         mainActivity.runOnUiThread {
-            scoreTextPostfix.text = "+$score"
+            scoreTextPostfix.text = mainActivity.getString(R.string.score_postfix_value, score)
             scoreTextPostfix.alpha = 1.0f
             scoreTextPostfix.animate().alpha(0.0f).setDuration(400).setStartDelay(200).start()
         }

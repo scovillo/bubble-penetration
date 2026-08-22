@@ -1,6 +1,5 @@
 package org.codeberg.scovillo.bubble.game
 
-import android.content.Context.VIBRATOR_SERVICE
 import android.graphics.Typeface
 import android.os.Build
 import android.os.VibrationEffect
@@ -9,6 +8,7 @@ import android.view.View
 import android.view.animation.AlphaAnimation
 import android.view.animation.Animation
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import org.codeberg.scovillo.bubble.MainActivity
 import org.codeberg.scovillo.bubble.R
 import org.codeberg.scovillo.bubble.sound.SoundEffects
@@ -43,7 +43,7 @@ class Combo(private val mainActivity: MainActivity, private val effectPlayer: So
 
     private val symbol = "●"
 
-    private val vibrator = mainActivity.getSystemService(VIBRATOR_SERVICE) as Vibrator
+    private val vibrator = checkNotNull(ContextCompat.getSystemService(mainActivity, Vibrator::class.java))
 
     init {
         textView.typeface = Typeface.createFromAsset(mainActivity.assets, "fonts/PLUMP.ttf")
@@ -98,7 +98,7 @@ class Combo(private val mainActivity: MainActivity, private val effectPlayer: So
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 vibrator.vibrate(VibrationEffect.createOneShot(25, getAmplitude()))
             } else {
-                vibrator.vibrate(25)
+                vibrateLegacy()
             }
         }
     }
@@ -111,6 +111,11 @@ class Combo(private val mainActivity: MainActivity, private val effectPlayer: So
             16 -> 255
             else -> 0
         }
+    }
+
+    @Suppress("DEPRECATION")
+    private fun vibrateLegacy() {
+        vibrator.vibrate(25)
     }
 
 }

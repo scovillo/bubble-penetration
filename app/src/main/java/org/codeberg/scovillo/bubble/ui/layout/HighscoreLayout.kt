@@ -78,7 +78,7 @@ class HighscoreLayout(private val mainActivity: MainActivity) {
             val table = mainActivity.findViewById<View>(R.id.highscore_table) as TableLayout
             highscores.forEachIndexed { index, (username, scoreValue) ->
                 val rank = generateHighscoreTextView().apply {
-                    text = "${index + 1}"
+                    text = mainActivity.getString(R.string.rank_value, index + 1)
                     typeface = Typeface.createFromAsset(mainActivity.assets, "fonts/PLUMP.ttf")
                 }
                 val name = generateHighscoreTextView().apply {

@@ -3,7 +3,6 @@
               android:orientation="vertical"
               android:layout_width="match_parent"
               android:layout_height="match_parent"
-              android:background="@color/black"
               android:clickable="false">
     <LinearLayout
             android:orientation="horizontal"
@@ -59,6 +58,7 @@
                 android:gravity="center_horizontal"/>
     </ScrollView>
     <Button
+                    style="?android:attr/buttonBarButtonStyle"
             android:id="@+id/highscore_back_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

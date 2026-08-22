@@ -2,7 +2,6 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/black"
     android:gravity="center"
     android:orientation="vertical"
     android:padding="12sp">
@@ -26,6 +25,7 @@
         android:dividerHeight="0dp" />
 
     <Button
+                    style="?android:attr/buttonBarButtonStyle"
         android:id="@+id/username_creation_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

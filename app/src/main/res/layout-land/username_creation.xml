@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
+<LinearLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:orientation="vertical"
+        android:gravity="center_vertical"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@color/black">
+        android:layout_height="match_parent">
     <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:layout_centerVertical="true">
+            >
         <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -31,6 +31,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:inputType="textPersonName"
+                    android:autofillHints="username"
+                    android:hint="@string/username_hint"
                     android:background="@drawable/input_background"
                     android:ems="10"
                     android:maxLength="10"
@@ -49,6 +51,7 @@
                 android:layout_gravity="center_horizontal"
                 android:layout_marginTop="16sp">
             <Button
+                    style="?android:attr/buttonBarButtonStyle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/save"
@@ -62,13 +65,14 @@
                     android:clickable="true"
                     android:focusable="true" />
             <Button
+                    style="?android:attr/buttonBarButtonStyle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:id="@+id/cancel"
                     android:onClick="showUsernameSelectionScreen"
                     android:textSize="24sp"
                     android:background="@drawable/button"
-                    android:text="@string/cancel"
+                    android:text="@string/back_to_menu"
                     android:textColor="@color/gold"
                     android:layout_gravity="center_horizontal"
                     android:layout_marginLeft="8dp"
@@ -78,4 +82,4 @@
                     android:focusable="true"/>
         </LinearLayout>
     </LinearLayout>
-</RelativeLayout>
+</LinearLayout>

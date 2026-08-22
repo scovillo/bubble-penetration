@@ -128,10 +128,16 @@ class BubbleGLSurfaceView(context: Context) : GLSurfaceView(context) {
                 }
                 if (targetIndex >= 0) {
                     targetsToBeRemoved.add(gameObjects[targetIndex])
+                    performClick()
                 }
                 isTouch = false
             }
         }
+        return true
+    }
+
+    override fun performClick(): Boolean {
+        super.performClick()
         return true
     }
 
@@ -184,8 +190,8 @@ class BubbleGLSurfaceView(context: Context) : GLSurfaceView(context) {
                     effectPlayer.ingame = false
                     mainActivity.showGameOverScreenWith(score.toString())
                 } else {
-                    timerText.text = "time: " + firstDigitFormat.format(timer)
-                    scoreText.text = "score: $score"
+                    timerText.text = context.getString(R.string.timer_value, firstDigitFormat.format(timer))
+                    scoreText.text = context.getString(R.string.score_value, score)
                     setHUDColor(generator.getGLColor(collectColor))
                 }
             }
