@@ -51,6 +51,7 @@ class MainActivity : Activity() {
     private var users = mutableListOf<UserResource>()
 
     private var isGameRunning = false
+    private var isShowingSettings = false
     private var currentBubbleView: BubbleGLSurfaceView? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -62,9 +63,12 @@ class MainActivity : Activity() {
 
         var restoredScore = 0
         var restoredTimer = 25.0f
+        var restoredSettingsUrl: String? = null
 
         if (savedInstanceState != null) {
             isGameRunning = savedInstanceState.getBoolean("isGameRunning", false)
+            isShowingSettings = savedInstanceState.getBoolean("isShowingSettings", false)
+            restoredSettingsUrl = savedInstanceState.getString("settingsUrl")
             val userName = savedInstanceState.getString("selectedUserName")
             if (userName != null) {
                 selectedUser = UserResource(userName)
@@ -78,6 +82,7 @@ class MainActivity : Activity() {
                 mainMenuLayout.show()
                 startGame(null, restoredScore, restoredTimer)
             }
+            isShowingSettings -> showSettingsScreen(restoredSettingsUrl)
             ::selectedUser.isInitialized -> {
                 mainMenuLayout.show()
             }
@@ -93,6 +98,10 @@ class MainActivity : Activity() {
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         outState.putBoolean("isGameRunning", isGameRunning)
+        outState.putBoolean("isShowingSettings", isShowingSettings)
+        findViewById<EditText?>(R.id.backend_url_field)?.let {
+            outState.putString("settingsUrl", it.text.toString())
+        }
         if (::selectedUser.isInitialized) {
             outState.putString("selectedUserName", selectedUser.username)
         }
@@ -155,6 +164,7 @@ class MainActivity : Activity() {
 
     fun backToMenu(view: View) {
         isGameRunning = false
+        isShowingSettings = false
         currentBubbleView = null
         mainMenuLayout.show()
     }
@@ -175,11 +185,16 @@ class MainActivity : Activity() {
     }
 
     fun showSettings(view: View) {
+        showSettingsScreen()
+    }
+
+    private fun showSettingsScreen(backendUrl: String? = null) {
+        isShowingSettings = true
         mainMenuLayout.hide()
         setContentView(R.layout.settings)
 
         val backendUrlField = findViewById<EditText>(R.id.backend_url_field)
-        backendUrlField.setText(settingsModel.backendBaseUrl)
+        backendUrlField.setText(backendUrl ?: settingsModel.backendBaseUrl)
         findViewById<CheckBox>(R.id.music_box).isChecked = !settingsModel.isMusicMuted
         findViewById<CheckBox>(R.id.effects_box).isChecked = !settingsModel.areSoundEffectsMuted
         applyBubbleFontToSettings()
@@ -195,6 +210,7 @@ class MainActivity : Activity() {
     }
 
     fun backToMenuFromSettings(view: View) {
+        isShowingSettings = false
         mainMenuLayout.show()
     }
 
