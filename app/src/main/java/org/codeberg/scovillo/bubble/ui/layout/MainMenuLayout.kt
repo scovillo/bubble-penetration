@@ -1,7 +1,11 @@
 package org.codeberg.scovillo.bubble.ui.layout
 
+import android.animation.AnimatorSet
+import android.animation.ObjectAnimator
+import android.animation.ValueAnimator
 import android.graphics.Typeface
 import android.view.View
+import android.view.animation.AccelerateDecelerateInterpolator
 import android.view.animation.AlphaAnimation
 import android.view.animation.Animation
 import android.widget.Button
@@ -11,13 +15,14 @@ import org.codeberg.scovillo.bubble.MainActivity
 import org.codeberg.scovillo.bubble.R
 import org.codeberg.scovillo.bubble.THREAD_POOL
 import org.codeberg.scovillo.bubble.api.ApiService
-import org.codeberg.scovillo.bubble.ui.MenuGLSurfaceView
 import org.codeberg.scovillo.bubble.sound.MusicPlayer
+import org.codeberg.scovillo.bubble.ui.MenuGLSurfaceView
 import java.util.concurrent.TimeUnit
 
 class MainMenuLayout(private val mainActivity: MainActivity, private val musicPlayer: MusicPlayer) {
 
     var menuGLSurfaceView: MenuGLSurfaceView? = null
+    private var startButtonPulse: AnimatorSet? = null
 
     fun show() {
         mainActivity.setContentView(R.layout.activity_main)
@@ -41,10 +46,13 @@ class MainMenuLayout(private val mainActivity: MainActivity, private val musicPl
             mainActivity.assets,
             "fonts/PLUMP.ttf"
         )
-        (mainActivity.findViewById<View>(R.id.start_button) as Button).typeface = Typeface.createFromAsset(
+        val startButton = mainActivity.findViewById<View>(R.id.start_button) as Button
+        startButton.typeface = Typeface.createFromAsset(
             mainActivity.assets,
             "fonts/PLUMP.ttf"
         )
+        startButtonPulse?.cancel()
+        startButtonPulse = createStartButtonPulse(startButton).also { it.start() }
         (mainActivity.findViewById<View>(R.id.highscore_button) as Button).typeface = Typeface.createFromAsset(
             mainActivity.assets,
             "fonts/PLUMP.ttf"
@@ -60,8 +68,28 @@ class MainMenuLayout(private val mainActivity: MainActivity, private val musicPl
     }
 
     fun hide() {
+        startButtonPulse?.cancel()
+        startButtonPulse = null
         val glSurfaceViewHolder = mainActivity.findViewById<View?>(R.id.menuGLSurfaceViewHolder) as? FrameLayout ?: return
         glSurfaceViewHolder.removeAllViews()
+    }
+
+    private fun createStartButtonPulse(button: Button): AnimatorSet {
+        fun pulse(property: String, from: Float, to: Float) = ObjectAnimator.ofFloat(button, property, from, to).apply {
+            duration = 900
+            repeatMode = ValueAnimator.REVERSE
+            repeatCount = ValueAnimator.INFINITE
+            interpolator = AccelerateDecelerateInterpolator()
+        }
+
+        return AnimatorSet().apply {
+            startDelay = 250
+            playTogether(
+                pulse("scaleX", 1.0f, 1.075f),
+                pulse("scaleY", 1.0f, 1.075f),
+                pulse("alpha", 0.9f, 1.0f)
+            )
+        }
     }
 
     private fun loadCurrentChampionAsync() {
