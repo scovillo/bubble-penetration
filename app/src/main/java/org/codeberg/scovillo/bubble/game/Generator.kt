@@ -20,8 +20,8 @@ class Generator(private val gameObjects: MutableList<GameObject>, private val bo
 
     init {
         colorCast[BubbleColors.RED] = floatArrayOf(1.0f, 0.0f, 0.0f, 0.7f)
-        colorCast[BubbleColors.ORANGE] = floatArrayOf(1.0f, 0.5f, 0.0f, 0.7f)
-        colorCast[BubbleColors.GREEN] = floatArrayOf(0.0f, 1.0f, 0.0f, 0.7f)
+        colorCast[BubbleColors.PURPLE] = floatArrayOf(0.75f, 0.0f, 1.0f, 0.7f)
+        colorCast[BubbleColors.GREEN] = floatArrayOf(0.0f, 0.75f, 0.0f, 0.7f)
         colorCast[BubbleColors.LIGHTBLUE] = floatArrayOf(0.0f, 1.0f, 1.0f, 0.7f)
         colorCast[BubbleColors.BLUE] = floatArrayOf(0.0f, 0.0f, 1.0f, 0.7f)
     }

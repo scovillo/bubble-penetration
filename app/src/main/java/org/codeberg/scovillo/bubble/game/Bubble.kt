@@ -7,7 +7,7 @@ import kotlin.math.cos
 import kotlin.math.sin
 
 enum class BubbleColors {
-    RED, GREEN, LIGHTBLUE, BLUE, ORANGE
+    RED, GREEN, LIGHTBLUE, BLUE, PURPLE
 }
 
 class Bubble(
@@ -16,6 +16,7 @@ class Bubble(
 
     val score = 1
 
+    val bubbleSmoothness = 12.0f
     private var wobbleX = 1.0f
     private var wobbleY = 0.7f
 
@@ -36,7 +37,6 @@ class Bubble(
             var r2: Float
             var h1: Float
             var h2: Float
-            val step = 12.0f
             val v = Array(32) { FloatArray(3) }
             val vBuf: FloatBuffer
             val vbb: ByteBuffer = ByteBuffer.allocateDirect(v.size * v[0].size * 4)
@@ -48,9 +48,9 @@ class Bubble(
             while (angleA < 90.0f) {
                 var n = 0
                 r1 = cos(angleA * Math.PI / 180.0).toFloat()
-                r2 = cos((angleA + step) * Math.PI / 180.0).toFloat()
+                r2 = cos((angleA + bubbleSmoothness) * Math.PI / 180.0).toFloat()
                 h1 = sin(angleA * Math.PI / 180.0).toFloat()
-                h2 = sin((angleA + step) * Math.PI / 180.0).toFloat()
+                h2 = sin((angleA + bubbleSmoothness) * Math.PI / 180.0).toFloat()
 
                 angleB = 0.0f
                 while (angleB <= 360.0f) {
@@ -71,15 +71,15 @@ class Bubble(
                         gl.glNormalPointer(GL10.GL_FLOAT, 0, vBuf)
                         gl.glDrawArrays(GL10.GL_TRIANGLE_STRIP, 0, n)
                         n = 0
-                        angleB -= step
+                        angleB -= bubbleSmoothness
                     }
-                    angleB += step
+                    angleB += bubbleSmoothness
                 }
                 vBuf.position(0)
                 gl.glVertexPointer(3, GL10.GL_FLOAT, 0, vBuf)
                 gl.glNormalPointer(GL10.GL_FLOAT, 0, vBuf)
                 gl.glDrawArrays(GL10.GL_TRIANGLE_STRIP, 0, n)
-                angleA += step
+                angleA += bubbleSmoothness
             }
             gl.glDisableClientState(GL10.GL_VERTEX_ARRAY)
             gl.glDisableClientState(GL10.GL_NORMAL_ARRAY)
