@@ -11,7 +11,12 @@ So funktioniert es:
 Was dich erwartet:
 - Direktes, reaktionsbasiertes Gameplay ohne Umwege.
 - Ansteigende Geschwindigkeit fuer echten Nervenkitzel.
-- Lokale Bestleistung und globale Highscore-Liste.
+- Deine Highscores, deine Wahl: weltweit antreten, eine eigene Bestenliste verbinden oder komplett offline spielen.
 - Komplett kostenlos und Open Source.
 
 Jede Runde ist anders, jede Sekunde zählt - wie lange haeltst du durch?
+
+Deine Punkte, dein Spiel:
+Die Online-Bestenliste ist sofort bereit fuer den Wettkampf mit Spielerinnen und Spielern aus aller Welt.
+Du hast eine eigene Bestenliste? Dann trage ihre Adresse einfach in den Einstellungen ein und spiel in deiner eigenen Runde.
+Oder du schaltest die Online-Bestenliste aus: Dann bleiben deine Bestleistungen auf deinem Geraet und der Blasen-Spass laeuft auch ohne Internet weiter.

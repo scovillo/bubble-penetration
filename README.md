@@ -27,10 +27,16 @@ What you get:
 
 - Pure reaction-based gameplay with no fluff.
 - Increasing speed that keeps every round intense.
-- Local best score plus a global leaderboard.
+- Highscores exactly how you want them: compete on the global leaderboard, connect your own compatible leaderboard, or play completely offline with local scores.
 - Fully free and open source.
 
 Every run feels different, and every second matters - how long can you survive?
+
+### Your score, your choice
+
+Want to compete with players around the world? The built-in online leaderboard is ready to go.
+Prefer to play among friends or run your own leaderboard? Simply enter its address in the settings.
+And if you would rather stay offline, just turn off the online leaderboard - your best scores stay on your device and the bubble popping continues without an internet connection.
 
 The game is built using free and open-source software libraries.
 

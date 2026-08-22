@@ -1,7 +1,7 @@
 {
   "name": "bubble-penetration-backend",
   "version": "1.0.0",
-  "description": "Microservice to exchange highscores globally",
+  "description": "Microservice to exchange Bubble Penetration highscores globally",
   "main": "src/app.js",
   "type": "module",
   "scripts": {
@@ -12,7 +12,7 @@
     "start:prod": "npm run migrate:deploy && node src/app.js"
   },
   "author": "Lukas Scheerer",
-  "license": "ISC",
+  "license": "GPL-3.0-only",
   "dependencies": {
     "@prisma/adapter-pg": "^7.9.1",
     "@prisma/client": "^7.9.1",
