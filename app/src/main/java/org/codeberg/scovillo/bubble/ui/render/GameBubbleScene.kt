@@ -10,6 +10,8 @@ import android.view.animation.AlphaAnimation
 import android.view.animation.Animation
 import android.widget.ProgressBar
 import android.widget.TextView
+import androidx.core.content.ContextCompat
+import androidx.core.view.ViewCompat
 import org.codeberg.scovillo.bubble.MainActivity
 import org.codeberg.scovillo.bubble.R
 import org.codeberg.scovillo.bubble.game.Bubble
@@ -187,7 +189,8 @@ class GameBubbleScene(
                 val shouldShowUrgentProgress = timer < 10
                 if (shouldShowUrgentProgress != isTimerProgressUrgent) {
                     isTimerProgressUrgent = shouldShowUrgentProgress
-                    timerProgress.progressDrawable = mainActivity.getDrawable(
+                    timerProgress.progressDrawable = ContextCompat.getDrawable(
+                        mainActivity,
                         if (isTimerProgressUrgent) R.drawable.timer_progress_urgent else R.drawable.timer_progress
                     )
                 }
@@ -300,22 +303,22 @@ class GameBubbleScene(
             val red = (color[0] * 255).toInt()
             val green = (color[1] * 255).toInt()
             val blue = (color[2] * 255).toInt()
-            timerPill.background = GradientDrawable().apply {
+            ViewCompat.setBackground(timerPill, GradientDrawable().apply {
                 shape = GradientDrawable.RECTANGLE
                 cornerRadius = 18f * mainActivity.resources.displayMetrics.density
                 setColor(Color.rgb(18, 24, 51))
                 setStroke((2f * mainActivity.resources.displayMetrics.density).toInt(), Color.rgb(red, green, blue))
-            }
-            scoreText.background = GradientDrawable().apply {
+            })
+            ViewCompat.setBackground(scoreText, GradientDrawable().apply {
                 shape = GradientDrawable.RECTANGLE
                 cornerRadius = 18f * mainActivity.resources.displayMetrics.density
                 setColor(Color.rgb(18, 24, 51))
                 setStroke((2f * mainActivity.resources.displayMetrics.density).toInt(), Color.rgb(red, green, blue))
-            }
-            fieldHolder.background = GradientDrawable().apply {
+            })
+            ViewCompat.setBackground(fieldHolder, GradientDrawable().apply {
                 setColor(Color.rgb(red, green, blue))
                 cornerRadius = 10f * mainActivity.resources.displayMetrics.density
-            }
+            })
         }
 
     }

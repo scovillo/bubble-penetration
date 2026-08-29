@@ -13,6 +13,7 @@ import android.widget.TextView
 import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
 import androidx.core.content.ContextCompat
+import androidx.core.view.ViewCompat
 import org.codeberg.scovillo.bubble.MainActivity
 import org.codeberg.scovillo.bubble.R
 import org.codeberg.scovillo.bubble.sound.SoundEffects
@@ -143,12 +144,12 @@ class Combo(private val mainActivity: MainActivity, private val effectPlayer: So
 
     private fun applyPillStyle(accent: Int, fill: Int) {
         val density = mainActivity.resources.displayMetrics.density
-        textView.background = GradientDrawable().apply {
+        ViewCompat.setBackground(textView, GradientDrawable().apply {
             shape = GradientDrawable.RECTANGLE
             cornerRadius = 18f * density
             setColor(fill)
             setStroke((2f * density).toInt(), accent)
-        }
+        })
         textView.setTextColor(Color.WHITE)
     }
 
@@ -197,8 +198,8 @@ class Combo(private val mainActivity: MainActivity, private val effectPlayer: So
     private fun playLevelUpPop() {
         textView.scaleX = 1f
         textView.scaleY = 1f
-        textView.animate().scaleX(1.18f).scaleY(1.18f).setDuration(120).withEndAction {
-            textView.animate().scaleX(1f).scaleY(1f).setDuration(160).start()
+        ViewCompat.animate(textView).scaleX(1.18f).scaleY(1.18f).setDuration(120).withEndAction {
+            ViewCompat.animate(textView).scaleX(1f).scaleY(1f).setDuration(160).start()
         }.start()
     }
 

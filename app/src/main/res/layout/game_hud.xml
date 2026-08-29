@@ -68,6 +68,7 @@
             android:layout_width="wrap_content"
             android:layout_height="@dimen/hud_pill_height"
             android:layout_marginStart="10dp"
+            android:layout_marginLeft="10dp"
             android:background="@drawable/hud_pill"
             android:gravity="center_vertical"
             android:includeFontPadding="false"
