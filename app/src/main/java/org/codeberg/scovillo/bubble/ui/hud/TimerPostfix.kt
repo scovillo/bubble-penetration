@@ -1,6 +1,5 @@
 package org.codeberg.scovillo.bubble.ui.hud
 
-import android.graphics.Typeface
 import android.view.View
 import android.widget.TextView
 import org.codeberg.scovillo.bubble.MainActivity
@@ -15,7 +14,6 @@ class TimerPostfix(private val mainActivity: MainActivity) {
     private val firstDigitFormat = DecimalFormat("0.0")
 
     init {
-        timerTextPostfix.typeface = Typeface.createFromAsset(mainActivity.assets, "fonts/PLUMP.ttf")
         firstDigitFormat.roundingMode = CEILING
     }
 

@@ -2,7 +2,6 @@ package org.codeberg.scovillo.bubble.ui
 
 import android.content.Context
 import android.graphics.Color
-import android.graphics.Typeface
 import android.opengl.GLSurfaceView
 import android.opengl.GLU
 import android.os.SystemClock
@@ -56,10 +55,8 @@ class BubbleGLSurfaceView(context: Context) : GLSurfaceView(context) {
     private val firstDigitFormat = DecimalFormat("0.0")
 
     init {
-        timerText.typeface = Typeface.createFromAsset(this.assets, "fonts/PLUMP.ttf")
 
         scoreText = mainActivity.findViewById<View>(R.id.Score) as TextView
-        scoreText.typeface = Typeface.createFromAsset(this.assets, "fonts/PLUMP.ttf")
 
         firstDigitFormat.roundingMode = RoundingMode.CEILING
 

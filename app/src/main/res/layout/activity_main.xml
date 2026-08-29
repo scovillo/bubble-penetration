@@ -1,98 +1,105 @@
-<RelativeLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
     <FrameLayout
-            android:layout_width="fill_parent"
-            android:layout_height="match_parent"
-            android:id="@+id/menuGLSurfaceViewHolder"
-            android:layout_centerVertical="true"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentLeft="true"/>
+        android:id="@+id/menuGLSurfaceViewHolder"
+        android:layout_width="fill_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentLeft="true"
+        android:layout_centerVertical="true" />
+
     <LinearLayout
-            android:id="@+id/main_menu_actions"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_centerInParent="true">
+        android:id="@+id/main_menu_actions"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:orientation="vertical">
+
         <TextView
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:id="@+id/menu_title"
-                android:text="@string/bubble_penetration"
-                android:textColor="@color/gold"
-                android:textSize="36sp"
-                android:layout_gravity="center"
-                android:textAlignment="center"
-                android:enabled="true"
-                android:layout_marginBottom="16sp"/>
-        <Button
-                    style="?android:attr/buttonBarButtonStyle"
-                android:id="@+id/start_button"
-                android:text="@string/start_button_text"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textSize="40sp"
-                android:onClick="startGame"
-                android:background="@drawable/button"
-                android:enabled="true"
-                android:alpha="0.9"
-                android:textColor="@color/gold"
-                android:clickable="true"
-                android:layout_margin="8dp"
-                android:focusable="true"
-                android:layout_gravity="center_horizontal"/>
-        <Button
-                    style="?android:attr/buttonBarButtonStyle"
-                android:id="@+id/highscore_button"
-                android:text="@string/highscore_button_text"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textSize="20sp"
-                android:background="@drawable/button"
-                android:onClick="showHighscores"
-                android:enabled="true"
-                android:textColor="@color/gold"
-                android:alpha="0.9"
-                android:clickable="true"
-                android:focusable="true"
-                android:layout_marginTop="8dp"
-                android:layout_gravity="center_horizontal"/>
-    </LinearLayout>
-    <TextView
-            android:id="@+id/champion_text"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_below="@id/main_menu_actions"
-            android:layout_above="@id/menu_username"
-            android:gravity="center"
-            android:padding="12sp"
+            android:id="@+id/menu_title"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginBottom="16sp"
+            android:enabled="true"
+            android:text="@string/bubble_penetration"
             android:textAlignment="center"
             android:textColor="@color/gold"
-            android:textSize="28sp" />
-    <TextView
+            android:textSize="48sp"
+            android:textStyle="bold" />
+
+        <Button
+            android:id="@+id/start_button"
+            style="?android:attr/buttonBarButtonStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/menu_username"
-            android:layout_gravity="start|bottom"
-            android:textSize="24sp"
-            android:textColor="@color/white"
-            android:onClick="showUsernameSelectionScreen"
-            android:layout_marginLeft="8sp"
-            android:layout_marginBottom="8sp"
+            android:layout_gravity="center_horizontal"
+            android:layout_margin="8dp"
+            android:alpha="0.9"
+            android:background="@drawable/button"
             android:clickable="true"
             android:enabled="true"
-            android:layout_marginStart="8sp"
             android:focusable="true"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentBottom="true"
-            android:layout_toStartOf="@id/settings_button"
-            android:layout_toLeftOf="@id/settings_button"/>
+            android:onClick="startGame"
+            android:text="@string/start_button_text"
+            android:textColor="@color/gold"
+            android:textSize="40sp" />
+
+        <Button
+            android:id="@+id/highscore_button"
+            style="?android:attr/buttonBarButtonStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="8dp"
+            android:alpha="0.9"
+            android:background="@drawable/button"
+            android:clickable="true"
+            android:enabled="true"
+            android:focusable="true"
+            android:onClick="showHighscores"
+            android:text="@string/highscore_button_text"
+            android:textColor="@color/gold"
+            android:textSize="20sp" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/champion_text"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@id/menu_username"
+        android:layout_below="@id/main_menu_actions"
+        android:gravity="center"
+        android:padding="12sp"
+        android:textAlignment="center"
+        android:textColor="@color/gold"
+        android:textSize="28sp" />
+
+    <TextView
+        android:id="@+id/menu_username"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentBottom="true"
+        android:layout_gravity="start|bottom"
+        android:layout_marginStart="8sp"
+        android:layout_marginLeft="8sp"
+        android:layout_marginBottom="8sp"
+        android:layout_toStartOf="@id/settings_button"
+        android:layout_toLeftOf="@id/settings_button"
+        android:clickable="true"
+        android:enabled="true"
+        android:focusable="true"
+        android:onClick="showUsernameSelectionScreen"
+        android:textColor="@color/white"
+        android:textSize="24sp" />
 
     <Button
-                    style="?android:attr/buttonBarButtonStyle"
         android:id="@+id/settings_button"
+        style="?android:attr/buttonBarButtonStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"

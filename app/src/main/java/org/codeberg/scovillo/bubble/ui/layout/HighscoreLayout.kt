@@ -1,13 +1,13 @@
 package org.codeberg.scovillo.bubble.ui.layout
 
 import android.graphics.Color
-import android.graphics.Typeface
 import android.view.View
 import android.widget.*
 import org.codeberg.scovillo.bubble.MainActivity
 import org.codeberg.scovillo.bubble.R
 import org.codeberg.scovillo.bubble.api.ApiService
 import org.codeberg.scovillo.bubble.THREAD_POOL
+import org.codeberg.scovillo.bubble.ui.BubbleFont
 import java.util.concurrent.TimeUnit
 
 class HighscoreLayout(private val mainActivity: MainActivity) {
@@ -17,22 +17,6 @@ class HighscoreLayout(private val mainActivity: MainActivity) {
 
         loadHighscoresAsync()
 
-        (mainActivity.findViewById<View>(R.id.highscore_back_button) as Button).typeface = Typeface.createFromAsset(
-            mainActivity.assets,
-            "fonts/PLUMP.ttf"
-        )
-        (mainActivity.findViewById<View>(R.id.table_rank) as TextView).typeface = Typeface.createFromAsset(
-            mainActivity.assets,
-            "fonts/PLUMP.ttf"
-        )
-        (mainActivity.findViewById<View>(R.id.table_name) as TextView).typeface = Typeface.createFromAsset(
-            mainActivity.assets,
-            "fonts/PLUMP.ttf"
-        )
-        (mainActivity.findViewById<View>(R.id.table_score) as TextView).typeface = Typeface.createFromAsset(
-            mainActivity.assets,
-            "fonts/PLUMP.ttf"
-        )
     }
 
     private fun generateHighscoreTextView(): TextView {
@@ -81,15 +65,15 @@ class HighscoreLayout(private val mainActivity: MainActivity) {
             highscores.forEachIndexed { index, (username, scoreValue) ->
                 val rank = generateHighscoreTextView().apply {
                     text = mainActivity.getString(R.string.rank_value, index + 1)
-                    typeface = Typeface.createFromAsset(mainActivity.assets, "fonts/PLUMP.ttf")
+                    BubbleFont.applyTo(this, scaleNonButtonText = false)
                 }
                 val name = generateHighscoreTextView().apply {
                     text = username
-                    typeface = Typeface.createFromAsset(mainActivity.assets, "fonts/PLUMP.ttf")
+                    BubbleFont.applyTo(this, scaleNonButtonText = false)
                 }
                 val score = generateHighscoreTextView().apply {
                     text = scoreValue
-                    typeface = Typeface.createFromAsset(mainActivity.assets, "fonts/PLUMP.ttf")
+                    BubbleFont.applyTo(this, scaleNonButtonText = false)
                 }
                 if (username == mainActivity.selectedUser.username) {
                     rank.setTextColor(Color.YELLOW)

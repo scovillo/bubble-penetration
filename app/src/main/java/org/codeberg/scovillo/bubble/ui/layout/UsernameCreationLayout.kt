@@ -1,10 +1,6 @@
 package org.codeberg.scovillo.bubble.ui.layout
 
-import android.graphics.Typeface
 import android.view.View
-import android.widget.Button
-import android.widget.EditText
-import android.widget.TextView
 import org.codeberg.scovillo.bubble.MainActivity
 import org.codeberg.scovillo.bubble.R
 
@@ -21,22 +17,6 @@ class UsernameCreationLayout(private val mainActivity: MainActivity) {
             mainActivity.findViewById<View>(R.id.cancel).visibility = View.INVISIBLE
         }
 
-        (mainActivity.findViewById<View>(R.id.your_name) as TextView).typeface = Typeface.createFromAsset(
-            mainActivity.assets,
-            "fonts/PLUMP.ttf"
-        )
-        (mainActivity.findViewById<View>(R.id.save) as Button).typeface = Typeface.createFromAsset(
-            mainActivity.assets,
-            "fonts/PLUMP.ttf"
-        )
-        (mainActivity.findViewById<View>(R.id.cancel) as Button).typeface = Typeface.createFromAsset(
-            mainActivity.assets,
-            "fonts/PLUMP.ttf"
-        )
-        (mainActivity.findViewById<View>(R.id.username_field) as EditText).typeface = Typeface.createFromAsset(
-            mainActivity.assets,
-            "fonts/PLUMP.ttf"
-        )
     }
 
 }

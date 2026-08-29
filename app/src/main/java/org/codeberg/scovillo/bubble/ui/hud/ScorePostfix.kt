@@ -1,6 +1,5 @@
 package org.codeberg.scovillo.bubble.ui.hud
 
-import android.graphics.Typeface
 import android.view.View
 import android.widget.TextView
 import org.codeberg.scovillo.bubble.MainActivity
@@ -11,7 +10,6 @@ class ScorePostfix(private val mainActivity: MainActivity) {
     private val scoreTextPostfix: TextView = mainActivity.findViewById<View>(R.id.Score_Postfix) as TextView
 
     init {
-        scoreTextPostfix.typeface = Typeface.createFromAsset(mainActivity.assets, "fonts/PLUMP.ttf")
     }
 
     fun animateWith(score: Int) {

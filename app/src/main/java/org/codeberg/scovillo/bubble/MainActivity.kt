@@ -21,6 +21,7 @@ import org.codeberg.scovillo.bubble.persistence.SettingsModel
 import org.codeberg.scovillo.bubble.sound.MusicPlayer
 import org.codeberg.scovillo.bubble.sound.SoundEffects
 import org.codeberg.scovillo.bubble.ui.BubbleGLSurfaceView
+import org.codeberg.scovillo.bubble.ui.BubbleFont
 import org.codeberg.scovillo.bubble.ui.layout.GameOverScreenLayout
 import org.codeberg.scovillo.bubble.ui.layout.HighscoreLayout
 import org.codeberg.scovillo.bubble.ui.layout.MainMenuLayout
@@ -56,6 +57,14 @@ class MainActivity : ComponentActivity() {
     private var isGameRunning = false
     private var currentBubbleView: BubbleGLSurfaceView? = null
     private var isUsingOfflineFallback = false
+
+    override fun setContentView(layoutResID: Int) {
+        super.setContentView(layoutResID)
+        BubbleFont.applyTo(
+            findViewById(android.R.id.content),
+            scaleNonButtonText = layoutResID != R.layout.highscores,
+        )
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

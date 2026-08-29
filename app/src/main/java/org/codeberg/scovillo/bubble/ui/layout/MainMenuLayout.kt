@@ -4,6 +4,9 @@ import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
 import android.animation.ValueAnimator
 import android.graphics.Typeface
+import android.text.Spannable
+import android.text.SpannableString
+import android.text.style.StyleSpan
 import android.view.View
 import android.view.animation.AccelerateDecelerateInterpolator
 import android.view.animation.AlphaAnimation
@@ -30,33 +33,12 @@ class MainMenuLayout(private val mainActivity: MainActivity, private val musicPl
         loadCurrentChampionAsync()
 
         menuGLSurfaceView = MenuGLSurfaceView(mainActivity)
-        val championTextView = mainActivity.findViewById<TextView?>(R.id.champion_text)
-        championTextView?.typeface = Typeface.createFromAsset(
-            mainActivity.assets,
-            "fonts/PLUMP.ttf"
-        )
         val glSurfaceViewHolder = mainActivity.findViewById<View>(R.id.menuGLSurfaceViewHolder) as FrameLayout
         glSurfaceViewHolder.addView(menuGLSurfaceView)
         (mainActivity.findViewById<View>(R.id.menu_username) as TextView).text = mainActivity.selectedUser.username
-        (mainActivity.findViewById<View>(R.id.menu_title) as TextView).typeface = Typeface.createFromAsset(
-            mainActivity.assets,
-            "fonts/PLUMP.ttf"
-        )
-        (mainActivity.findViewById<View>(R.id.menu_username) as TextView).typeface = Typeface.createFromAsset(
-            mainActivity.assets,
-            "fonts/PLUMP.ttf"
-        )
         val startButton = mainActivity.findViewById<View>(R.id.start_button) as Button
-        startButton.typeface = Typeface.createFromAsset(
-            mainActivity.assets,
-            "fonts/PLUMP.ttf"
-        )
         startButtonPulse?.cancel()
         startButtonPulse = createStartButtonPulse(startButton).also { it.start() }
-        (mainActivity.findViewById<View>(R.id.highscore_button) as Button).typeface = Typeface.createFromAsset(
-            mainActivity.assets,
-            "fonts/PLUMP.ttf"
-        )
 
         val anim: Animation = AlphaAnimation(0.35f, 1.0f)
         anim.duration = 300
@@ -107,10 +89,9 @@ class MainMenuLayout(private val mainActivity: MainActivity, private val musicPl
                     val championTextView = mainActivity.findViewById<TextView?>(R.id.champion_text)
                         ?: return@runOnUiThread
                     if (jsonArray.length() > 0) {
-                        championTextView.text = mainActivity.getString(
-                            R.string.champion_label,
+                        championTextView.text = championLabel(
                             jsonArray.getJSONObject(0).getString("username"),
-                            jsonArray.getJSONObject(0).getString("score")
+                            jsonArray.getJSONObject(0).getString("score"),
                         )
                     } else {
                         championTextView.text = mainActivity.getString(R.string.no_champion)
@@ -132,8 +113,22 @@ class MainMenuLayout(private val mainActivity: MainActivity, private val musicPl
         val champion = mainActivity.localHighscoreStorage.read().firstOrNull()
         val championTextView = mainActivity.findViewById<TextView?>(R.id.champion_text) ?: return
         championTextView.text = champion?.let {
-            mainActivity.getString(R.string.champion_label, it.username, it.score.toString())
+            championLabel(it.username, it.score.toString())
         } ?: mainActivity.getString(R.string.no_champion)
+    }
+
+    private fun championLabel(username: String, score: String): CharSequence {
+        val label = mainActivity.getString(R.string.champion_label, username, score)
+        return SpannableString(label).apply {
+            setBold(username, label.indexOf(username))
+            setBold(score, label.lastIndexOf(score))
+        }
+    }
+
+    private fun SpannableString.setBold(value: String, start: Int) {
+        if (value.isNotEmpty() && start >= 0) {
+            setSpan(StyleSpan(Typeface.BOLD), start, start + value.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+        }
     }
 
 }

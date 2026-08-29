@@ -2,8 +2,6 @@ package org.codeberg.scovillo.bubble.ui.layout
 
 import android.graphics.Color.WHITE
 import android.graphics.Color.YELLOW
-import android.graphics.Typeface
-import android.widget.Button
 import android.widget.TextView
 import org.codeberg.scovillo.bubble.MainActivity
 import org.codeberg.scovillo.bubble.R
@@ -18,16 +16,6 @@ class GameOverScreenLayout(private val mainActivity: MainActivity) {
 
         setHighscoreResultAsync(score)
 
-        val font = Typeface.createFromAsset(mainActivity.assets, "fonts/PLUMP.ttf")
-
-        mainActivity.findViewById<TextView>(R.id.game_over_textview)?.typeface = font
-        mainActivity.findViewById<TextView>(R.id.your_score_textview)?.typeface = font
-        mainActivity.findViewById<TextView>(R.id.your_score_label)?.typeface = font
-        mainActivity.findViewById<Button>(R.id.play_again_button)?.typeface = font
-        mainActivity.findViewById<Button>(R.id.highscore_gameover)?.typeface = font
-        mainActivity.findViewById<Button>(R.id.rating_button)?.typeface = font
-        mainActivity.findViewById<Button>(R.id.project_button)?.typeface = font
-        mainActivity.findViewById<TextView>(R.id.highscore_label)?.typeface = font
     }
 
     private fun setHighscoreResultAsync(score: String) {

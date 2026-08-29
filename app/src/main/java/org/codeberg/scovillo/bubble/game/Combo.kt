@@ -1,6 +1,5 @@
 package org.codeberg.scovillo.bubble.game
 
-import android.graphics.Typeface
 import android.os.Build
 import android.os.VibrationEffect
 import android.os.Vibrator
@@ -47,7 +46,6 @@ class Combo(private val mainActivity: MainActivity, private val effectPlayer: So
     private val vibrator = checkNotNull(ContextCompat.getSystemService(mainActivity, Vibrator::class.java))
 
     init {
-        textView.typeface = Typeface.createFromAsset(mainActivity.assets, "fonts/PLUMP.ttf")
         textAnimation.duration = 300
         textAnimation.startOffset = 20
         textAnimation.repeatMode = Animation.REVERSE

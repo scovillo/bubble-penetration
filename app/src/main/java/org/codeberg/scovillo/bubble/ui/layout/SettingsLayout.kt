@@ -1,6 +1,5 @@
 package org.codeberg.scovillo.bubble.ui.layout
 
-import android.graphics.Typeface
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -8,7 +7,6 @@ import android.view.View
 import android.widget.Button
 import android.widget.CheckBox
 import android.widget.EditText
-import android.widget.TextView
 import android.widget.Toast
 import org.codeberg.scovillo.bubble.MainActivity
 import org.codeberg.scovillo.bubble.R
@@ -39,7 +37,6 @@ class SettingsLayout(
         val onlineLeaderboardBox = mainActivity.findViewById<CheckBox>(R.id.online_leaderboard_box)
         onlineLeaderboardBox.isChecked = settingsModel.useOnlineLeaderboard
         setBackendSettingsEnabled(settingsModel.useOnlineLeaderboard)
-        applyBubbleFont()
         backendUrlField.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) = Unit
 
@@ -160,23 +157,6 @@ class SettingsLayout(
         settingsModel.save(mainActivity)
         ApiService.setBaseUrl(settingsModel.backendBaseUrl)
         mainActivity.findViewById<EditText>(R.id.backend_url_field).setText(settingsModel.backendBaseUrl)
-    }
-
-    private fun applyBubbleFont() {
-        val bubbleFont = Typeface.createFromAsset(mainActivity.assets, "fonts/PLUMP.ttf")
-        listOf(
-            R.id.settings_title,
-            R.id.music_box,
-            R.id.effects_box,
-            R.id.vibration_box,
-            R.id.online_leaderboard_box,
-            R.id.backend_url_label,
-            R.id.test_connection_button,
-            R.id.reset_backend_url_button,
-            R.id.back_to_menu_button,
-        ).forEach { id ->
-            mainActivity.findViewById<TextView>(id).typeface = bubbleFont
-        }
     }
 
     private fun setConnectionFieldBackground(testedBaseUrl: String, backgroundRes: Int) {
