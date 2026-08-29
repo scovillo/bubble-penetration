@@ -119,7 +119,9 @@ class MainMenuLayout(private val mainActivity: MainActivity, private val musicPl
             } catch (exception: Exception) {
                 mainActivity.runOnUiThread {
                     showLocalChampion()
-                    mainActivity.showOfflineFallbackMessageOnce()
+                    if (!mainActivity.showRateLimitMessage(exception)) {
+                        mainActivity.showOfflineFallbackMessageOnce()
+                    }
                 }
                 exception.printStackTrace()
             }

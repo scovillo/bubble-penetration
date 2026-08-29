@@ -1,8 +1,10 @@
 import express from "express";
 import { log } from "../../middlewares/logging.middleware.js";
+import { installRateLimits } from "../../middlewares/rate-limit.middleware.js";
 import * as highscoreService from "../../services/highscore.service.js";
 
 export const highscoreController = express.Router();
+installRateLimits(highscoreController);
 
 function toHighscoreResponse(row) {
   return {

@@ -13,8 +13,8 @@ import android.widget.Toast.LENGTH_SHORT
 import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
 import org.codeberg.scovillo.bubble.api.ApiService
-import org.codeberg.scovillo.bubble.api.HttpStatusException
 import org.codeberg.scovillo.bubble.api.UserResource
+import org.codeberg.scovillo.bubble.api.findHttpStatusException
 import org.codeberg.scovillo.bubble.persistence.LocalFileStorage
 import org.codeberg.scovillo.bubble.persistence.LocalHighscoreStorage
 import org.codeberg.scovillo.bubble.persistence.SettingsModel
@@ -27,7 +27,6 @@ import org.codeberg.scovillo.bubble.ui.layout.MainMenuLayout
 import org.codeberg.scovillo.bubble.ui.layout.SettingsLayout
 import org.codeberg.scovillo.bubble.ui.layout.UsernameCreationLayout
 import org.codeberg.scovillo.bubble.ui.layout.UsernameSelectionLayout
-import java.util.concurrent.ExecutionException
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
@@ -204,11 +203,12 @@ class MainActivity : ComponentActivity() {
             localFileStorage.writeToFile(users)
             this.selectUser(created)
         } catch (exception: Exception) {
-            val httpException = (exception as? ExecutionException)?.cause as? HttpStatusException
+            val httpException = exception.findHttpStatusException()
             if (httpException?.statusCode == 409) {
                 Toast.makeText(this, getString(R.string.error_username_exists), LENGTH_SHORT).show()
                 return
             }
+            if (showRateLimitMessage(exception)) return
             val created = UserResource(value)
             users.add(created)
             localFileStorage.writeToFile(users)
@@ -240,6 +240,22 @@ class MainActivity : ComponentActivity() {
         if (isUsingOfflineFallback) return
         isUsingOfflineFallback = true
         Toast.makeText(this, getString(R.string.server_unavailable_offline), LENGTH_LONG).show()
+    }
+
+    fun showRateLimitMessage(exception: Throwable): Boolean {
+        val httpException = exception.findHttpStatusException()
+        if (httpException?.statusCode != 429) return false
+
+        val seconds = httpException.retryAfterSeconds?.coerceAtLeast(1) ?: 60
+        runOnUiThread {
+            val message = resources.getQuantityString(
+                R.plurals.rate_limit_retry,
+                seconds,
+                seconds,
+            )
+            Toast.makeText(this, message, LENGTH_LONG).show()
+        }
+        return true
     }
 
     fun launchMarket(view: View) {

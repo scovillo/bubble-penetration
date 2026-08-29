@@ -13,9 +13,18 @@ import java.net.URL
 import java.util.concurrent.Callable
 import java.util.concurrent.Future
 
-class HttpStatusException(val statusCode: Int, responseBody: String) : Exception(
+class HttpStatusException(
+    val statusCode: Int,
+    val retryAfterSeconds: Int?,
+    responseBody: String,
+) : Exception(
     "HTTP $statusCode: $responseBody",
 )
+
+fun Throwable.findHttpStatusException(): HttpStatusException? =
+    generateSequence(this) { it.cause }
+        .filterIsInstance<HttpStatusException>()
+        .firstOrNull()
 
 object ApiService {
 
@@ -157,7 +166,10 @@ object ApiService {
         val responseBody = content.toString()
 
         if (responseCode !in 200..299) {
-            throw HttpStatusException(responseCode, responseBody)
+            val retryAfterSeconds = httpURLConnection
+                .getHeaderField("Retry-After")
+                ?.toIntOrNull()
+            throw HttpStatusException(responseCode, retryAfterSeconds, responseBody)
         }
 
         return responseBody

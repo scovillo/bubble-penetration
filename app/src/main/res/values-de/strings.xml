@@ -41,6 +41,10 @@
     <string name="score">Punkte</string>
     <string name="champion_label">Champion:\n%1$s mit %2$s !</string>
     <string name="server_unavailable_offline">Server nicht erreichbar, Offline-Spielstand wird verwendet.</string>
+    <plurals name="rate_limit_retry">
+        <item quantity="one">Das ging etwas zu schnell. Bitte versuche es in %d Sekunde erneut.</item>
+        <item quantity="other">Das ging etwas zu schnell. Bitte versuche es in %d Sekunden erneut.</item>
+    </plurals>
     <string name="error_empty_username">Sorry, der Benutzername darf nicht leer sein!</string>
     <string name="error_username_too_long">Sorry, maximal 10 Zeichen!</string>
     <string name="error_username_exists">Benutzername existiert bereits!</string>

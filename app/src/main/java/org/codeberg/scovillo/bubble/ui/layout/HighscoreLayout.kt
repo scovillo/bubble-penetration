@@ -66,7 +66,9 @@ class HighscoreLayout(private val mainActivity: MainActivity) {
             } catch (exception: Exception) {
                 mainActivity.runOnUiThread {
                     addHighscores(mainActivity.localHighscoreStorage.read().map { it.username to it.score.toString() })
-                    mainActivity.showOfflineFallbackMessageOnce()
+                    if (!mainActivity.showRateLimitMessage(exception)) {
+                        mainActivity.showOfflineFallbackMessageOnce()
+                    }
                 }
                 exception.printStackTrace()
             }

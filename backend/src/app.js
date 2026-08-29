@@ -8,14 +8,20 @@ import {
   log,
 } from "./middlewares/logging.middleware.js";
 import { installParserMiddleware } from "./middlewares/parser.middleware.js";
+import { installServiceRateLimits } from "./middlewares/rate-limit.middleware.js";
 
 const require = createRequire(import.meta.url);
 const packageMetadata = require("../package.json");
 
 const app = express();
+const trustedProxyHops = Number.parseInt(process.env.TRUST_PROXY_HOPS ?? "0", 10);
+if (Number.isInteger(trustedProxyHops) && trustedProxyHops > 0) {
+  app.set("trust proxy", trustedProxyHops);
+}
 installCorsMiddleware(app);
 installParserMiddleware(app);
 installLoggingMiddleware(app);
+installServiceRateLimits(app);
 
 app.use(express.static("src/public"));
 

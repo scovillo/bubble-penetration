@@ -55,7 +55,9 @@ class GameOverScreenLayout(private val mainActivity: MainActivity) {
                         score.toInt(),
                     )
                     updateHighscoreResult(isRecord)
-                    mainActivity.showOfflineFallbackMessageOnce()
+                    if (!mainActivity.showRateLimitMessage(exception)) {
+                        mainActivity.showOfflineFallbackMessageOnce()
+                    }
                 }
                 exception.printStackTrace()
             }
