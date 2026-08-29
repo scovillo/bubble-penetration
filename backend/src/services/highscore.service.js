@@ -1,3 +1,4 @@
+import { getCenteredStartRank } from '../highscore-page.js';
 import { log } from '../middlewares/logging.middleware.js';
 import { prisma } from '../prisma-client.js';
 
@@ -45,7 +46,7 @@ export async function findPage({ startRank = 1, username, limit = 50 } = {}) {
           ],
         },
       });
-      resolvedStartRank = precedingScores + 1;
+      resolvedStartRank = getCenteredStartRank(precedingScores + 1);
     }
   }
 
