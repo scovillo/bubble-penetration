@@ -36,7 +36,7 @@
     <string name="connection_failed">连接失败。</string>
     <string name="invalid_backend_url">请输入有效的 HTTPS 网址。</string>
     <string name="no_champion">当前没有冠军…</string>
-    <string name="project">项目</string>
+    <string name="website">网站</string>
     <string name="main_menu">主菜单</string>
     <string name="rank">排名</string>
     <string name="name">名称</string>

@@ -36,7 +36,7 @@
     <string name="connection_failed">Falha na conexão.</string>
     <string name="invalid_backend_url">Digite uma URL HTTPS válida.</string>
     <string name="no_champion">Nenhum campeão atual…</string>
-    <string name="project">Projeto</string>
+    <string name="website">Site</string>
     <string name="main_menu">menu principal</string>
     <string name="rank">Posição</string>
     <string name="name">Nome</string>

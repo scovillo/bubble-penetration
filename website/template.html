@@ -6,6 +6,8 @@
     <base href="{{BASE}}">
     <title>{{TITLE}}</title>
     <meta content="{{DESCRIPTION}}" name="description">
+    <meta content="Scovillo" name="author">
+    <meta content="Bubble Penetration" name="application-name">
     <meta content="#09031b" name="theme-color">
     <meta content="index,follow,max-image-preview:large" name="robots">
     <link href="{{CANONICAL}}" rel="canonical">
@@ -13,20 +15,24 @@
     <meta content="website" property="og:type">
     <meta content="Bubble Penetration" property="og:site_name">
     <meta content="{{OG_LOCALE}}" property="og:locale">
+    {{OG_LOCALE_ALTERNATES}}
     <meta content="{{TITLE}}" property="og:title">
     <meta content="{{DESCRIPTION}}" property="og:description">
     <meta content="{{CANONICAL}}" property="og:url">
-    <meta content="https://scovillo.codeberg.page/bubble-penetration/assets/og.png"
-          property="og:image">
-    <meta content="1024" property="og:image:width">
-    <meta content="500" property="og:image:height">
-    <meta content="Bubble Penetration game preview" property="og:image:alt">
+    <meta content="{{SOCIAL_IMAGE}}" property="og:image">
+    <meta content="{{SOCIAL_IMAGE}}" property="og:image:secure_url">
+    <meta content="image/png" property="og:image:type">
+    <meta content="1080" property="og:image:width">
+    <meta content="2256" property="og:image:height">
+    <meta content="{{SOCIAL_ALT}}" property="og:image:alt">
     <meta content="summary_large_image" name="twitter:card">
     <meta content="{{TITLE}}" name="twitter:title">
     <meta content="{{DESCRIPTION}}" name="twitter:description">
-    <meta content="https://scovillo.codeberg.page/bubble-penetration/assets/og.png"
-          name="twitter:image">
+    <meta content="{{SOCIAL_IMAGE}}" name="twitter:image">
+    <meta content="{{SOCIAL_ALT}}" name="twitter:image:alt">
     <link href="assets/icon.png" rel="icon">
+    <link href="assets/icon.png" rel="apple-touch-icon">
+    <link href="site.webmanifest" rel="manifest">
     <link as="font" crossorigin href="assets/DynaPuff.ttf" rel="preload" type="font/ttf">
     <link href="styles.css" rel="stylesheet">
     <script type="application/ld+json">{{
@@ -62,6 +68,14 @@
             <p class="eyebrow">{{EYEBROW}}</p>
             <h1>{{HERO_TITLE}}</h1>
             <p class="hero-lead">{{HERO_LEAD}}</p>
+            <div aria-label="{{STORE_LABEL}}" class="store-buttons">
+                <a class="store-button" href="https://f-droid.org/de/packages/org.codeberg.scovillo.bubble/" rel="noopener">
+                    <span aria-hidden="true">F</span><span><small>{{GET_IT_ON}}</small>F-Droid</span>
+                </a>
+                <span aria-disabled="true" class="store-button disabled">
+                    <span aria-hidden="true">▶</span><span><small>Google Play</small>{{COMING_SOON}}</span>
+                </span>
+            </div>
             <div class="hero-actions">
                 <a class="button primary"
                    href="https://codeberg.org/scovillo/bubble-penetration/releases/latest"
@@ -69,9 +83,9 @@
                 <a class="button secondary" href="#highscores">{{SEE_SCORES}}</a>
             </div>
             <ul aria-label="{{FEATURES_LABEL}}" class="quick-facts">
-          <li><strong>×16</strong><span>{{SECONDS}}</span></li>
-          <li><strong>★</strong><span>{{COMBOS}}</span></li>
-          <li><strong>↔</strong><span>{{TOP_PLAYERS}}</span></li>
+                <li><strong>×16</strong><span>{{SECONDS}}</span></li>
+                <li><strong>★</strong><span>{{COMBOS}}</span></li>
+                <li><strong>↔</strong><span>{{TOP_PLAYERS}}</span></li>
             </ul>
         </div>
         <div class="phone-stage">
@@ -79,8 +93,30 @@
             <div aria-hidden="true" class="orbit orbit-b"></div>
             <figure class="phone">
                 <img alt="{{SCREENSHOT_ALT}}"
-                     height="2256" src="assets/screenshots/{{SCREENSHOT_LOCALE}}/Screenshot_Bubble Penetration_2.png" width="1080">
+                     height="2256"
+                     src="assets/screenshots/{{SCREENSHOT_LOCALE}}/Screenshot_Bubble Penetration_1.png"
+                     width="1080">
             </figure>
+        </div>
+    </section>
+
+    <section aria-labelledby="mechanics-title" class="mechanics">
+        <div class="section-heading">
+            <div>
+                <p class="eyebrow">{{HOW_LABEL}}</p>
+                <h2 id="mechanics-title">{{HOW_TITLE}}</h2>
+            </div>
+        </div>
+        <div class="mechanic-grid">
+            <article><span aria-hidden="true">●</span>
+                <h3>{{COLOR_TITLE}}</h3>
+                <p>{{COLOR_TEXT}}</p></article>
+            <article><span aria-hidden="true">★</span>
+                <h3>{{STAR_TITLE}}</h3>
+                <p>{{STAR_TEXT}}</p></article>
+            <article><span aria-hidden="true">×16</span>
+                <h3>{{COMBO_TITLE}}</h3>
+                <p>{{COMBO_TEXT}}</p></article>
         </div>
     </section>
 
@@ -119,13 +155,19 @@
         <div class="screenshots">
             <figure><img alt="{{SHOT_ONE}}"
                          height="2256"
-                         loading="lazy" src="assets/screenshots/{{SCREENSHOT_LOCALE}}/Screenshot_Bubble Penetration_1.png" width="1080"></figure>
+                         loading="lazy"
+                         src="assets/screenshots/{{SCREENSHOT_LOCALE}}/Screenshot_Bubble Penetration_2.png"
+                         width="1080"></figure>
             <figure class="raised"><img alt="{{SHOT_TWO}}"
                                         height="2256"
-                                        loading="lazy" src="assets/screenshots/{{SCREENSHOT_LOCALE}}/Screenshot_Bubble Penetration_3.png" width="1080"></figure>
+                                        loading="lazy"
+                                        src="assets/screenshots/{{SCREENSHOT_LOCALE}}/Screenshot_Bubble Penetration_3.png"
+                                        width="1080"></figure>
             <figure><img alt="{{SHOT_THREE}}"
                          height="2256"
-                         loading="lazy" src="assets/screenshots/{{SCREENSHOT_LOCALE}}/Screenshot_Bubble Penetration_4.png" width="1080"></figure>
+                         loading="lazy"
+                         src="assets/screenshots/{{SCREENSHOT_LOCALE}}/Screenshot_Bubble Penetration_4.png"
+                         width="1080"></figure>
         </div>
     </section>
 
@@ -134,8 +176,18 @@
         <div><p class="eyebrow">{{READY}}</p>
             <h2>{{CTA_TITLE}}</h2>
             <p>{{CTA_TEXT}}</p></div>
-        <a class="button primary"
-           href="https://codeberg.org/scovillo/bubble-penetration/releases/latest" rel="noopener">{{DOWNLOAD}}</a>
+        <div class="cta-downloads">
+            <div aria-label="{{STORE_LABEL}}" class="store-buttons">
+                <a class="store-button" href="https://f-droid.org/de/packages/org.codeberg.scovillo.bubble/" rel="noopener">
+                    <span aria-hidden="true">F</span><span><small>{{GET_IT_ON}}</small>F-Droid</span>
+                </a>
+                <span aria-disabled="true" class="store-button disabled">
+                    <span aria-hidden="true">▶</span><span><small>Google Play</small>{{COMING_SOON}}</span>
+                </span>
+            </div>
+            <a class="button primary"
+               href="https://codeberg.org/scovillo/bubble-penetration/releases/latest" rel="noopener">{{DOWNLOAD}}</a>
+        </div>
     </section>
 </main>
 

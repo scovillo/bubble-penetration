@@ -278,10 +278,10 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    fun openProjectWebsite(view: View) {
-        val uri = Uri.parse("https://codeberg.org/scovillo/bubble-penetration")
-        val myAppLinkToMarket = Intent(Intent.ACTION_VIEW, uri)
-        startActivity(myAppLinkToMarket)
+    fun openWebsite(view: View) {
+        val uri = Uri.parse("https://scovillo.codeberg.page/bubble-penetration/")
+        val websiteIntent = Intent(Intent.ACTION_VIEW, uri)
+        startActivity(websiteIntent)
     }
 
 }

@@ -36,7 +36,7 @@
     <string name="connection_failed">接続に失敗しました。</string>
     <string name="invalid_backend_url">有効な HTTPS URL を入力してください。</string>
     <string name="no_champion">現在のチャンピオンはいません…</string>
-    <string name="project">プロジェクト</string>
+    <string name="website">ウェブサイト</string>
     <string name="main_menu">メインメニュー</string>
     <string name="rank">順位</string>
     <string name="name">名前</string>

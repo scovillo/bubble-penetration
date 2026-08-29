@@ -126,7 +126,7 @@
             <Button
                     style="?android:attr/buttonBarButtonStyle"
                     android:id="@+id/project_button"
-                    android:text="@string/project"
+                    android:text="@string/website"
                     android:layout_width="0dp"
                     android:layout_height="40dp"
                     android:layout_weight="1"
@@ -135,7 +135,7 @@
                     android:minHeight="0dp"
                     android:paddingTop="2dp"
                     android:paddingBottom="2dp"
-                    android:onClick="openProjectWebsite"
+                    android:onClick="openWebsite"
                     android:background="@drawable/button"
                     android:enabled="true"
                     android:textColor="@color/gold"
