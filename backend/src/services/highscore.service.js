@@ -23,6 +23,7 @@ export function parseHighscore(highscore) {
 
 export function findAll() {
     return prisma.highscores.findMany({
+        where: { highscore: { gte: 1 } },
         orderBy: [{ highscore: 'desc' }]
     });
 }
