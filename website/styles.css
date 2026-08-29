@@ -25,6 +25,7 @@
 html {
   scroll-behavior: smooth;
   scroll-padding-top: 100px;
+  overflow-x: clip;
 }
 body {
   margin: 0;
@@ -663,6 +664,29 @@ footer a {
   footer {
     padding-left: 18px;
     padding-right: 18px;
+  }
+  .topbar:has(.topbar-actions) {
+    height: auto;
+    min-height: 78px;
+    padding-top: 15px;
+    padding-bottom: 15px;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .topbar-actions {
+    width: 100%;
+    justify-content: space-between;
+    gap: 10px;
+  }
+  .topbar-actions .language-picker,
+  .topbar-actions select {
+    min-width: 0;
+    max-width: 100%;
+  }
+  .legal-page h1 {
+    font-size: 2.5rem;
+    line-height: 1.05;
+    overflow-wrap: anywhere;
   }
   .brand span {
     display: none;
