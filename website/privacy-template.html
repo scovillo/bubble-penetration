@@ -1,15 +1,64 @@
 <!doctype html>
 <html lang="{{LANG}}">
-<head>
-  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-  <base href="{{BASE}}"><title>{{TITLE}} · Bubble Penetration</title>
-  <meta name="description" content="{{DESCRIPTION}}"><meta name="robots" content="index,follow">
-  <link rel="canonical" href="{{CANONICAL}}">{{HREFLANG}}
-  <meta property="og:type" content="article"><meta property="og:site_name" content="Bubble Penetration"><meta property="og:title" content="{{TITLE}}"><meta property="og:description" content="{{DESCRIPTION}}"><meta property="og:url" content="{{CANONICAL}}"><meta property="og:image" content="https://scovillo.codeberg.page/bubble-penetration/assets/social-en.png">
-  <link rel="icon" href="assets/icon.png"><link rel="stylesheet" href="styles.css">
-</head>
-<body><div class="ambient ambient-one" aria-hidden="true"></div><div class="ambient ambient-two" aria-hidden="true"></div>
-<header class="topbar"><a class="brand" href="{{HOME}}"><img src="assets/icon.png" alt="" width="48" height="48"><span>Bubble Penetration</span></a><a class="button secondary" href="{{HOME}}">{{BACK}}</a></header>
-<main class="legal-page"><p class="eyebrow">{{EYEBROW}}</p><h1>{{TITLE}}</h1><p class="legal-intro">{{INTRO}}</p>{{SECTIONS}}<p class="legal-updated">{{UPDATED}}</p></main>
-<footer><p>© 2026 Bubble Penetration · GPL-3.0</p><div><a href="https://codeberg.org/scovillo/bubble-penetration">Codeberg</a><a href="{{HOME}}">{{BACK}}</a></div></footer>
-</body></html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <base href="{{BASE}}" />
+    <title>{{TITLE}} · Bubble Penetration</title>
+    <meta name="description" content="{{DESCRIPTION}}" />
+    <meta name="robots" content="index,follow" />
+    <link rel="canonical" href="{{CANONICAL}}" />
+    {{HREFLANG}}
+    <meta property="og:type" content="article" />
+    <meta property="og:site_name" content="Bubble Penetration" />
+    <meta property="og:title" content="{{TITLE}}" />
+    <meta property="og:description" content="{{DESCRIPTION}}" />
+    <meta property="og:url" content="{{CANONICAL}}" />
+    <meta
+      property="og:image"
+      content="https://scovillo.codeberg.page/bubble-penetration/assets/social-en.png"
+    />
+    <link rel="icon" href="assets/icon.png" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="ambient ambient-one" aria-hidden="true"></div>
+    <div class="ambient ambient-two" aria-hidden="true"></div>
+    <header class="topbar">
+      <a class="brand" href="{{HOME}}"
+        ><img src="assets/icon.png" alt="" width="48" height="48" /><span
+          >Bubble Penetration</span
+        ></a
+      >
+      <div class="topbar-actions">
+        <label class="language-picker"
+          ><span class="sr-only">{{LANGUAGE}}</span
+          ><select aria-label="{{LANGUAGE}}" id="language-select">
+            {{LANGUAGE_OPTIONS}}
+          </select></label
+        ><a class="button secondary" href="{{HOME}}">{{BACK}}</a>
+      </div>
+    </header>
+    <main class="legal-page">
+      <p class="eyebrow">{{EYEBROW}}</p>
+      <h1>{{TITLE}}</h1>
+      <p class="legal-intro">{{INTRO}}</p>
+      {{SECTIONS}}
+      <p class="legal-updated">{{UPDATED}}</p>
+    </main>
+    <footer>
+      <p>© 2026 Bubble Penetration · GPL-3.0</p>
+      <div>
+        <a href="https://codeberg.org/scovillo/bubble-penetration">Codeberg</a
+        ><a href="{{HOME}}">{{BACK}}</a>
+      </div>
+    </footer>
+    <script>
+      document
+        .querySelector('#language-select')
+        .addEventListener('change', (event) =>
+          window.location.assign(new URL(event.target.value, document.baseURI)),
+        );
+    </script>
+  </body>
+</html>
