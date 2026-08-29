@@ -1,2 +1,5 @@
 <resources>
+    <dimen name="hud_pill_height">36dp</dimen>
+    <dimen name="hud_timer_progress_height">6dp</dimen>
+    <dimen name="hud_field_top_margin">4dp</dimen>
 </resources>

@@ -21,8 +21,9 @@
         <LinearLayout
             android:id="@+id/TimerPill"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="@dimen/hud_pill_height"
             android:background="@drawable/hud_pill"
+            android:gravity="center"
             android:orientation="vertical">
             <TextView
                 android:id="@+id/Timer"
@@ -41,7 +42,7 @@
                 android:id="@+id/TimerProgress"
                 style="?android:attr/progressBarStyleHorizontal"
                 android:layout_width="match_parent"
-                android:layout_height="4dp"
+                android:layout_height="@dimen/hud_timer_progress_height"
                 android:layout_marginTop="2dp"
                 android:max="1000"
                 android:progress="1000"
@@ -65,7 +66,7 @@
         <TextView
             android:id="@+id/Score"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="@dimen/hud_pill_height"
             android:layout_marginStart="10dp"
             android:background="@drawable/hud_pill"
             android:gravity="center_vertical"
@@ -99,6 +100,7 @@
         android:id="@+id/GLSurfaceViewHolder"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:layout_marginTop="@dimen/hud_field_top_margin"
         android:layout_marginStart="8sp"
         android:layout_marginLeft="8sp"
         android:layout_marginEnd="8sp"
