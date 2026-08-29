@@ -107,7 +107,7 @@ spec:
         fsGroup: 1000
       containers:
         - name: bubble-backend
-          image: vcs.lukas-scheerer.de/spicysources/bubble-penetration-backend:1.0.0
+          image: codeberg.org/scovillo/bubble-penetration-backend:1.0.0
           imagePullPolicy: "IfNotPresent"
           ports:
             - containerPort: 3000

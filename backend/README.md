@@ -20,6 +20,24 @@ The latest container image can be downloaded from Codeberg:
 docker pull codeberg.org/scovillo/bubble-penetration-backend:latest
 ```
 
+## Dev deployment
+
+A push to `master` that changes the backend starts the Forgejo workflow
+`.forgejo/workflows/backend-dev.yml`. It installs dependencies, runs the test
+suite, generates the Prisma client, publishes `dev` and commit-specific images,
+and rolls the commit-specific image out to the `bubble-dev` namespace.
+
+The Forgejo repository must provide these action secrets:
+
+| Secret | Description |
+| --- | --- |
+| `REGISTRY_USERNAME` | Codeberg username |
+| `REGISTRY_PASSWORD` | Password or access token with permission to push images |
+| `KUBE_CONFIG` | Base64-encoded kubeconfig with deployment access to `bubble-dev` |
+
+Create the kubeconfig value without line wrapping, for example with
+`base64 -w 0 ~/.kube/config`.
+
 ## Service information
 
 `GET /` returns basic service metadata as JSON, including the backend version

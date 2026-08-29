@@ -1,23 +1,4 @@
 apiVersion: v1
-kind: Namespace
-metadata:
-  name: bubble-dev
----
-apiVersion: v1
-kind: Secret
-metadata:
-  name: database-auth
-  namespace: bubble-dev
-  labels:
-    app: bubble-backend
-type: Opaque
-data:
-  POSTGRES_HOST: "bubble-database-service"
-  POSTGRES_DB: "bubble_penetration"
-  POSTGRES_USER: "postgres"
-  POSTGRES_PASSWORD: "postgres"
----
-apiVersion: v1
 kind: ConfigMap
 metadata:
   name: bubble-config
@@ -102,7 +83,7 @@ spec:
         fsGroup: 1000
       containers:
         - name: bubble-backend
-          image: vcs.lukas-scheerer.de/spicysources/bubble-penetration-backend:latest
+          image: codeberg.org/scovillo/bubble-penetration-backend:dev
           imagePullPolicy: "Always"
           ports:
             - containerPort: 3000

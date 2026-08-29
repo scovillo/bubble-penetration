@@ -1,0 +1,86 @@
+name: Backend Dev CI/CD
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - backend/**
+      - .forgejo/workflows/backend-dev.yml
+  workflow_dispatch:
+
+concurrency:
+  group: backend-dev
+  cancel-in-progress: true
+
+env:
+  REGISTRY: codeberg.org
+  IMAGE_NAME: scovillo/bubble-penetration-backend
+
+jobs:
+  test-build-deploy:
+    runs-on: codeberg-medium
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout code
+        uses: https://data.forgejo.org/actions/checkout@v6
+
+      - name: Set up Node.js
+        uses: https://data.forgejo.org/actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Install dependencies
+        working-directory: backend
+        run: npm ci
+
+      - name: Run tests
+        working-directory: backend
+        run: npm test
+
+      - name: Build backend
+        working-directory: backend
+        run: npm run build
+
+      - name: Log in to container registry
+        uses: https://github.com/docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ secrets.REGISTRY_USERNAME }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
+
+      - name: Build and push dev image
+        uses: https://github.com/docker/build-push-action@v6
+        with:
+          context: backend
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:dev
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:dev-${{ forge.sha }}
+
+      - name: Set up kubectl
+        uses: https://github.com/Azure/setup-kubectl@v4
+
+      - name: Configure Kubernetes access
+        shell: bash
+        run: |
+          mkdir -p "$RUNNER_TEMP/kube"
+          echo "${{ secrets.KUBE_CONFIG }}" | base64 --decode > "$RUNNER_TEMP/kube/config"
+          chmod 600 "$RUNNER_TEMP/kube/config"
+          echo "KUBECONFIG=$RUNNER_TEMP/kube/config" >> "$FORGEJO_ENV"
+
+      - name: Deploy to dev
+        shell: bash
+        run: |
+          kubectl apply -f backend/.kubernetes/dev.yml
+          kubectl set image deployment/bubble-backend \
+            bubble-backend="${REGISTRY}/${IMAGE_NAME}:dev-${{ forge.sha }}" \
+            --namespace bubble-dev
+          kubectl rollout status deployment/bubble-backend \
+            --namespace bubble-dev \
+            --timeout=180s

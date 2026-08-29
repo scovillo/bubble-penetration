@@ -1,0 +1,6 @@
+.env
+.gitignore
+.kubernetes
+node_modules
+npm-debug.log*
+test

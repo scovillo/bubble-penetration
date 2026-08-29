@@ -5,6 +5,8 @@
   "main": "src/app.js",
   "type": "module",
   "scripts": {
+    "test": "node --test",
+    "build": "prisma generate",
     "prestart": "prisma generate",
     "migrate:dev": "prisma migrate dev",
     "migrate:deploy": "prisma migrate deploy",
