@@ -1,0 +1,81 @@
+name: Backend Image Release
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: backend-release
+  cancel-in-progress: false
+
+env:
+  REGISTRY: codeberg.org
+  IMAGE_NAME: scovillo/bubble-penetration-backend
+
+jobs:
+  test-build-push:
+    runs-on: codeberg-medium
+    container:
+      image: docker.io/library/node:22-bookworm-slim
+
+    steps:
+      - name: Checkout code
+        uses: https://data.forgejo.org/actions/checkout@v6
+
+      - name: Install container build tools
+        shell: bash
+        run: |
+          apt-get update
+          apt-get install --yes --no-install-recommends buildah ca-certificates
+          rm -rf /var/lib/apt/lists/*
+          printf '[storage]\ndriver="vfs"\nrunroot="/run/containers/storage"\ngraphroot="/var/lib/containers/storage"\n' \
+            > /etc/containers/storage.conf
+
+      - name: Set up Node.js
+        uses: https://data.forgejo.org/actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Install dependencies
+        working-directory: backend
+        run: npm ci
+
+      - name: Run tests
+        working-directory: backend
+        run: npm test
+
+      - name: Build backend
+        working-directory: backend
+        run: npm run build
+
+      - name: Read backend version
+        shell: bash
+        run: |
+          VERSION=$(node --input-type=module -e \
+            "import pkg from './backend/package.json' with { type: 'json' }; process.stdout.write(pkg.version)")
+          test -n "$VERSION"
+          echo "BACKEND_VERSION=$VERSION" >> "$FORGEJO_ENV"
+          echo "Releasing backend image version $VERSION"
+
+      - name: Build and push release image
+        shell: bash
+        env:
+          BUILDAH_ISOLATION: chroot
+        run: |
+          IMAGE_VERSION="${REGISTRY}/${IMAGE_NAME}:${BACKEND_VERSION}"
+          IMAGE_LATEST="${REGISTRY}/${IMAGE_NAME}:latest"
+
+          printf '%s' "${{ secrets.REGISTRY_PASSWORD }}" | \
+            buildah login \
+              --username "${{ secrets.REGISTRY_USERNAME }}" \
+              --password-stdin \
+              "$REGISTRY"
+
+          buildah build \
+            --isolation chroot \
+            --tag "$IMAGE_VERSION" \
+            --tag "$IMAGE_LATEST" \
+            backend
+          buildah push "$IMAGE_VERSION" "docker://$IMAGE_VERSION"
+          buildah push "$IMAGE_LATEST" "docker://$IMAGE_LATEST"
