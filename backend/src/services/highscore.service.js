@@ -72,6 +72,13 @@ export function findHighscore(username) {
   });
 }
 
+export function resetAll() {
+  return prisma.highscores.updateMany({
+    where: { highscore: { gt: 0 } },
+    data: { highscore: 0 },
+  });
+}
+
 export function create(username, highscore) {
   const score = parseHighscore(highscore);
 

@@ -6,8 +6,8 @@ metadata:
   labels:
     app: bubble-backend
 data:
-  LOG_LEVEL: "DEBUG"
-  NODE_ENV: "development"
+  LOG_LEVEL: 'DEBUG'
+  NODE_ENV: 'development'
 ---
 apiVersion: v1
 kind: Service
@@ -45,7 +45,7 @@ spec:
       containers:
         - name: bubble-database
           image: postgres:18-alpine
-          imagePullPolicy: "Always"
+          imagePullPolicy: 'Always'
           ports:
             - containerPort: 5432
           envFrom:
@@ -84,7 +84,7 @@ spec:
       containers:
         - name: bubble-backend
           image: codeberg.org/scovillo/bubble-penetration-backend:dev
-          imagePullPolicy: "Always"
+          imagePullPolicy: 'Always'
           ports:
             - containerPort: 3000
           readinessProbe:
@@ -104,6 +104,42 @@ spec:
                 name: bubble-config
             - secretRef:
                 name: database-auth
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: reset-highscores
+  namespace: bubble-dev
+spec:
+  schedule: '0 0 1 * *'
+  timeZone: 'Etc/UTC'
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 2
+      template:
+        metadata:
+          labels:
+            app: bubble-highscore-reset
+        spec:
+          restartPolicy: Never
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1000
+            runAsGroup: 1000
+            fsGroup: 1000
+          containers:
+            - name: reset-highscores
+              image: codeberg.org/scovillo/bubble-penetration-backend:dev
+              imagePullPolicy: 'Always'
+              command: ['npm', 'run', 'reset-highscores']
+              envFrom:
+                - configMapRef:
+                    name: bubble-config
+                - secretRef:
+                    name: database-auth
 ---
 apiVersion: v1
 kind: Service
