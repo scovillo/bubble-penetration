@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: Bubble Penetration API v1
-  version: 1.0.0
+  version: 1.1.0
   description: API v1 for username registration and highscores.
 servers:
   - url: https://bubble.lukas-scheerer.de/api
@@ -18,41 +18,41 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/CreateUsernameRequest"
+              $ref: '#/components/schemas/CreateUsernameRequest'
             examples:
               default:
                 value:
                   username: Lukas
       responses:
-        "201":
+        '201':
           description: User created
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/CreateUsernameSuccessResponse"
+                $ref: '#/components/schemas/CreateUsernameSuccessResponse'
               examples:
                 created:
                   value:
                     success: true
                     user:
                       username: Lukas
-        "200":
+        '200':
           description: Username already exists
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
               examples:
                 alreadyExists:
                   value:
                     success: false
                     message: username already exists
-        "400":
+        '400':
           description: Invalid payload
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
               examples:
                 invalidUsername:
                   value:
@@ -61,21 +61,57 @@ paths:
   /v1/highscores:
     get:
       summary: List highscores
-      description: Returns all highscores sorted descending.
+      description: |
+        Without query parameters, returns all highscores for compatibility with older clients.
+        Supplying `username` or `startRank` enables pagination with up to 50 entries. When both
+        are supplied, `username` determines the first rank. Scores are sorted by score descending
+        and username ascending.
+      parameters:
+        - name: username
+          in: query
+          required: false
+          description: Starts the page at this user's global rank. Unknown users start at rank 1.
+          schema:
+            type: string
+            minLength: 1
+            maxLength: 10
+        - name: startRank
+          in: query
+          required: false
+          description: One-based global rank at which the page starts.
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
       responses:
-        "200":
+        '200':
           description: Highscores loaded
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/GetHighscoresResponse"
+                oneOf:
+                  - $ref: '#/components/schemas/GetHighscoresResponse'
+                  - $ref: '#/components/schemas/GetHighscorePageResponse'
               examples:
-                default:
+                legacy:
+                  summary: Full response without query parameters
                   value:
                     highscores:
                       - username: Lukas
                         score: 4711
                         timestamp: 20.08.2026
+                paginated:
+                  summary: Page response when a query parameter is supplied
+                  value:
+                    highscores:
+                      - rank: 131
+                        username: Lukas
+                        score: 4711
+                        timestamp: 20.08.2026
+                    startRank: 131
+                    total: 240
+                    hasPrevious: true
+                    hasNext: true
     post:
       summary: Save highscore
       description: Creates or updates a highscore for a username.
@@ -84,19 +120,19 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/SaveHighscoreRequest"
+              $ref: '#/components/schemas/SaveHighscoreRequest'
             examples:
               default:
                 value:
                   username: Lukas
                   highscore: 4711
       responses:
-        "200":
+        '200':
           description: Existing user highscore processed
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/SaveHighscoreResponse"
+                $ref: '#/components/schemas/SaveHighscoreResponse'
               examples:
                 updatedOrUnchanged:
                   value:
@@ -106,12 +142,12 @@ paths:
                       username: Lukas
                       score: 4711
                       timestamp: 20.08.2026
-        "201":
+        '201':
           description: New user created with highscore
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/SaveHighscoreResponse"
+                $ref: '#/components/schemas/SaveHighscoreResponse'
               examples:
                 created:
                   value:
@@ -121,12 +157,12 @@ paths:
                       username: Lukas
                       score: 4711
                       timestamp: 20.08.2026
-        "400":
+        '400':
           description: Invalid payload
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
               examples:
                 invalidUsername:
                   value:
@@ -185,6 +221,27 @@ components:
           type: string
           description: Localized date string in de-DE format.
           example: 20.08.2026
+    RankedHighscore:
+      type: object
+      additionalProperties: false
+      required:
+        - rank
+        - username
+        - score
+        - timestamp
+      properties:
+        rank:
+          type: integer
+          minimum: 1
+        username:
+          type: string
+        score:
+          type: integer
+          minimum: 0
+        timestamp:
+          type: string
+          description: Localized date string in de-DE format.
+          example: 20.08.2026
     CreateUsernameSuccessResponse:
       type: object
       additionalProperties: false
@@ -196,7 +253,7 @@ components:
           type: boolean
           enum: [true]
         user:
-          $ref: "#/components/schemas/User"
+          $ref: '#/components/schemas/User'
     SaveHighscoreResponse:
       type: object
       additionalProperties: false
@@ -211,7 +268,7 @@ components:
         isNewHighscore:
           type: boolean
         highscore:
-          $ref: "#/components/schemas/Highscore"
+          $ref: '#/components/schemas/Highscore'
     GetHighscoresResponse:
       type: object
       additionalProperties: false
@@ -221,7 +278,32 @@ components:
         highscores:
           type: array
           items:
-            $ref: "#/components/schemas/Highscore"
+            $ref: '#/components/schemas/Highscore'
+    GetHighscorePageResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - highscores
+        - startRank
+        - total
+        - hasPrevious
+        - hasNext
+      properties:
+        highscores:
+          type: array
+          maxItems: 50
+          items:
+            $ref: '#/components/schemas/RankedHighscore'
+        startRank:
+          type: integer
+          minimum: 1
+        total:
+          type: integer
+          minimum: 0
+        hasPrevious:
+          type: boolean
+        hasNext:
+          type: boolean
     ErrorResponse:
       type: object
       additionalProperties: false

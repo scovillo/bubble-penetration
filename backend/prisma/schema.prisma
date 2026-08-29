@@ -13,4 +13,6 @@ model Highscores {
 	username	String		@id @db.VarChar(10)
 	highscore	Int			@default(0)
 	timestamp	DateTime	@updatedAt
+
+	@@index([highscore(sort: Desc), username])
 }

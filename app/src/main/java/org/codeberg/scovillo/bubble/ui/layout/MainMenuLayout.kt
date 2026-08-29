@@ -81,8 +81,8 @@ class MainMenuLayout(private val mainActivity: MainActivity, private val musicPl
         }
         THREAD_POOL.execute {
             try {
-                val highscoreRequest = ApiService.getHighscoreData()
-                val jsonArray = highscoreRequest[8000, TimeUnit.MILLISECONDS]
+                val highscoreRequest = ApiService.getHighscorePage(startRank = 1)
+                val jsonArray = highscoreRequest[8000, TimeUnit.MILLISECONDS].getJSONArray("highscores")
                 mainActivity.onBackendRequestSucceeded()
 
                 mainActivity.runOnUiThread {

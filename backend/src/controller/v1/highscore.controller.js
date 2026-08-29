@@ -1,7 +1,7 @@
-import express from "express";
-import { log } from "../../middlewares/logging.middleware.js";
-import { installRateLimits } from "../../middlewares/rate-limit.middleware.js";
-import * as highscoreService from "../../services/highscore.service.js";
+import express from 'express';
+import { log } from '../../middlewares/logging.middleware.js';
+import { installRateLimits } from '../../middlewares/rate-limit.middleware.js';
+import * as highscoreService from '../../services/highscore.service.js';
 
 export const highscoreController = express.Router();
 installRateLimits(highscoreController);
@@ -10,17 +10,17 @@ function toHighscoreResponse(row) {
   return {
     username: row.username,
     score: row.highscore,
-    timestamp: row.timestamp.toLocaleDateString("de-DE"),
+    timestamp: row.timestamp.toLocaleDateString('de-DE'),
   };
 }
 
-highscoreController.post("/users", function (req, res, next) {
+highscoreController.post('/users', function (req, res, next) {
   const username = req.body?.username?.trim();
 
   if (!username) {
     return res.status(400).json({
       success: false,
-      message: "username must not be empty",
+      message: 'username must not be empty',
     });
   }
 
@@ -30,7 +30,7 @@ highscoreController.post("/users", function (req, res, next) {
       if (isExisting) {
         return res.status(409).json({
           success: false,
-          message: "username already exists",
+          message: 'username already exists',
         });
       } else {
         return highscoreService.create(username, 0).then((createdUser) =>
@@ -49,12 +49,37 @@ highscoreController.post("/users", function (req, res, next) {
     });
 });
 
-highscoreController.get("/highscores", function (req, res, next) {
+highscoreController.get('/highscores', function (req, res, next) {
+  const isPaginated =
+    req.query.username !== undefined || req.query.startRank !== undefined;
+  if (!isPaginated) {
+    return highscoreService
+      .findAll()
+      .then((highscores) => {
+        res.json({ highscores: highscores.map(toHighscoreResponse) });
+      })
+      .catch((error) => {
+        log.error(error);
+        next(error);
+      });
+  }
+
+  const requestedStartRank = Number.parseInt(req.query.startRank, 10);
+  const startRank = Number.isNaN(requestedStartRank) ? 1 : requestedStartRank;
+  const username = req.query.username?.trim();
+
   highscoreService
-    .findAll()
-    .then((highscores) => {
+    .findPage({ startRank, username })
+    .then((page) => {
       const body = {
-        highscores: highscores.map(toHighscoreResponse),
+        highscores: page.highscores.map((row, index) => ({
+          ...toHighscoreResponse(row),
+          rank: page.startRank + index,
+        })),
+        startRank: page.startRank,
+        total: page.total,
+        hasPrevious: page.hasPrevious,
+        hasNext: page.hasNext,
       };
       res.json(body);
     })
@@ -64,13 +89,13 @@ highscoreController.get("/highscores", function (req, res, next) {
     });
 });
 
-highscoreController.post("/highscores", function (req, res, next) {
+highscoreController.post('/highscores', function (req, res, next) {
   const { username, highscore } = req.body;
 
   if (!username?.trim()) {
     return res.status(400).json({
       success: false,
-      message: "username must not be empty",
+      message: 'username must not be empty',
     });
   }
 

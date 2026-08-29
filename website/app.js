@@ -7,13 +7,16 @@
   const championScore = document.querySelector('#champion-score');
   const number = new Intl.NumberFormat(document.documentElement.lang);
 
-  document.querySelector('#language-select').addEventListener('change', (event) => {
-    const locale = event.target.value;
-    const isCodebergPages = window.location.hostname.endsWith('.codeberg.page');
-    const siteRoot = isCodebergPages ? '/bubble-penetration/' : '/';
-    const localePath = locale === 'en' ? siteRoot : `${siteRoot}${locale}/`;
-    window.location.assign(new URL(localePath, window.location.origin));
-  });
+  document
+    .querySelector('#language-select')
+    .addEventListener('change', (event) => {
+      const locale = event.target.value;
+      const isCodebergPages =
+        window.location.hostname.endsWith('.codeberg.page');
+      const siteRoot = isCodebergPages ? '/bubble-penetration/' : '/';
+      const localePath = locale === 'en' ? siteRoot : `${siteRoot}${locale}/`;
+      window.location.assign(new URL(localePath, window.location.origin));
+    });
 
   function renderScores(scores) {
     list.replaceChildren();
@@ -39,10 +42,15 @@
     status.hidden = false;
     status.textContent = config.loading;
     try {
-      const response = await fetch('https://bubble.lukas-scheerer.de/api/v1/highscores', { headers: { Accept: 'application/json' } });
+      const response = await fetch(
+        'https://bubble.lukas-scheerer.de/api/v1/highscores?startRank=1',
+        { headers: { Accept: 'application/json' } },
+      );
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       const payload = await response.json();
-      const scores = Array.isArray(payload.highscores) ? payload.highscores : [];
+      const scores = Array.isArray(payload.highscores)
+        ? payload.highscores
+        : [];
       if (!scores.length) {
         status.textContent = config.empty;
         championName.textContent = '—';

@@ -10,6 +10,7 @@ import java.io.DataOutputStream
 import java.io.InputStreamReader
 import java.net.HttpURLConnection
 import java.net.URL
+import java.net.URLEncoder
 import java.util.concurrent.Callable
 import java.util.concurrent.Future
 
@@ -76,6 +77,28 @@ object ApiService {
                 } catch (e: Exception) {
                     Log.e(TAG, "Error fetching highscores", e)
                     throw e
+                } finally {
+                    httpConn.disconnect()
+                }
+            }
+        )
+    }
+
+    fun getHighscorePage(username: String? = null, startRank: Int? = null): Future<JSONObject> {
+        return THREAD_POOL.submit(
+            Callable {
+                val query = when {
+                    username != null -> "?username=${URLEncoder.encode(username, Charsets.UTF_8.name())}"
+                    startRank != null -> "?startRank=$startRank"
+                    else -> ""
+                }
+                val url = apiUrl("highscores$query")
+                Log.d(TAG, "GET request to: $url")
+                val httpConn = URL(url).openConnection() as HttpURLConnection
+                httpConn.requestMethod = "GET"
+                httpConn.doOutput = false
+                try {
+                    JSONObject(readResponseFrom(httpConn))
                 } finally {
                     httpConn.disconnect()
                 }
