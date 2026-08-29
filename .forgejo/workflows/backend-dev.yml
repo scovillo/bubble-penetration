@@ -20,6 +20,8 @@ env:
 jobs:
   test-build-deploy:
     runs-on: codeberg-medium
+    container:
+      image: docker.io/library/node:22-bookworm-slim
     permissions:
       contents: read
       packages: write
@@ -27,6 +29,15 @@ jobs:
     steps:
       - name: Checkout code
         uses: https://data.forgejo.org/actions/checkout@v6
+
+      - name: Install container build tools
+        shell: bash
+        run: |
+          apt-get update
+          apt-get install --yes --no-install-recommends buildah ca-certificates
+          rm -rf /var/lib/apt/lists/*
+          printf '[storage]\ndriver="vfs"\nrunroot="/run/containers/storage"\ngraphroot="/var/lib/containers/storage"\n' \
+            > /etc/containers/storage.conf
 
       - name: Set up Node.js
         uses: https://data.forgejo.org/actions/setup-node@v6
@@ -47,21 +58,27 @@ jobs:
         working-directory: backend
         run: npm run build
 
-      - name: Log in to container registry
-        uses: https://github.com/docker/login-action@v3
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ secrets.REGISTRY_USERNAME }}
-          password: ${{ secrets.REGISTRY_PASSWORD }}
-
       - name: Build and push dev image
-        uses: https://github.com/docker/build-push-action@v6
-        with:
-          context: backend
-          push: true
-          tags: |
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:dev
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:dev-${{ forge.sha }}
+        shell: bash
+        env:
+          BUILDAH_ISOLATION: chroot
+        run: |
+          IMAGE_DEV="${REGISTRY}/${IMAGE_NAME}:dev"
+          IMAGE_SHA="${REGISTRY}/${IMAGE_NAME}:dev-${{ forge.sha }}"
+
+          printf '%s' "${{ secrets.REGISTRY_PASSWORD }}" | \
+            buildah login \
+              --username "${{ secrets.REGISTRY_USERNAME }}" \
+              --password-stdin \
+              "$REGISTRY"
+
+          buildah build \
+            --isolation chroot \
+            --tag "$IMAGE_DEV" \
+            --tag "$IMAGE_SHA" \
+            backend
+          buildah push "$IMAGE_DEV" "docker://$IMAGE_DEV"
+          buildah push "$IMAGE_SHA" "docker://$IMAGE_SHA"
 
       - name: Set up kubectl
         uses: https://github.com/Azure/setup-kubectl@v4
