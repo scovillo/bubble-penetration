@@ -2,17 +2,14 @@ package org.codeberg.scovillo.bubble.ui
 
 import android.content.Context
 import android.opengl.GLSurfaceView
-import android.opengl.GLU
 import org.codeberg.scovillo.bubble.game.BubbleColors
 import org.codeberg.scovillo.bubble.game.GameObject
 import org.codeberg.scovillo.bubble.game.Generator
-import java.lang.Math.PI
 import java.lang.Math.random
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
 import javax.microedition.khronos.opengles.GL11
 import kotlin.math.roundToInt
-import kotlin.math.tan
 
 
 class MenuGLSurfaceView(context: Context) : GLSurfaceView(context) {
@@ -68,23 +65,21 @@ class MenuGLSurfaceView(context: Context) : GLSurfaceView(context) {
             val gl11 = gl as GL11
             gl.glViewport(0, 0, width, height)
             val aspectRatio = width.toFloat() / height
-            val fovy = 45.0f
-            // set up projection matrix for scene
             gl.glMatrixMode(GL10.GL_PROJECTION)
             gl.glLoadIdentity()
-            GLU.gluPerspective(gl, fovy, aspectRatio, 0.001f, 100.0f)
-            // set up modelview matrix for scene
+            val desiredHeight = if (aspectRatio > 1.0f) 10.0f else 10.0f / aspectRatio
+            val desiredWidth = desiredHeight * aspectRatio
+            gl.glOrthof(
+                -desiredWidth / 2,
+                desiredWidth / 2,
+                -desiredHeight / 2,
+                desiredHeight / 2,
+                0.001f,
+                100.0f,
+            )
             gl.glMatrixMode(GL10.GL_MODELVIEW)
             gl.glLoadIdentity()
-            val desiredHeight = if (aspectRatio > 1.0f) 10.0f else 10.0f / aspectRatio
-            // We want to be able to see the range of 5 to -5 units at the y
-            // axis (height=10).
-            // To achieve this we have to pull the camera towards the positive z axis
-            // based on the following formula:
-            // z = (desired_height / 2) / tan(fovy/2)
-            val z = (desiredHeight / 2 / tan(fovy / 2 * (PI / 180.0f))).toFloat()
-            // forward for the camera is backward for the scene
-            gl.glTranslatef(0.0f, 0.0f, -z)
+            gl.glTranslatef(0.0f, 0.0f, -20.0f)
             // rotate local to achieve top down view from negative y down to xz-plane
             // z range is the desired height
             gl.glRotatef(-90.0f, 1.0f, 0.0f, 0.0f)

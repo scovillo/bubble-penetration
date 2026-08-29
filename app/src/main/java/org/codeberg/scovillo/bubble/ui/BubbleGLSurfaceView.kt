@@ -3,7 +3,6 @@ package org.codeberg.scovillo.bubble.ui
 import android.content.Context
 import android.graphics.Color
 import android.opengl.GLSurfaceView
-import android.opengl.GLU
 import android.os.SystemClock
 import android.view.MotionEvent
 import android.view.View
@@ -29,12 +28,10 @@ import javax.microedition.khronos.opengles.GL10
 import javax.microedition.khronos.opengles.GL11
 import kotlin.math.pow
 import kotlin.math.sqrt
-import kotlin.math.tan
 
 class BubbleGLSurfaceView(context: Context) : GLSurfaceView(context) {
 
     private val mainActivity = context as MainActivity
-    private val assets = context.assets
     private val effectPlayer = mainActivity.soundEffects
 
     private val timerAlarm = TimerAlarm()
@@ -48,15 +45,13 @@ class BubbleGLSurfaceView(context: Context) : GLSurfaceView(context) {
     private val objectsToBeRemoved = ArrayList<GameObject>()
     private val targetsToBeRemoved = ArrayList<GameObject>()
     private val timerText: TextView = mainActivity.findViewById<View>(R.id.Timer) as TextView
-    private var scoreText: TextView
+    private var scoreText: TextView = mainActivity.findViewById<View>(R.id.Score) as TextView
     private val renderer: BubbleRenderer
     private val timeLogic = Time()
     private val combo = Combo(mainActivity, effectPlayer)
     private val firstDigitFormat = DecimalFormat("0.0")
 
     init {
-
-        scoreText = mainActivity.findViewById<View>(R.id.Score) as TextView
 
         firstDigitFormat.roundingMode = RoundingMode.CEILING
 
@@ -276,22 +271,21 @@ class BubbleGLSurfaceView(context: Context) : GLSurfaceView(context) {
             val gl11 = gl as GL11
             gl.glViewport(0, 0, width, height)
             val aspectRatio = width.toFloat() / height
-            val fovy = 45.0f
             gl.glMatrixMode(GL10.GL_PROJECTION)
             gl.glLoadIdentity()
-            GLU.gluPerspective(gl, fovy, aspectRatio, 0.001f, 100.0f)
+            val desiredHeight = if (aspectRatio > 1.0f) 10.0f else 10.0f / aspectRatio
+            val desiredWidth = desiredHeight * aspectRatio
+            gl.glOrthof(
+                -desiredWidth / 2,
+                desiredWidth / 2,
+                -desiredHeight / 2,
+                desiredHeight / 2,
+                0.001f,
+                100.0f,
+            )
             gl.glMatrixMode(GL10.GL_MODELVIEW)
             gl.glLoadIdentity()
-            val desiredHeight = if (aspectRatio > 1.0f) 10.0f else 10.0f / aspectRatio
-            // We want to be able to see the range of 5 to -5 units at the y
-            // axis (height=10).
-            // To achieve this we have to pull the camera towards the positive z axis
-            // based on the following formula:
-            // z = (desired_height / 2) / tan(fovy/2)
-            val z =
-                (desiredHeight / 2 / tan(fovy / 2 * (Math.PI / 180.0f))).toFloat()
-            // forward for the camera is backward for the scene
-            gl.glTranslatef(0.0f, 0.0f, -z)
+            gl.glTranslatef(0.0f, 0.0f, -20.0f)
             // rotate local to achieve top down view from negative y down to xz-plane
             // z range is the desired height
             gl.glRotatef(-90.0f, 1.0f, 0.0f, 0.0f)
