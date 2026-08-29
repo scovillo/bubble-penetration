@@ -8,7 +8,11 @@
   const number = new Intl.NumberFormat(document.documentElement.lang);
 
   document.querySelector('#language-select').addEventListener('change', (event) => {
-    window.location.href = event.target.value;
+    const locale = event.target.value;
+    const isCodebergPages = window.location.hostname.endsWith('.codeberg.page');
+    const siteRoot = isCodebergPages ? '/bubble-penetration/' : '/';
+    const localePath = locale === 'en' ? siteRoot : `${siteRoot}${locale}/`;
+    window.location.assign(new URL(localePath, window.location.origin));
   });
 
   function renderScores(scores) {

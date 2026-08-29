@@ -21,8 +21,7 @@ for (const [key, copy] of Object.entries(translations)) {
   const canonical = `${siteUrl}${pathFor(key)}`;
   const hrefLang = keys.map((lang) => `<link rel="alternate" hreflang="${translations[lang].locale}" href="${siteUrl}${pathFor(lang)}">`).join('\n  ') + `\n  <link rel="alternate" hreflang="x-default" href="${siteUrl}">`;
   const options = keys.map((lang) => {
-    const href = key === 'en' ? (lang === 'en' ? './' : `${lang}/`) : (lang === 'en' ? '../' : `../${lang}/`);
-    return `<option value="${href}"${lang === key ? ' selected' : ''}>${escapeHtml(translations[lang].name)}</option>`;
+    return `<option value="${lang}"${lang === key ? ' selected' : ''}>${escapeHtml(translations[lang].name)}</option>`;
   }).join('');
   const jsonLd = JSON.stringify({ '@context':'https://schema.org', '@type':'VideoGame', name:'Bubble Penetration', description:copy.description, url:canonical, image:`${siteUrl}assets/og.png`, applicationCategory:'GameApplication', operatingSystem:'Android', isAccessibleForFree:true, license:'https://www.gnu.org/licenses/gpl-3.0.html', downloadUrl:'https://codeberg.org/scovillo/bubble-penetration/releases/latest' }).replaceAll('<', '\\u003c');
   const values = {
