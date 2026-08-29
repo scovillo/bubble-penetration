@@ -1,0 +1,33 @@
+name: Codeberg Pages
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - website/**
+      - scripts/build-website.mjs
+      - .forgejo/workflows/pages.yml
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: codeberg-medium
+    steps:
+      - name: Checkout
+        uses: https://data.forgejo.org/actions/checkout@v6
+
+      - name: Set up Node.js
+        uses: https://data.forgejo.org/actions/setup-node@v6
+        with:
+          node-version: 22
+
+      - name: Build landing page
+        run: node scripts/build-website.mjs
+
+      - name: Deploy to Codeberg Pages
+        uses: https://codeberg.org/git-pages/action@v2
+        with:
+          site: https://${{ forge.repository_owner }}.codeberg.page/bubble-penetration/
+          token: ${{ forge.token }}
+          source: _site/

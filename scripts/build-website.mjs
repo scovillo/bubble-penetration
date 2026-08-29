@@ -1,0 +1,47 @@
+import { cp, mkdir, readFile, rm, writeFile } from 'node:fs/promises';
+import { resolve } from 'node:path';
+import { siteUrl, translations } from '../website/translations.mjs';
+
+const root = resolve(import.meta.dirname, '..');
+const source = resolve(root, 'website');
+const output = resolve(root, '_site');
+const template = await readFile(resolve(source, 'template.html'), 'utf8');
+const keys = Object.keys(translations);
+const escapeHtml = (value) => String(value).replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;');
+const pathFor = (key) => key === 'en' ? '' : `${key}/`;
+
+await rm(output, { recursive: true, force: true });
+await mkdir(output, { recursive: true });
+await cp(resolve(source, 'assets'), resolve(output, 'assets'), { recursive: true });
+await cp(resolve(source, 'styles.css'), resolve(output, 'styles.css'));
+await cp(resolve(source, 'app.js'), resolve(output, 'app.js'));
+
+for (const [key, copy] of Object.entries(translations)) {
+  const base = key === 'en' ? './' : '../';
+  const canonical = `${siteUrl}${pathFor(key)}`;
+  const hrefLang = keys.map((lang) => `<link rel="alternate" hreflang="${translations[lang].locale}" href="${siteUrl}${pathFor(lang)}">`).join('\n  ') + `\n  <link rel="alternate" hreflang="x-default" href="${siteUrl}">`;
+  const options = keys.map((lang) => {
+    const href = key === 'en' ? (lang === 'en' ? './' : `${lang}/`) : (lang === 'en' ? '../' : `../${lang}/`);
+    return `<option value="${href}"${lang === key ? ' selected' : ''}>${escapeHtml(translations[lang].name)}</option>`;
+  }).join('');
+  const jsonLd = JSON.stringify({ '@context':'https://schema.org', '@type':'VideoGame', name:'Bubble Penetration', description:copy.description, url:canonical, image:`${siteUrl}assets/og.png`, applicationCategory:'GameApplication', operatingSystem:'Android', isAccessibleForFree:true, license:'https://www.gnu.org/licenses/gpl-3.0.html', downloadUrl:'https://codeberg.org/scovillo/bubble-penetration/releases/latest' }).replaceAll('<', '\\u003c');
+  const values = {
+    LANG:copy.locale, DIR:'ltr', BASE:base, TITLE:copy.title, DESCRIPTION:copy.description, CANONICAL:canonical, HREFLANG:hrefLang, OG_LOCALE:copy.locale.replace('-', '_'), JSON_LD:jsonLd,
+    SKIP:copy.skip, NAV_LABEL:copy.navLabel, NAV_GAME:copy.navGame, NAV_SCORES:copy.navScores, NAV_PLAY:copy.navPlay, LANGUAGE:copy.language, LANGUAGE_OPTIONS:options, HOME:key === 'en' ? './' : '../',
+    EYEBROW:copy.eyebrow, HERO_TITLE:copy.heroTitle, HERO_LEAD:copy.heroLead, DOWNLOAD:copy.download, SEE_SCORES:copy.seeScores, FEATURES_LABEL:copy.featuresLabel, SECONDS:copy.seconds, COMBOS:copy.combos, TOP_PLAYERS:copy.topPlayers,
+    SCREENSHOT_LOCALE:copy.screenshotLocale, SCREENSHOT_ALT:copy.screenshotAlt, LIVE_LABEL:copy.liveLabel, SCORE_TITLE:copy.scoreTitle, REFRESH:copy.refresh, CURRENT_CHAMPION:copy.currentChampion, LOADING:copy.loading,
+    IN_ACTION:copy.inAction, SHOWCASE_TITLE:copy.showcaseTitle, SHOT_ONE:copy.shotOne, SHOT_TWO:copy.shotTwo, SHOT_THREE:copy.shotThree, READY:copy.ready, CTA_TITLE:copy.ctaTitle, CTA_TEXT:copy.ctaText, PRIVACY:copy.privacy,
+    CLIENT_I18N:JSON.stringify({ loading:copy.loading, empty:copy.empty, error:copy.error, points:copy.points }).replaceAll('<', '\\u003c')
+  };
+  let html = template;
+  for (const [name, value] of Object.entries(values)) html = html.replaceAll(`{{${name}}}`, value);
+  const destination = key === 'en' ? output : resolve(output, key);
+  await mkdir(destination, { recursive: true });
+  await writeFile(resolve(destination, 'index.html'), html);
+}
+
+const sitemap = keys.map((key) => `<url><loc>${siteUrl}${pathFor(key)}</loc><changefreq>weekly</changefreq><priority>${key === 'en' ? '1.0' : '0.8'}</priority></url>`).join('');
+await writeFile(resolve(output, 'sitemap.xml'), `<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${sitemap}</urlset>`);
+await writeFile(resolve(output, 'robots.txt'), `User-agent: *\nAllow: /\nSitemap: ${siteUrl}sitemap.xml\n`);
+await writeFile(resolve(output, '404.html'), `<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width"><meta http-equiv="refresh" content="0;url=${siteUrl}"><title>Page not found – Bubble Penetration</title><p><a href="${siteUrl}">Continue to Bubble Penetration</a></p></html>`);
+console.log(`Built ${keys.length} localized pages in ${output}`);

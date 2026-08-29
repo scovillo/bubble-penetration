@@ -1,0 +1,151 @@
+<!doctype html>
+<html dir="{{DIR}}" lang="{{LANG}}">
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1" name="viewport">
+    <base href="{{BASE}}">
+    <title>{{TITLE}}</title>
+    <meta content="{{DESCRIPTION}}" name="description">
+    <meta content="#09031b" name="theme-color">
+    <meta content="index,follow,max-image-preview:large" name="robots">
+    <link href="{{CANONICAL}}" rel="canonical">
+    {{HREFLANG}}
+    <meta content="website" property="og:type">
+    <meta content="Bubble Penetration" property="og:site_name">
+    <meta content="{{OG_LOCALE}}" property="og:locale">
+    <meta content="{{TITLE}}" property="og:title">
+    <meta content="{{DESCRIPTION}}" property="og:description">
+    <meta content="{{CANONICAL}}" property="og:url">
+    <meta content="https://scovillo.codeberg.page/bubble-penetration/assets/og.png"
+          property="og:image">
+    <meta content="1024" property="og:image:width">
+    <meta content="500" property="og:image:height">
+    <meta content="Bubble Penetration game preview" property="og:image:alt">
+    <meta content="summary_large_image" name="twitter:card">
+    <meta content="{{TITLE}}" name="twitter:title">
+    <meta content="{{DESCRIPTION}}" name="twitter:description">
+    <meta content="https://scovillo.codeberg.page/bubble-penetration/assets/og.png"
+          name="twitter:image">
+    <link href="assets/icon.png" rel="icon">
+    <link as="font" crossorigin href="assets/DynaPuff.ttf" rel="preload" type="font/ttf">
+    <link href="styles.css" rel="stylesheet">
+    <script type="application/ld+json">{{
+        JSON_LD
+    }}</script>
+</head>
+<body>
+<a class="skip-link" href="#main">{{SKIP}}</a>
+<div aria-hidden="true" class="ambient ambient-one"></div>
+<div aria-hidden="true" class="ambient ambient-two"></div>
+
+<header class="topbar">
+    <a aria-label="Bubble Penetration" class="brand" href="{{HOME}}">
+        <img alt="" height="48" src="assets/icon.png" width="48">
+        <span>Bubble Penetration</span>
+    </a>
+    <nav aria-label="{{NAV_LABEL}}">
+        <a href="#game">{{NAV_GAME}}</a>
+        <a href="#highscores">{{NAV_SCORES}}</a>
+        <a href="#download">{{NAV_PLAY}}</a>
+    </nav>
+    <label class="language-picker">
+        <span class="sr-only">{{LANGUAGE}}</span>
+        <select aria-label="{{LANGUAGE}}" id="language-select">
+            {{LANGUAGE_OPTIONS}}
+        </select>
+    </label>
+</header>
+
+<main id="main">
+    <section class="hero" id="game">
+        <div class="hero-copy">
+            <p class="eyebrow">{{EYEBROW}}</p>
+            <h1>{{HERO_TITLE}}</h1>
+            <p class="hero-lead">{{HERO_LEAD}}</p>
+            <div class="hero-actions">
+                <a class="button primary"
+                   href="https://codeberg.org/scovillo/bubble-penetration/releases/latest"
+                   rel="noopener">{{DOWNLOAD}}</a>
+                <a class="button secondary" href="#highscores">{{SEE_SCORES}}</a>
+            </div>
+            <ul aria-label="{{FEATURES_LABEL}}" class="quick-facts">
+                <li><strong>30</strong><span>{{SECONDS}}</span></li>
+                <li><strong>∞</strong><span>{{COMBOS}}</span></li>
+                <li><strong>10</strong><span>{{TOP_PLAYERS}}</span></li>
+            </ul>
+        </div>
+        <div class="phone-stage">
+            <div aria-hidden="true" class="orbit orbit-a"></div>
+            <div aria-hidden="true" class="orbit orbit-b"></div>
+            <figure class="phone">
+                <img alt="{{SCREENSHOT_ALT}}"
+                     height="2256" src="assets/screenshots/{{SCREENSHOT_LOCALE}}/Screenshot_Bubble Penetration_2.png" width="1080">
+            </figure>
+        </div>
+    </section>
+
+    <section aria-labelledby="score-title" class="score-section" id="highscores">
+        <div class="section-heading">
+            <div>
+                <p class="eyebrow">{{LIVE_LABEL}}</p>
+                <h2 id="score-title">{{SCORE_TITLE}}</h2>
+            </div>
+            <button aria-label="{{REFRESH}}" class="refresh" id="refresh-scores" type="button">↻
+                <span>{{REFRESH}}</span></button>
+        </div>
+
+        <div aria-live="polite" class="champion-card" id="champion-card">
+            <div aria-hidden="true" class="crown">♛</div>
+            <div>
+                <p>{{CURRENT_CHAMPION}}</p>
+                <h3 id="champion-name">—</h3>
+            </div>
+            <strong id="champion-score">—</strong>
+        </div>
+
+        <div class="leaderboard-card">
+            <div class="score-status" id="score-status" role="status">{{LOADING}}</div>
+            <ol aria-label="{{SCORE_TITLE}}" class="leaderboard" id="leaderboard"></ol>
+        </div>
+    </section>
+
+    <section aria-labelledby="showcase-title" class="showcase">
+        <div class="section-heading">
+            <div>
+                <p class="eyebrow">{{IN_ACTION}}</p>
+                <h2 id="showcase-title">{{SHOWCASE_TITLE}}</h2>
+            </div>
+        </div>
+        <div class="screenshots">
+            <figure><img alt="{{SHOT_ONE}}"
+                         height="2256"
+                         loading="lazy" src="assets/screenshots/{{SCREENSHOT_LOCALE}}/Screenshot_Bubble Penetration_1.png" width="1080"></figure>
+            <figure class="raised"><img alt="{{SHOT_TWO}}"
+                                        height="2256"
+                                        loading="lazy" src="assets/screenshots/{{SCREENSHOT_LOCALE}}/Screenshot_Bubble Penetration_3.png" width="1080"></figure>
+            <figure><img alt="{{SHOT_THREE}}"
+                         height="2256"
+                         loading="lazy" src="assets/screenshots/{{SCREENSHOT_LOCALE}}/Screenshot_Bubble Penetration_4.png" width="1080"></figure>
+        </div>
+    </section>
+
+    <section class="cta" id="download">
+        <img alt="" height="112" src="assets/icon.png" width="112">
+        <div><p class="eyebrow">{{READY}}</p>
+            <h2>{{CTA_TITLE}}</h2>
+            <p>{{CTA_TEXT}}</p></div>
+        <a class="button primary"
+           href="https://codeberg.org/scovillo/bubble-penetration/releases/latest" rel="noopener">{{DOWNLOAD}}</a>
+    </section>
+</main>
+
+<footer>
+    <p>© 2026 Bubble Penetration · GPL-3.0</p>
+    <div><a href="https://codeberg.org/scovillo/bubble-penetration">Codeberg</a><a
+            href="https://bubble.lukas-scheerer.de/privacy-policy.html">{{PRIVACY}}</a></div>
+</footer>
+
+<script>window.BUBBLE_I18N={{CLIENT_I18N}};</script>
+<script defer src="app.js"></script>
+</body>
+</html>
