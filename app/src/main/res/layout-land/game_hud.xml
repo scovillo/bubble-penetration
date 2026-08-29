@@ -1,95 +1,106 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/hud"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:baselineAligned="false"
-        android:orientation="vertical"
-        android:weightSum="1">
+    android:id="@+id/hud"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:baselineAligned="false"
+    android:orientation="vertical"
+    android:weightSum="1">
 
     <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="20sp"
-                android:gravity="center_horizontal"
-                android:textAlignment="center">
+        android:layout_width="match_parent"
+        android:layout_height="28sp"
+        android:gravity="center"
+        android:textAlignment="center">
 
-            <TextView
-                    android:id="@+id/Timer"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                    android:paddingLeft="20sp"
-                    android:paddingStart="20sp"
-                    android:paddingRight="20sp"
-                    android:paddingEnd="20sp"
-                                        android:text="@string/timer_text"
-                    android:textAlignment="center"
-                    android:textColor="@color/white"
-                    android:textSize="18sp" />
+        <TextView
+            android:id="@+id/Timer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:includeFontPadding="false"
+            android:paddingStart="6sp"
+            android:paddingLeft="6sp"
+            android:paddingEnd="6sp"
+            android:paddingRight="6sp"
+            android:text="@string/timer_text"
+            android:textColor="@color/white"
+            android:textSize="18sp" />
 
-            <TextView
-                    android:id="@+id/Timer_Postfix"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:alpha="0"
-                    android:paddingLeft="20sp"
-                    android:paddingStart="20sp"
-                    android:paddingRight="20sp"
-                    android:paddingEnd="20sp"
-                    android:text=""
-                    android:textColor="@color/white"
-                    android:textSize="18sp" />
+        <TextView
+            android:id="@+id/Timer_Postfix"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:alpha="0"
+            android:gravity="center_vertical"
+            android:includeFontPadding="false"
+            android:minEms="2"
+            android:paddingStart="6sp"
+            android:paddingLeft="6sp"
+            android:paddingEnd="6sp"
+            android:paddingRight="6sp"
+            android:text=""
+            android:textColor="@color/white"
+            android:textSize="18sp" />
 
-            <TextView
-                    android:id="@+id/Score"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal|bottom"
-                    android:paddingLeft="20sp"
-                    android:paddingStart="20sp"
-                    android:paddingRight="20sp"
-                    android:paddingEnd="20sp"
-                                        android:text="@string/score_text"
-                    android:textAlignment="center"
-                    android:textColor="@color/white"
-                    android:textSize="18sp" />
+        <TextView
+            android:id="@+id/Score"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="14dp"
+            android:layout_marginLeft="14dp"
+            android:gravity="center_vertical"
+            android:includeFontPadding="false"
+            android:paddingStart="6sp"
+            android:paddingLeft="6sp"
+            android:paddingEnd="6sp"
+            android:paddingRight="6sp"
+            android:text="@string/score_text"
+            android:textColor="@color/white"
+            android:textSize="18sp" />
 
-            <TextView
-                    android:id="@+id/Score_Postfix"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:alpha="0"
-                    android:paddingLeft="20sp"
-                    android:paddingStart="20sp"
-                    android:paddingRight="20sp"
-                    android:paddingEnd="20sp"
-                    android:text=""
-                    android:textColor="@color/white"
-                    android:textSize="18sp" />
+        <TextView
+            android:id="@+id/Score_Postfix"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:alpha="0"
+            android:gravity="center_vertical"
+            android:includeFontPadding="false"
+            android:minEms="2"
+            android:paddingStart="6sp"
+            android:paddingLeft="6sp"
+            android:paddingEnd="6sp"
+            android:paddingRight="6sp"
+            android:text=""
+            android:textColor="@color/white"
+            android:textSize="18sp" />
 
-            <TextView
-                    android:id="@+id/Combo"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:paddingLeft="20sp"
-                    android:paddingStart="20sp"
-                    android:paddingRight="20sp"
-                    android:paddingEnd="20sp"
-                    android:text=""
-                    android:textColor="@color/white"
-                    android:textSize="18sp" />
+        <TextView
+            android:id="@+id/Combo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:includeFontPadding="false"
+            android:minEms="5"
+            android:paddingStart="6sp"
+            android:paddingLeft="6sp"
+            android:paddingEnd="6sp"
+            android:paddingRight="6sp"
+            android:text=""
+            android:textColor="@color/white"
+            android:textSize="18sp" />
 
-        </LinearLayout>
+    </LinearLayout>
 
-        <FrameLayout
-                android:id="@+id/GLSurfaceViewHolder"
-                android:layout_width="fill_parent"
-                android:layout_height="0dp"
-                android:layout_gravity="center"
-                android:layout_marginLeft="8sp"
-                android:layout_marginStart="8sp"
-                android:layout_marginRight="8sp"
-                android:layout_marginEnd="8sp"
-                android:layout_marginBottom="8sp"
-                android:layout_weight="1" />
+    <FrameLayout
+        android:id="@+id/GLSurfaceViewHolder"
+        android:layout_width="fill_parent"
+        android:layout_height="0dp"
+        android:layout_gravity="center"
+        android:layout_marginStart="8sp"
+        android:layout_marginLeft="8sp"
+        android:layout_marginEnd="8sp"
+        android:layout_marginRight="8sp"
+        android:layout_marginBottom="8sp"
+        android:layout_weight="1" />
 </LinearLayout>

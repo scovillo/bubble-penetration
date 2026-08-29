@@ -60,7 +60,7 @@ class Combo(private val mainActivity: MainActivity, private val effectPlayer: So
             var comboProgressText = ""
 
             if (isActive) {
-                comboProgressText = "Combo x$multiplier "
+                comboProgressText = "Combo x$multiplier\u00a0\u00a0"
                 if (textView.animation == null) {
                     textView.startAnimation(textAnimation)
                 }
