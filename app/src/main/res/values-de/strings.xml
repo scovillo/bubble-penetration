@@ -15,7 +15,8 @@
     <string name="game_over_text">Spiel vorbei</string>
     <string name="game_over_score_label">Deine Punkte:</string>
     <string name="save">Speichern</string>
-    <string name="your_name">Dein Name?</string>
+    <string name="your_name">Hallo! &#x1F44B;</string>
+    <string name="choose_nickname">Wähle einen Spitznamen für die Highscore-Liste</string>
     <string name="back_to_menu">Menu</string>
     <string name="cancel">Abbrechen</string>
     <string name="music">Musik</string>
@@ -23,7 +24,8 @@
     <string name="rating">App bewerten</string>
     <string name="new_highscore">Neue Bestleistung!!</string>
     <string name="add">+</string>
-    <string name="greeting">Hallo, wer bist du?</string>
+    <string name="greeting">Willkommen zurück! &#x1F44B;</string>
+    <string name="who_is_playing">Wer spielt?</string>
     <string name="effects">Effekte</string>
     <string name="vibration">Vibration</string>
     <string name="use_online_leaderboard">Online-Bestenliste verwenden</string>

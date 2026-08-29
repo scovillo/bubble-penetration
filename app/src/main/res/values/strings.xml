@@ -14,7 +14,8 @@
     <string name="game_over_text">Game Over</string>
     <string name="game_over_score_label">Your score:</string>
     <string name="save">Save</string>
-    <string name="your_name">Your name?</string>
+    <string name="your_name">Hello! &#x1F44B;</string>
+    <string name="choose_nickname">Choose a nickname for the high score list</string>
     <string name="username_hint">Name</string>
     <string name="back_to_menu">Back</string>
     <string name="cancel">Cancel</string>
@@ -23,7 +24,8 @@
     <string name="rating">app rating</string>
     <string name="new_highscore">New Highscore!!</string>
     <string name="add">+</string>
-    <string name="greeting">Hi, who are you?</string>
+    <string name="greeting">Welcome back! &#x1F44B;</string>
+    <string name="who_is_playing">Who\'s playing?</string>
     <string name="effects">Effects</string>
     <string name="vibration">Vibration</string>
     <string name="use_online_leaderboard">Use online leaderboard</string>

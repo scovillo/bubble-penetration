@@ -10,12 +10,23 @@
         android:id="@+id/greeting"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="12sp"
+        android:layout_marginTop="12sp"
         android:gravity="center_horizontal"
         android:text="@string/greeting"
         android:textAlignment="center"
         android:textColor="@color/gold"
         android:textSize="36sp" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="12sp"
+        android:gravity="center_horizontal"
+        android:text="@string/who_is_playing"
+        android:textAlignment="center"
+        android:textColor="@color/white"
+        android:textSize="22sp" />
 
     <ListView
         android:id="@+id/username_list"
