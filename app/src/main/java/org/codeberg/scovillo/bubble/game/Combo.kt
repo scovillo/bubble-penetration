@@ -3,11 +3,15 @@ package org.codeberg.scovillo.bubble.game
 import android.os.Build
 import android.os.VibrationEffect
 import android.os.Vibrator
+import android.animation.ArgbEvaluator
+import android.animation.ValueAnimator
 import android.util.Log
 import android.view.View
 import android.view.animation.AlphaAnimation
 import android.view.animation.Animation
 import android.widget.TextView
+import android.graphics.Color
+import android.graphics.drawable.GradientDrawable
 import androidx.core.content.ContextCompat
 import org.codeberg.scovillo.bubble.MainActivity
 import org.codeberg.scovillo.bubble.R
@@ -39,38 +43,59 @@ class Combo(private val mainActivity: MainActivity, private val effectPlayer: So
 
     private var textView = mainActivity.findViewById<View>(R.id.Combo) as TextView
 
-    private val textAnimation: Animation = AlphaAnimation(0.35f, 1.0f)
+    private var pulsingMultiplier = 0
+    private var unstoppableColorAnimator: ValueAnimator? = null
+    @Volatile private var targetAccentColor: Int? = null
+    private var lastAppliedTargetAccentColor: Int? = null
 
     private val symbol = "●"
+    private val emptySymbol = "○"
+    private var lastRenderedText = ""
+    private var lastRenderedMultiplier = 0
 
     private val vibrator = checkNotNull(ContextCompat.getSystemService(mainActivity, Vibrator::class.java))
-
-    init {
-        textAnimation.duration = 300
-        textAnimation.startOffset = 20
-        textAnimation.repeatMode = Animation.REVERSE
-        textAnimation.repeatCount = Animation.INFINITE
-    }
 
     fun update() {
         if (currentTimeMillis() > lastBubble + duration) {
             reset()
         }
         mainActivity.runOnUiThread {
-            var comboProgressText = ""
-
-            if (isActive) {
-                comboProgressText = "Combo x$multiplier\u00a0\u00a0"
-                if (textView.animation == null) {
-                    textView.startAnimation(textAnimation)
+            val hasComboProgress = counter > 0
+            val comboProgressText = if (hasComboProgress) {
+                val levelLabel = when (multiplier) {
+                    1 -> "BUILD COMBO"
+                    2 -> "COMBO"
+                    4 -> "HOT STREAK"
+                    8 -> "ON FIRE"
+                    else -> "UNSTOPPABLE"
                 }
+                val filledSteps = counter % comboCollectFactor
+                "$levelLabel ×$multiplier  ${symbol.repeat(filledSteps)}${emptySymbol.repeat(comboCollectFactor - filledSteps)}"
+            } else {
+                ""
+            }
+
+            if (hasComboProgress) {
+                textView.visibility = View.VISIBLE
+                updatePulseFor(multiplier)
             } else {
                 textView.animation?.cancel()
+                pulsingMultiplier = 0
+                stopUnstoppableColorCycle()
+                textView.visibility = View.INVISIBLE
             }
-            for (i in 0 until counter % comboCollectFactor) {
-                comboProgressText = "$comboProgressText$symbol"
+
+            if (comboProgressText != lastRenderedText) {
+                textView.text = comboProgressText
+                lastRenderedText = comboProgressText
             }
-            textView.text = comboProgressText
+            if (hasComboProgress && multiplier != lastRenderedMultiplier) {
+                styleFor(multiplier)
+                playLevelUpPop()
+                lastRenderedMultiplier = multiplier
+            } else if (hasComboProgress && multiplier < 16 && targetAccentColor != lastAppliedTargetAccentColor) {
+                styleFor(multiplier)
+            }
         }
     }
 
@@ -88,8 +113,93 @@ class Combo(private val mainActivity: MainActivity, private val effectPlayer: So
         }
     }
 
+    /** Called by the renderer as soon as the collection target changes. */
+    fun setTargetColor(color: FloatArray) {
+        targetAccentColor = Color.rgb(
+            (color[0] * 255).toInt(),
+            (color[1] * 255).toInt(),
+            (color[2] * 255).toInt(),
+        )
+    }
+
     fun reset() {
         counter = 0
+    }
+
+    private fun styleFor(multiplier: Int) {
+        stopUnstoppableColorCycle()
+        val (defaultAccent, fill) = when (multiplier) {
+            1 -> Color.rgb(82, 220, 255) to Color.rgb(14, 53, 82)
+            2 -> Color.rgb(82, 220, 255) to Color.rgb(14, 53, 82)
+            4 -> Color.rgb(183, 109, 255) to Color.rgb(51, 24, 82)
+            8 -> Color.rgb(255, 126, 62) to Color.rgb(85, 34, 28)
+            else -> Color.rgb(255, 204, 74) to Color.rgb(89, 63, 20)
+        }
+        val accent = if (multiplier < 16) targetAccentColor ?: defaultAccent else defaultAccent
+        applyPillStyle(accent, fill)
+        if (multiplier < 16) lastAppliedTargetAccentColor = accent
+        if (multiplier == 16) startUnstoppableColorCycle()
+    }
+
+    private fun applyPillStyle(accent: Int, fill: Int) {
+        val density = mainActivity.resources.displayMetrics.density
+        textView.background = GradientDrawable().apply {
+            shape = GradientDrawable.RECTANGLE
+            cornerRadius = 18f * density
+            setColor(fill)
+            setStroke((2f * density).toInt(), accent)
+        }
+        textView.setTextColor(Color.WHITE)
+    }
+
+    private fun updatePulseFor(multiplier: Int) {
+        if (multiplier == pulsingMultiplier) return
+        textView.clearAnimation()
+        pulsingMultiplier = multiplier
+        val duration = when (multiplier) {
+            2 -> 900L
+            4 -> 650L
+            8 -> 440L
+            16 -> 260L
+            else -> return // BUILD COMBO remains deliberately calm.
+        }
+        textView.startAnimation(AlphaAnimation(0.18f, 1.0f).apply {
+            this.duration = duration
+            repeatMode = Animation.REVERSE
+            repeatCount = Animation.INFINITE
+        })
+    }
+
+    private fun startUnstoppableColorCycle() {
+        unstoppableColorAnimator = ValueAnimator.ofObject(
+            ArgbEvaluator(),
+            Color.rgb(255, 204, 74),
+            Color.rgb(255, 84, 144),
+            Color.rgb(123, 104, 255),
+            Color.rgb(72, 232, 255),
+            Color.rgb(255, 204, 74),
+        ).apply {
+            duration = 900L
+            repeatCount = ValueAnimator.INFINITE
+            addUpdateListener { animator ->
+                val accent = animator.animatedValue as Int
+                applyPillStyle(accent, Color.rgb(55, 36, 71))
+            }
+            start()
+        }
+    }
+
+    private fun stopUnstoppableColorCycle() {
+        unstoppableColorAnimator?.cancel()
+        unstoppableColorAnimator = null
+    }
+
+    private fun playLevelUpPop() {
+        textView.scaleX = 1f
+        textView.scaleY = 1f
+        textView.animate().scaleX(1.18f).scaleY(1.18f).setDuration(120).withEndAction {
+            textView.animate().scaleX(1f).scaleY(1f).setDuration(160).start()
+        }.start()
     }
 
     fun giveHapticFeedBack() {

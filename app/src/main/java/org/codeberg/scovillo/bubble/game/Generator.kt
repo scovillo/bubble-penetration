@@ -22,11 +22,12 @@ class Generator(
     private val gameSpeed = GameSpeed()
 
     init {
-        colorCast[BubbleColors.RED] = floatArrayOf(1.0f, 0.0f, 0.0f, 0.7f)
-        colorCast[BubbleColors.PURPLE] = floatArrayOf(0.75f, 0.0f, 1.0f, 0.7f)
-        colorCast[BubbleColors.GREEN] = floatArrayOf(0.0f, 0.75f, 0.0f, 0.7f)
-        colorCast[BubbleColors.LIGHTBLUE] = floatArrayOf(0.0f, 1.0f, 1.0f, 0.7f)
-        colorCast[BubbleColors.BLUE] = floatArrayOf(0.0f, 0.0f, 1.0f, 0.7f)
+        // Keep hue and brightness apart so a target is identifiable at a glance.
+        colorCast[BubbleColors.RED] = floatArrayOf(0.76f, 0.08f, 0.18f, 1.0f)       // ruby red
+        colorCast[BubbleColors.GREEN] = floatArrayOf(0.04f, 0.58f, 0.24f, 1.0f)    // emerald green
+        colorCast[BubbleColors.LIGHTBLUE] = floatArrayOf(0.62f, 0.70f, 0.80f, 1.0f) // silver
+        colorCast[BubbleColors.BLUE] = floatArrayOf(0.06f, 0.12f, 0.55f, 1.0f)      // deep indigo
+        colorCast[BubbleColors.PURPLE] = floatArrayOf(0.50f, 0.12f, 0.76f, 1.0f)    // violet
     }
 
     fun generateGameobject(collectColor: BubbleColors?, score: Int) {

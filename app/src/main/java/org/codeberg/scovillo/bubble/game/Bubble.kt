@@ -29,7 +29,31 @@ class Bubble(
         run {
             gl.glMultMatrixf(transformationMatrix, 0)
             gl.glScalef(scale * wobbleX, scale, scale * wobbleY)
-            gl.glColor4f(glColor[0], glColor[1], glColor[2], glColor[3])
+            // A faint halo separates overlapping bubbles without changing hit areas.
+            gl.glDisable(GL10.GL_LIGHTING)
+            gl.glDepthMask(false)
+            gl.glBlendFunc(GL10.GL_SRC_ALPHA, GL10.GL_ONE)
+            gl.glColor4f(glColor[0], glColor[1], glColor[2], 0.07f)
+            gl.glPushMatrix()
+            gl.glScalef(1.16f, 1.16f, 1.16f)
+            drawMesh(gl)
+            gl.glPopMatrix()
+
+            gl.glBlendFunc(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA)
+            gl.glDepthMask(true)
+            gl.glEnable(GL10.GL_LIGHTING)
+            gl.glMaterialfv(GL10.GL_FRONT_AND_BACK, GL10.GL_AMBIENT_AND_DIFFUSE, glColor, 0)
+            gl.glMaterialfv(GL10.GL_FRONT_AND_BACK, GL10.GL_SPECULAR, SPECULAR_COLOR, 0)
+            gl.glMaterialf(GL10.GL_FRONT_AND_BACK, GL10.GL_SHININESS, 54.0f)
+            // Lighting plus a specular material creates the glossy 2.5D highlight.
+            drawMesh(gl)
+            gl.glDisable(GL10.GL_LIGHTING)
+            gl.glDepthMask(true)
+        }
+        gl.glPopMatrix()
+    }
+
+    private fun drawMesh(gl: GL10) {
             gl.glEnableClientState(GL10.GL_VERTEX_ARRAY)
             gl.glEnableClientState(GL10.GL_NORMAL_ARRAY)
             for (strip in mesh.strips) {
@@ -40,8 +64,6 @@ class Bubble(
             }
             gl.glDisableClientState(GL10.GL_VERTEX_ARRAY)
             gl.glDisableClientState(GL10.GL_NORMAL_ARRAY)
-        }
-        gl.glPopMatrix()
     }
 
     override fun update(fracSec: Float) {
@@ -74,6 +96,7 @@ class Bubble(
     private data class BubbleMesh(val strips: List<VertexStrip>)
 
     companion object {
+        private val SPECULAR_COLOR = floatArrayOf(0.68f, 0.72f, 0.84f, 1.0f)
         private val meshes = HashMap<Float, BubbleMesh>()
 
         private fun meshFor(smoothness: Float): BubbleMesh = synchronized(meshes) {

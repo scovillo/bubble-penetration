@@ -2,6 +2,7 @@ package org.codeberg.scovillo.bubble.ui
 
 import android.content.Context
 import android.graphics.Color
+import android.graphics.drawable.GradientDrawable
 import android.opengl.GLSurfaceView
 import android.os.SystemClock
 import android.view.MotionEvent
@@ -9,6 +10,7 @@ import android.view.View
 import android.view.animation.AlphaAnimation
 import android.view.animation.Animation
 import android.widget.TextView
+import android.widget.ProgressBar
 import org.codeberg.scovillo.bubble.MainActivity
 import org.codeberg.scovillo.bubble.R
 import org.codeberg.scovillo.bubble.game.Bubble
@@ -23,6 +25,9 @@ import org.codeberg.scovillo.bubble.ui.hud.ScorePostfix
 import org.codeberg.scovillo.bubble.ui.hud.TimerPostfix
 import java.math.RoundingMode
 import java.text.DecimalFormat
+import java.nio.ByteBuffer
+import java.nio.ByteOrder
+import java.nio.FloatBuffer
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
 import javax.microedition.khronos.opengles.GL11
@@ -46,6 +51,9 @@ class BubbleGLSurfaceView(context: Context) : GLSurfaceView(context) {
     private val targetsToBeRemoved = ArrayList<GameObject>()
     private val timerText: TextView = mainActivity.findViewById<View>(R.id.Timer) as TextView
     private var scoreText: TextView = mainActivity.findViewById<View>(R.id.Score) as TextView
+    private val timerProgress: ProgressBar = mainActivity.findViewById(R.id.TimerProgress)
+    private val timerPill: View = mainActivity.findViewById(R.id.TimerPill)
+    private val fieldHolder: View = mainActivity.findViewById(R.id.GLSurfaceViewHolder)
     private val renderer: BubbleRenderer
     private val timeLogic = Time()
     private val combo = Combo(mainActivity, effectPlayer)
@@ -145,6 +153,8 @@ class BubbleGLSurfaceView(context: Context) : GLSurfaceView(context) {
         private val timerTextAnimation: Animation = AlphaAnimation(0.35f, 1.0f)
         private val timerPostfix = TimerPostfix(mainActivity)
         private val scorePostfix = ScorePostfix(mainActivity)
+        private var isTimerProgressUrgent = false
+        private var shownCollectColor: BubbleColors? = null
 
         init {
             timerTextAnimation.duration = 300
@@ -166,6 +176,7 @@ class BubbleGLSurfaceView(context: Context) : GLSurfaceView(context) {
                 timer -= fracSec
             }
             collectColor = generator.generateCollectColor(collectColor, score)
+            combo.setTargetColor(generator.getGLColor(collectColor))
             mainActivity.runOnUiThread {
                 when {
                     timer <= 0.0 -> {
@@ -186,7 +197,19 @@ class BubbleGLSurfaceView(context: Context) : GLSurfaceView(context) {
                 timerText.text =
                     context.getString(R.string.timer_value, firstDigitFormat.format(timer))
                 scoreText.text = context.getString(R.string.score_value, score)
-                setHUDColor(generator.getGLColor(collectColor))
+                if (shownCollectColor != collectColor) {
+                    shownCollectColor = collectColor
+                    val targetColor = generator.getGLColor(collectColor)
+                    updateCollectColorIndicator(targetColor)
+                }
+                timerProgress.progress = (timer / INITIAL_TIMER * 1000).toInt().coerceIn(0, 1000)
+                val shouldShowUrgentProgress = timer < 10
+                if (shouldShowUrgentProgress != isTimerProgressUrgent) {
+                    isTimerProgressUrgent = shouldShowUrgentProgress
+                    timerProgress.progressDrawable = mainActivity.getDrawable(
+                        if (isTimerProgressUrgent) R.drawable.timer_progress_urgent else R.drawable.timer_progress
+                    )
+                }
             }
             updateGameObjects(fracSec)
             combo.update()
@@ -195,6 +218,7 @@ class BubbleGLSurfaceView(context: Context) : GLSurfaceView(context) {
             gl.glMatrixMode(GL10.GL_MODELVIEW)
             gl11.glLoadMatrixf(modelViewScene, 0)
             gameObjects.forEach { it.draw(gl) }
+            drawFieldFrame(gl)
         }
 
         private fun updateGameObjects(fracSec: Float) {
@@ -293,6 +317,7 @@ class BubbleGLSurfaceView(context: Context) : GLSurfaceView(context) {
             gl11.glGetFloatv(GL11.GL_MODELVIEW_MATRIX, modelViewScene, 0)
             // window boundaries
             boundaries.updateWith(desiredHeight, aspectRatio)
+            updateFieldFrame()
             // touch event pixel coordinates to openGL coordinates
             unitsPerPixelZ = desiredHeight / height
             unitsPerPixelX = desiredHeight * aspectRatio / width
@@ -303,25 +328,77 @@ class BubbleGLSurfaceView(context: Context) : GLSurfaceView(context) {
             gl.glHint(GL10.GL_PERSPECTIVE_CORRECTION_HINT, GL10.GL_FASTEST)
             gl.glBlendFunc(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA)
             gl.glEnable(GL10.GL_BLEND)
-            gl.glClearColor(0.0f, 0.0f, 0.0f, 0.0f)
+            gl.glClearColor(0.027f, 0.035f, 0.11f, 1.0f)
             gl.glEnable(GL10.GL_CULL_FACE)
             gl.glShadeModel(GL10.GL_FLAT)
             gl.glEnable(GL10.GL_DEPTH_TEST)
             gl.glDepthFunc(GL10.GL_LEQUAL)
             gl.glShadeModel(GL10.GL_SMOOTH)
             gl.glEnable(GL10.GL_DEPTH_TEST)
+            gl.glEnable(GL10.GL_NORMALIZE)
+            gl.glLightfv(GL10.GL_LIGHT0, GL10.GL_AMBIENT, LIGHT_AMBIENT, 0)
+            gl.glLightfv(GL10.GL_LIGHT0, GL10.GL_DIFFUSE, LIGHT_DIFFUSE, 0)
+            gl.glLightfv(GL10.GL_LIGHT0, GL10.GL_SPECULAR, LIGHT_SPECULAR, 0)
+            gl.glLightfv(GL10.GL_LIGHT0, GL10.GL_POSITION, LIGHT_POSITION, 0)
+            gl.glEnable(GL10.GL_LIGHT0)
         }
 
-        private fun setHUDColor(glCollectColor: FloatArray) {
-            val max = 255
-            mainActivity.findViewById<View>(R.id.hud).setBackgroundColor(
-                Color.argb(
-                    (glCollectColor[3] * max).toInt(), (glCollectColor[0] * max).toInt(),
-                    (glCollectColor[1] * max).toInt(), (glCollectColor[2] * max).toInt()
-                )
-            )
+        private fun updateFieldFrame() {
+            val inset = 0.06f
+            fieldFrameBuffer.clear()
+            fieldFrameBuffer.put(boundaries.left + inset).put(0f).put(boundaries.bottom + inset)
+            fieldFrameBuffer.put(boundaries.right - inset).put(0f).put(boundaries.bottom + inset)
+            fieldFrameBuffer.put(boundaries.right - inset).put(0f).put(boundaries.top - inset)
+            fieldFrameBuffer.put(boundaries.left + inset).put(0f).put(boundaries.top - inset)
+            fieldFrameBuffer.position(0)
         }
 
+        private fun drawFieldFrame(gl: GL10) {
+            gl.glDisable(GL10.GL_DEPTH_TEST)
+            gl.glEnableClientState(GL10.GL_VERTEX_ARRAY)
+            fieldFrameBuffer.position(0)
+            gl.glVertexPointer(3, GL10.GL_FLOAT, 0, fieldFrameBuffer)
+            gl.glColor4f(0.30f, 0.48f, 0.86f, 0.34f)
+            gl.glLineWidth(1.5f)
+            gl.glDrawArrays(GL10.GL_LINE_LOOP, 0, 4)
+            gl.glDisableClientState(GL10.GL_VERTEX_ARRAY)
+            gl.glEnable(GL10.GL_DEPTH_TEST)
+        }
+
+        private fun updateCollectColorIndicator(color: FloatArray) {
+            val red = (color[0] * 255).toInt()
+            val green = (color[1] * 255).toInt()
+            val blue = (color[2] * 255).toInt()
+            timerPill.background = GradientDrawable().apply {
+                shape = GradientDrawable.RECTANGLE
+                cornerRadius = 18f * resources.displayMetrics.density
+                setColor(Color.rgb(18, 24, 51))
+                setStroke((2f * resources.displayMetrics.density).toInt(), Color.rgb(red, green, blue))
+            }
+            scoreText.background = GradientDrawable().apply {
+                shape = GradientDrawable.RECTANGLE
+                cornerRadius = 18f * resources.displayMetrics.density
+                setColor(Color.rgb(18, 24, 51))
+                setStroke((2f * resources.displayMetrics.density).toInt(), Color.rgb(red, green, blue))
+            }
+            // The outer arena frame is the primary, at-a-glance target-colour indicator.
+            fieldHolder.background = GradientDrawable().apply {
+                setColor(Color.rgb(red, green, blue))
+                cornerRadius = 10f * resources.displayMetrics.density
+            }
+        }
+
+    }
+
+    private val fieldFrameBuffer: FloatBuffer = ByteBuffer.allocateDirect(12 * Float.SIZE_BYTES)
+        .order(ByteOrder.nativeOrder()).asFloatBuffer()
+
+    companion object {
+        private const val INITIAL_TIMER = 25.0f
+        private val LIGHT_AMBIENT = floatArrayOf(0.20f, 0.20f, 0.30f, 1.0f)
+        private val LIGHT_DIFFUSE = floatArrayOf(0.72f, 0.76f, 0.88f, 1.0f)
+        private val LIGHT_SPECULAR = floatArrayOf(0.76f, 0.80f, 0.92f, 1.0f)
+        private val LIGHT_POSITION = floatArrayOf(-4.0f, 8.0f, 6.0f, 1.0f)
     }
 
 }

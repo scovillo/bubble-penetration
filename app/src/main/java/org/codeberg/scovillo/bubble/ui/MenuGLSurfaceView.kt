@@ -93,13 +93,20 @@ class MenuGLSurfaceView(context: Context) : GLSurfaceView(context) {
             gl.glHint(GL10.GL_PERSPECTIVE_CORRECTION_HINT, GL10.GL_FASTEST)
             gl.glBlendFunc(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA)
             gl.glEnable(GL10.GL_BLEND)
-            gl.glClearColor(0.0f, 0.0f, 0.0f, 0.0f)
+            gl.glClearColor(0.027f, 0.035f, 0.11f, 1.0f)
             gl.glEnable(GL10.GL_CULL_FACE)
             gl.glShadeModel(GL10.GL_FLAT)
             gl.glEnable(GL10.GL_DEPTH_TEST)
             gl.glDepthFunc(GL10.GL_LEQUAL)
             gl.glShadeModel(GL10.GL_SMOOTH)
             gl.glEnable(GL10.GL_DEPTH_TEST)
+            // Bubble.draw() uses lighting for its glossy finish; the menu needs the same light.
+            gl.glEnable(GL10.GL_NORMALIZE)
+            gl.glLightfv(GL10.GL_LIGHT0, GL10.GL_AMBIENT, floatArrayOf(0.32f, 0.32f, 0.42f, 1.0f), 0)
+            gl.glLightfv(GL10.GL_LIGHT0, GL10.GL_DIFFUSE, floatArrayOf(0.78f, 0.82f, 0.92f, 1.0f), 0)
+            gl.glLightfv(GL10.GL_LIGHT0, GL10.GL_SPECULAR, floatArrayOf(0.76f, 0.80f, 0.92f, 1.0f), 0)
+            gl.glLightfv(GL10.GL_LIGHT0, GL10.GL_POSITION, floatArrayOf(-4.0f, 8.0f, 6.0f, 1.0f), 0)
+            gl.glEnable(GL10.GL_LIGHT0)
         }
 
     }
