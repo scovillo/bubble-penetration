@@ -192,7 +192,7 @@ for (const [key, copy] of Object.entries(translations)) {
     DESCRIPTION: langPrivacy.description,
     CANONICAL: privacyCanonical,
     HREFLANG: privacyHreflang,
-    HOME: key === 'en' ? '../' : '../../',
+    HOME: key === 'en' ? './' : `${key}/`,
     LANGUAGE: copy.language,
     LANGUAGE_OPTIONS: privacyOptions,
     EYEBROW: langPrivacy.eyebrow,
