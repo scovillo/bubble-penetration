@@ -22,9 +22,6 @@ jobs:
     runs-on: codeberg-medium
     container:
       image: docker.io/library/node:22-bookworm-slim
-    permissions:
-      contents: read
-      packages: write
 
     steps:
       - name: Checkout code
@@ -79,25 +76,3 @@ jobs:
             backend
           buildah push "$IMAGE_DEV" "docker://$IMAGE_DEV"
           buildah push "$IMAGE_SHA" "docker://$IMAGE_SHA"
-
-      - name: Set up kubectl
-        uses: https://github.com/Azure/setup-kubectl@v4
-
-      - name: Configure Kubernetes access
-        shell: bash
-        run: |
-          mkdir -p "$RUNNER_TEMP/kube"
-          echo "${{ secrets.KUBE_CONFIG }}" | base64 --decode > "$RUNNER_TEMP/kube/config"
-          chmod 600 "$RUNNER_TEMP/kube/config"
-          echo "KUBECONFIG=$RUNNER_TEMP/kube/config" >> "$FORGEJO_ENV"
-
-      - name: Deploy to dev
-        shell: bash
-        run: |
-          kubectl apply -f backend/.kubernetes/dev.yml
-          kubectl set image deployment/bubble-backend \
-            bubble-backend="${REGISTRY}/${IMAGE_NAME}:dev-${{ forge.sha }}" \
-            --namespace bubble-dev
-          kubectl rollout status deployment/bubble-backend \
-            --namespace bubble-dev \
-            --timeout=180s
