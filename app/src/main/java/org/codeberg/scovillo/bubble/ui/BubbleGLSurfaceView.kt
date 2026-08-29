@@ -5,6 +5,7 @@ import android.graphics.Color
 import android.graphics.Typeface
 import android.opengl.GLSurfaceView
 import android.opengl.GLU
+import android.os.SystemClock
 import android.view.MotionEvent
 import android.view.View
 import android.view.animation.AlphaAnimation
@@ -19,6 +20,7 @@ import org.codeberg.scovillo.bubble.game.GameObject
 import org.codeberg.scovillo.bubble.game.Generator
 import org.codeberg.scovillo.bubble.game.Star
 import org.codeberg.scovillo.bubble.game.Time
+import org.codeberg.scovillo.bubble.game.TimerAlarm
 import org.codeberg.scovillo.bubble.ui.hud.ScorePostfix
 import org.codeberg.scovillo.bubble.ui.hud.TimerPostfix
 import java.math.RoundingMode
@@ -36,7 +38,7 @@ class BubbleGLSurfaceView(context: Context) : GLSurfaceView(context) {
     private val assets = context.assets
     private val effectPlayer = mainActivity.soundEffects
 
-    private var alarmed = false
+    private val timerAlarm = TimerAlarm()
     private val boundaries = Boundaries()
     private val gameObjects = ArrayList<GameObject>()
     private val generator = Generator(gameObjects, boundaries)
@@ -163,9 +165,8 @@ class BubbleGLSurfaceView(context: Context) : GLSurfaceView(context) {
             val delta = System.currentTimeMillis() - lastFrameTime
             val fracSec = delta.toFloat() / 1000
             lastFrameTime = System.currentTimeMillis()
-            if (timer < 10 && !alarmed) {
+            if (timerAlarm.shouldTrigger(timer, SystemClock.elapsedRealtime())) {
                 effectPlayer.playSound(R.raw.alarm)
-                alarmed = true
             }
             if (timer - fracSec <= 0.0) {
                 timer = 0.0f
@@ -174,22 +175,26 @@ class BubbleGLSurfaceView(context: Context) : GLSurfaceView(context) {
             }
             collectColor = generator.generateCollectColor(collectColor, score)
             mainActivity.runOnUiThread {
-                if (alarmed) {
-                    if (timerText.animation == null) {
-                        timerText.startAnimation(timerTextAnimation)
+                when {
+                    timer <= 0.0 -> {
+                        mainActivity.showGameOverScreenWith(score.toString())
+                        return@runOnUiThread
+                    }
+
+                    timer < 10 -> {
+                        if (timerText.animation == null) {
+                            timerText.startAnimation(timerTextAnimation)
+                        }
+                    }
+
+                    timer >= 10 -> {
+                        timerText.animation?.cancel()
                     }
                 }
-                if (timer > 10) {
-                    timerText.animation?.cancel()
-                    alarmed = false
-                }
-                if (timer <= 0.0) {
-                    mainActivity.showGameOverScreenWith(score.toString())
-                } else {
-                    timerText.text = context.getString(R.string.timer_value, firstDigitFormat.format(timer))
-                    scoreText.text = context.getString(R.string.score_value, score)
-                    setHUDColor(generator.getGLColor(collectColor))
-                }
+                timerText.text =
+                    context.getString(R.string.timer_value, firstDigitFormat.format(timer))
+                scoreText.text = context.getString(R.string.score_value, score)
+                setHUDColor(generator.getGLColor(collectColor))
             }
             updateGameObjects(fracSec)
             combo.update()
@@ -241,6 +246,7 @@ class BubbleGLSurfaceView(context: Context) : GLSurfaceView(context) {
                             effectPlayer.playSound(R.raw.fart)
                         }
                     }
+
                     is Star -> {
                         val time = timeLogic.getStarTimeFor(gameObject.speed)
                         timer += time
@@ -250,7 +256,7 @@ class BubbleGLSurfaceView(context: Context) : GLSurfaceView(context) {
                         score += collectScore
                         scorePostfix.animateWith(collectScore)
 
-                        if(combo.isActive) {
+                        if (combo.isActive) {
                             combo.giveHapticFeedBack()
                         }
                         effectPlayer.playSound(R.raw.star)
