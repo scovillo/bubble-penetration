@@ -1,128 +1,126 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-    <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_centerInParent="true">
-        <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:layout_gravity="center">
-            <TextView
-                    android:id="@+id/game_over_textview"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/game_over_text"
-                    android:textSize="40sp"
-                    android:textColor="@color/gold"
-                    android:layout_gravity="center_horizontal"
-                    android:textStyle="bold|italic"
-                    android:enabled="true"/>
-            <TextView
-                    android:id="@+id/your_score_label"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/game_over_score_label"
-                    android:textSize="16sp"
-                    android:textColor="@color/white"
-                    android:layout_gravity="center_horizontal"
-                    android:layout_marginTop="8dp"
-                    android:enabled="true"/>
-            <TextView
-                    android:id="@+id/your_score_textview"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/initial_score"
-                    android:textSize="36sp"
-                    android:textColor="@color/white"
-                    android:layout_gravity="center_horizontal"
-                    android:layout_marginTop="8dp"
-                    android:enabled="true"/>
-            <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/new_highscore"
-                    android:id="@+id/highscore_label"
-                    android:textSize="18sp"
-                    android:padding="16sp"
-                    android:textColor="@color/white"
-                    android:layout_gravity="center_horizontal"
-                    android:textAlignment="center"
-                    android:layout_marginTop="8dp"
-                    android:enabled="true"/>
-        </LinearLayout>
 
-        <Button
-                    style="?android:attr/buttonBarButtonStyle"
-                android:id="@+id/play_again_button"
-                android:text="@string/play_again_button_text"
-                android:layout_width="300dp"
-                android:layout_height="wrap_content"
-                android:textSize="20sp"
-                android:layout_marginTop="24dp"
-                android:layout_gravity="center"
-                android:onClick="startGame"
-                android:background="@drawable/button"
-                android:enabled="true"
-                android:textColor="@color/gold"
-                android:clickable="true"
-                android:focusable="true"/>
-        <Button
-                    style="?android:attr/buttonBarButtonStyle"
-                android:id="@+id/highscore_gameover"
-                android:text="@string/highscore_button_text"
-                android:layout_width="300dp"
-                android:layout_height="wrap_content"
-                android:textSize="20sp"
-                android:layout_marginTop="8dp"
-                android:layout_gravity="center"
-                android:onClick="showHighscores"
-                android:background="@drawable/button"
-                android:enabled="true"
-                android:textColor="@color/gold"
-                android:clickable="true"
-                android:focusable="true"/>
-    </LinearLayout>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_centerInParent="true"
+    android:layout_gravity="center"
+    android:orientation="vertical">
 
     <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/game_over_textview"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_alignParentBottom="true"
-            android:layout_centerHorizontal="true"
-            android:layout_marginBottom="32dp">
-        <Button
-                    style="?android:attr/buttonBarButtonStyle"
-                android:id="@+id/rating_button"
-                android:text="@string/rating"
-                android:layout_width="300dp"
-                android:layout_height="wrap_content"
-                android:textSize="20sp"
-                android:layout_margin="6dp"
-                android:onClick="launchMarket"
-                android:background="@drawable/button"
-                android:enabled="true"
-                android:textColor="@color/gold"
-                android:clickable="true"
-                android:focusable="true"/>
-        <Button
-                    style="?android:attr/buttonBarButtonStyle"
-                android:id="@+id/project_button"
-                android:text="@string/website"
-                android:layout_width="300dp"
-                android:layout_height="wrap_content"
-                android:textSize="20sp"
-                android:layout_margin="6dp"
-                android:onClick="openWebsite"
-                android:background="@drawable/button"
-                android:enabled="true"
-                android:textColor="@color/gold"
-                android:clickable="true"
-                android:focusable="true"/>
+            android:layout_gravity="center_horizontal"
+            android:enabled="true"
+            android:text="@string/game_over_text"
+            android:textColor="@color/gold"
+            android:textSize="40sp"
+            android:textStyle="bold|italic" />
+
+        <TextView
+            android:id="@+id/your_score_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="8dp"
+            android:enabled="true"
+            android:text="@string/game_over_score_label"
+            android:textColor="@color/white"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/your_score_textview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="8dp"
+            android:enabled="true"
+            android:text="@string/initial_score"
+            android:textColor="@color/white"
+            android:textSize="36sp" />
+
+        <TextView
+            android:id="@+id/highscore_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="8dp"
+            android:enabled="true"
+            android:padding="16sp"
+            android:text="@string/new_highscore"
+            android:textAlignment="center"
+            android:textColor="@color/white"
+            android:textSize="18sp" />
     </LinearLayout>
-</RelativeLayout>
+
+    <Button
+        android:id="@+id/play_again_button"
+        style="?android:attr/buttonBarButtonStyle"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/button"
+        android:clickable="true"
+        android:enabled="true"
+        android:focusable="true"
+        android:onClick="startGame"
+        android:text="@string/play_again_button_text"
+        android:textColor="@color/gold"
+        android:textSize="20sp" />
+
+    <Button
+        android:id="@+id/highscore_gameover"
+        style="?android:attr/buttonBarButtonStyle"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="6dp"
+        android:background="@drawable/button"
+        android:clickable="true"
+        android:enabled="true"
+        android:focusable="true"
+        android:onClick="showHighscores"
+        android:text="@string/highscore_button_text"
+        android:textColor="@color/gold"
+        android:textSize="20sp" />
+
+    <Button
+        android:id="@+id/rating_button"
+        style="?android:attr/buttonBarButtonStyle"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="24dp"
+        android:background="@drawable/button"
+        android:clickable="true"
+        android:enabled="true"
+        android:focusable="true"
+        android:onClick="launchMarket"
+        android:text="@string/rating"
+        android:textColor="@color/gold"
+        android:textSize="20sp" />
+
+    <Button
+        android:id="@+id/project_button"
+        style="?android:attr/buttonBarButtonStyle"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="6dp"
+        android:background="@drawable/button"
+        android:clickable="true"
+        android:enabled="true"
+        android:focusable="true"
+        android:onClick="openWebsite"
+        android:text="@string/website"
+        android:textColor="@color/gold"
+        android:textSize="20sp" />
+</LinearLayout>

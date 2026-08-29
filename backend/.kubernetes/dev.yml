@@ -132,7 +132,7 @@ spec:
             fsGroup: 1000
           containers:
             - name: reset-highscores
-              image: codeberg.org/scovillo/bubble-penetration-backend:dev
+              image: codeberg.org/scovillo/bubble-penetration-backend:dev-aea5807d90882fa2c234248a56c3624c6c84c370
               imagePullPolicy: 'Always'
               command: ['npm', 'run', 'reset-highscores']
               envFrom:

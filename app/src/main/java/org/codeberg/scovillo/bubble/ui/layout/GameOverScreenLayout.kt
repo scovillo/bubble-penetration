@@ -2,6 +2,9 @@ package org.codeberg.scovillo.bubble.ui.layout
 
 import android.graphics.Color.WHITE
 import android.graphics.Color.YELLOW
+import android.text.Spannable
+import android.text.SpannableString
+import android.text.style.RelativeSizeSpan
 import android.widget.TextView
 import org.codeberg.scovillo.bubble.MainActivity
 import org.codeberg.scovillo.bubble.R
@@ -56,7 +59,12 @@ class GameOverScreenLayout(private val mainActivity: MainActivity) {
         val highscoreLabel = mainActivity.findViewById<TextView>(R.id.highscore_label)
         val yourScoreLabel = mainActivity.findViewById<TextView>(R.id.your_score_label)
         if (isRecord) {
-            highscoreLabel?.text = mainActivity.getString(R.string.msg_new_rank)
+            val message = SpannableString(mainActivity.getString(R.string.msg_new_rank))
+            val trophyEnd = message.indexOf('\n')
+            if (trophyEnd > 0) {
+                message.setSpan(RelativeSizeSpan(2f), 0, trophyEnd, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+            }
+            highscoreLabel?.text = message
             yourScoreLabel?.text = mainActivity.getString(R.string.new_highscore)
             yourScoreLabel?.setTextColor(YELLOW)
         } else {

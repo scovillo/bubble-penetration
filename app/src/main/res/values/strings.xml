@@ -35,6 +35,7 @@
     <string name="connection_successful">Connection successful!</string>
     <string name="connection_failed">Connection failed.</string>
     <string name="invalid_backend_url">Enter a valid HTTPS URL.</string>
+    <string name="empty_highscores">&#x1F3C6; No highscores yet – grab first place!</string>
     <string name="no_champion">No current champion…</string>
     <string name="website">Website</string>
     <string name="main_menu">main menu</string>
@@ -51,7 +52,7 @@
     <string name="error_username_too_long">Sorry, maximum 10 letters!</string>
     <string name="error_username_exists">Username already exists!</string>
     <string name="error_market_app_not_found">Unable to find market app.</string>
-    <string name="msg_new_rank">Great! Check your new rank!</string>
+    <string name="msg_new_rank">&#x1F3C6;\n\nGreat!\nCheck your new rank!</string>
     <string name="msg_try_again">You were better… try again!</string>
     <string name="msg_your_score">Your score</string>
     <string name="combo_build">BUILD COMBO</string>

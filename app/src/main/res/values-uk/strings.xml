@@ -35,6 +35,7 @@
     <string name="connection_successful">З’єднання успішне!</string>
     <string name="connection_failed">Не вдалося підключитися.</string>
     <string name="invalid_backend_url">Введіть дійсну HTTPS URL-адресу.</string>
+    <string name="empty_highscores">&#x1F3C6; Рекордів поки немає — займи перше місце!</string>
     <string name="no_champion">Наразі немає чемпіона…</string>
     <string name="website">Вебсайт</string>
     <string name="main_menu">головне меню</string>
@@ -53,7 +54,7 @@
     <string name="error_username_too_long">Максимум 10 символів!</string>
     <string name="error_username_exists">Таке ім’я користувача вже існує!</string>
     <string name="error_market_app_not_found">Не вдалося знайти магазин застосунків.</string>
-    <string name="msg_new_rank">Чудово! Перегляньте своє нове місце!</string>
+    <string name="msg_new_rank">&#x1F3C6;\n\nЧудово!\nПерегляньте своє нове місце!</string>
     <string name="msg_try_again">Раніше ви грали краще… спробуйте ще раз!</string>
     <string name="msg_your_score">Ваш рахунок</string>
     <string name="combo_build">ЗБЕРІТЬ КОМБО</string>

@@ -35,6 +35,7 @@
     <string name="connection_successful">Подключение успешно!</string>
     <string name="connection_failed">Не удалось подключиться.</string>
     <string name="invalid_backend_url">Введите действительный HTTPS URL.</string>
+    <string name="empty_highscores">&#x1F3C6; Рекордов пока нет — займи первое место!</string>
     <string name="no_champion">Сейчас нет чемпиона…</string>
     <string name="website">Сайт</string>
     <string name="main_menu">главное меню</string>
@@ -53,7 +54,7 @@
     <string name="error_username_too_long">Максимум 10 символов!</string>
     <string name="error_username_exists">Такое имя пользователя уже существует!</string>
     <string name="error_market_app_not_found">Не удалось найти магазин приложений.</string>
-    <string name="msg_new_rank">Отлично! Посмотрите своё новое место!</string>
+    <string name="msg_new_rank">&#x1F3C6;\n\nОтлично!\nПосмотрите своё новое место!</string>
     <string name="msg_try_again">Раньше вы играли лучше… попробуйте снова!</string>
     <string name="msg_your_score">Ваш счёт</string>
     <string name="combo_build">СОБЕРИТЕ КОМБО</string>

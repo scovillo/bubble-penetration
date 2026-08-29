@@ -1,12 +1,18 @@
 package org.codeberg.scovillo.bubble.ui.layout
 
 import android.graphics.Color
+import android.view.Gravity
 import android.view.View
-import android.widget.*
+import android.widget.LinearLayout
+import android.widget.ScrollView
+import android.widget.TableLayout
+import android.widget.TableRow
+import android.widget.TextView
+import androidx.core.content.ContextCompat
 import org.codeberg.scovillo.bubble.MainActivity
 import org.codeberg.scovillo.bubble.R
-import org.codeberg.scovillo.bubble.api.ApiService
 import org.codeberg.scovillo.bubble.THREAD_POOL
+import org.codeberg.scovillo.bubble.api.ApiService
 import org.codeberg.scovillo.bubble.ui.BubbleFont
 import java.util.concurrent.TimeUnit
 import kotlin.math.max
@@ -44,7 +50,39 @@ class HighscoreLayout(private val mainActivity: MainActivity) {
         return tv
     }
 
-    private fun loadPage(username: String? = null, startRank: Int? = null, prepend: Boolean = false) {
+    private fun generateEmptyHighscoreView(): View {
+        val density = mainActivity.resources.displayMetrics.density
+        val message = mainActivity.getString(R.string.empty_highscores)
+            .removePrefix("🏆")
+            .trimStart()
+        return LinearLayout(mainActivity).apply {
+            orientation = LinearLayout.VERTICAL
+            gravity = Gravity.CENTER_HORIZONTAL
+            setPadding(0, (40 * density).toInt(), 0, 0)
+            addView(TextView(mainActivity).apply {
+                text = "🏆"
+                gravity = Gravity.CENTER
+                textSize = 72f
+                setTextColor(ContextCompat.getColor(mainActivity, R.color.gold))
+            })
+            addView(generateHighscoreTextView().apply {
+                layoutParams = LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+                ).apply {
+                    topMargin = (24 * density).toInt()
+                }
+                text = message
+                BubbleFont.applyTo(this, scaleNonButtonText = false)
+            })
+        }
+    }
+
+    private fun loadPage(
+        username: String? = null,
+        startRank: Int? = null,
+        prepend: Boolean = false
+    ) {
         if (!mainActivity.settingsModel.useOnlineLeaderboard) {
             addLocalHighscores()
             return
@@ -53,14 +91,24 @@ class HighscoreLayout(private val mainActivity: MainActivity) {
         loading = true
         THREAD_POOL.execute {
             try {
-                val response = ApiService.getHighscorePage(username, startRank)[8000, TimeUnit.MILLISECONDS]
+                val response =
+                    ApiService.getHighscorePage(username, startRank)[8000, TimeUnit.MILLISECONDS]
                 val jsonArray = response.getJSONArray("highscores")
                 mainActivity.onBackendRequestSucceeded()
                 val rows = (0 until jsonArray.length()).map { index ->
                     val item = jsonArray.getJSONObject(index)
-                    HighscoreRow(item.getInt("rank"), item.getString("username"), item.getString("score"))
+                    HighscoreRow(
+                        item.getInt("rank"),
+                        item.getString("username"),
+                        item.getString("score")
+                    )
                 }
-                showPage(rows, response.getBoolean("hasPrevious"), response.getBoolean("hasNext"), prepend)
+                showPage(
+                    rows,
+                    response.getBoolean("hasPrevious"),
+                    response.getBoolean("hasNext"),
+                    prepend
+                )
             } catch (exception: Exception) {
                 mainActivity.runOnUiThread {
                     loading = false
@@ -76,12 +124,22 @@ class HighscoreLayout(private val mainActivity: MainActivity) {
         }
     }
 
-    private fun showPage(rows: List<HighscoreRow>, pageHasPrevious: Boolean, pageHasNext: Boolean, prepend: Boolean) {
+    private fun showPage(
+        rows: List<HighscoreRow>,
+        pageHasPrevious: Boolean,
+        pageHasNext: Boolean,
+        prepend: Boolean
+    ) {
         mainActivity.runOnUiThread {
-            val table = mainActivity.findViewById<TableLayout?>(R.id.highscore_table) ?: return@runOnUiThread
-            val scroll = mainActivity.findViewById<ScrollView?>(R.id.highscore_scroll) ?: return@runOnUiThread
-            val newRows = rows.filter { it.rank < firstRank || it.rank > lastRank }
+            val table = mainActivity.findViewById<TableLayout?>(R.id.highscore_table)
+                ?: return@runOnUiThread
+            val scroll = mainActivity.findViewById<ScrollView?>(R.id.highscore_scroll)
+                ?: return@runOnUiThread
+            val newRows = rows.filter { it.rank !in firstRank..lastRank }
             val oldHeight = table.height
+            if (rows.isEmpty() && table.childCount == 0) {
+                table.addView(generateEmptyHighscoreView())
+            }
             val renderedRows = newRows.map { row ->
                 TableRow(mainActivity).apply {
                     val rank = generateHighscoreTextView().apply {
@@ -114,7 +172,8 @@ class HighscoreLayout(private val mainActivity: MainActivity) {
                 hasNext = pageHasNext
             }
             if (rows.isNotEmpty()) {
-                firstRank = minOf(firstRank.takeIf { lastRank > 0 } ?: rows.first().rank, rows.first().rank)
+                firstRank =
+                    minOf(firstRank.takeIf { lastRank > 0 } ?: rows.first().rank, rows.first().rank)
                 lastRank = maxOf(lastRank, rows.last().rank)
             }
             loading = false
@@ -130,11 +189,14 @@ class HighscoreLayout(private val mainActivity: MainActivity) {
     }
 
     private fun installPagination(scroll: ScrollView) {
-        scroll.setOnScrollChangeListener { _, _, scrollY, _, oldScrollY ->
-            val child = scroll.getChildAt(0) ?: return@setOnScrollChangeListener
+        val oldScrollY = scroll.scrollY
+        scroll.viewTreeObserver.addOnScrollChangedListener scrollChanged@{
+            val scrollY = scroll.scrollY
+            val child = scroll.getChildAt(0) ?: return@scrollChanged
             when {
                 scrollY < oldScrollY && scrollY == 0 && hasPrevious ->
                     loadPage(startRank = max(1, firstRank - 50), prepend = true)
+
                 scrollY > oldScrollY && child.bottom <= scroll.height + scrollY && hasNext ->
                     loadPage(startRank = lastRank + 1)
             }

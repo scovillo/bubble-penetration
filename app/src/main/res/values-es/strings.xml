@@ -35,6 +35,7 @@
     <string name="connection_successful">¡Conexión correcta!</string>
     <string name="connection_failed">Error de conexión.</string>
     <string name="invalid_backend_url">Introduce una URL HTTPS válida.</string>
+    <string name="empty_highscores">&#x1F3C6; Aún no hay récords: ¡hazte con el primer puesto!</string>
     <string name="no_champion">No hay campeón actual…</string>
     <string name="website">Sitio web</string>
     <string name="main_menu">menú principal</string>
@@ -51,7 +52,7 @@
     <string name="error_username_too_long">¡Máximo 10 caracteres!</string>
     <string name="error_username_exists">¡El nombre de usuario ya existe!</string>
     <string name="error_market_app_not_found">No se encontró la tienda de apps.</string>
-    <string name="msg_new_rank">¡Genial! ¡Mira tu nuevo puesto!</string>
+    <string name="msg_new_rank">&#x1F3C6;\n\n¡Genial!\n¡Mira tu nuevo puesto!</string>
     <string name="msg_try_again">Antes lo hiciste mejor… ¡inténtalo de nuevo!</string>
     <string name="msg_your_score">Tu puntuación</string>
     <string name="combo_build">CREA EL COMBO</string>
