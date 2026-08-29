@@ -54,4 +54,9 @@
     <string name="msg_new_rank">Super! Sieh dir deinen neuen Rang an!</string>
     <string name="msg_try_again">Du warst schon mal besser… versuch es nochmal!</string>
     <string name="msg_your_score">Deine Punkte</string>
+    <string name="combo_build">COMBO AUFBAUEN</string>
+    <string name="combo">COMBO</string>
+    <string name="combo_hot_streak">HEISSE SERIE</string>
+    <string name="combo_on_fire">LÄUFT!</string>
+    <string name="combo_mega">MEGA</string>
 </resources>

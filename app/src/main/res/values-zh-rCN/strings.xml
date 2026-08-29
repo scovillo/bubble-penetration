@@ -53,4 +53,9 @@
     <string name="msg_new_rank">太棒了！查看你的新排名！</string>
     <string name="msg_try_again">你以前表现得更好…再试一次！</string>
     <string name="msg_your_score">你的分数</string>
+    <string name="combo_build">积攒连击</string>
+    <string name="combo">连击</string>
+    <string name="combo_hot_streak">火热连击</string>
+    <string name="combo_on_fire">势不可挡!</string>
+    <string name="combo_mega">超级</string>
 </resources>

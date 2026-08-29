@@ -53,4 +53,9 @@
     <string name="msg_new_rank">すばらしい! 新しい順位を確認しましょう!</string>
     <string name="msg_try_again">前のほうが良かったです…もう一度挑戦!</string>
     <string name="msg_your_score">あなたのスコア</string>
+    <string name="combo_build">コンボ準備</string>
+    <string name="combo">コンボ</string>
+    <string name="combo_hot_streak">絶好調</string>
+    <string name="combo_on_fire">熱狂中!</string>
+    <string name="combo_mega">メガ</string>
 </resources>

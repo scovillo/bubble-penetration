@@ -64,11 +64,11 @@ class Combo(private val mainActivity: MainActivity, private val effectPlayer: So
             val hasComboProgress = counter > 0
             val comboProgressText = if (hasComboProgress) {
                 val levelLabel = when (multiplier) {
-                    1 -> "BUILD COMBO"
-                    2 -> "COMBO"
-                    4 -> "HOT STREAK"
-                    8 -> "ON FIRE"
-                    else -> "UNSTOPPABLE"
+                    1 -> mainActivity.getString(R.string.combo_build)
+                    2 -> mainActivity.getString(R.string.combo)
+                    4 -> mainActivity.getString(R.string.combo_hot_streak)
+                    8 -> mainActivity.getString(R.string.combo_on_fire)
+                    else -> mainActivity.getString(R.string.combo_mega)
                 }
                 val filledSteps = counter % comboCollectFactor
                 "$levelLabel ×$multiplier  ${symbol.repeat(filledSteps)}${emptySymbol.repeat(comboCollectFactor - filledSteps)}"

@@ -56,4 +56,9 @@
     <string name="msg_new_rank">Чудово! Перегляньте своє нове місце!</string>
     <string name="msg_try_again">Раніше ви грали краще… спробуйте ще раз!</string>
     <string name="msg_your_score">Ваш рахунок</string>
+    <string name="combo_build">ЗБЕРІТЬ КОМБО</string>
+    <string name="combo">КОМБО</string>
+    <string name="combo_hot_streak">ВДАЛА СЕРІЯ</string>
+    <string name="combo_on_fire">У ВОГНІ!</string>
+    <string name="combo_mega">МЕГА</string>
 </resources>
