@@ -1,6 +1,5 @@
-package org.codeberg.scovillo.bubble.ui
+package org.codeberg.scovillo.bubble.ui.render
 
-import android.content.Context
 import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
 import android.opengl.GLSurfaceView
@@ -9,8 +8,8 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.animation.AlphaAnimation
 import android.view.animation.Animation
-import android.widget.TextView
 import android.widget.ProgressBar
+import android.widget.TextView
 import org.codeberg.scovillo.bubble.MainActivity
 import org.codeberg.scovillo.bubble.R
 import org.codeberg.scovillo.bubble.game.Bubble
@@ -24,72 +23,62 @@ import org.codeberg.scovillo.bubble.game.TimerAlarm
 import org.codeberg.scovillo.bubble.ui.hud.ScorePostfix
 import org.codeberg.scovillo.bubble.ui.hud.TimerPostfix
 import java.math.RoundingMode
-import java.text.DecimalFormat
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.FloatBuffer
+import java.text.DecimalFormat
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
-import javax.microedition.khronos.opengles.GL11
 import kotlin.math.pow
 import kotlin.math.sqrt
 
-class BubbleGLSurfaceView(context: Context) : GLSurfaceView(context) {
+class GameBubbleScene(
+    private val mainActivity: MainActivity,
+    initialScore: Int,
+    initialTimer: Float,
+    areSoundEffectsMuted: Boolean,
+) : BubbleScene {
 
-    private val mainActivity = context as MainActivity
     private val effectPlayer = mainActivity.soundEffects
 
     private val timerAlarm = TimerAlarm()
     private val boundaries = Boundaries()
+    private val openGlScene = OpenGlScene(boundaries, SceneLighting.GAME)
     private val gameObjects = ArrayList<GameObject>()
     private val generator = Generator(gameObjects, boundaries)
     private var collectColor = BubbleColors.RED
-    private var timer = 25.0f
-    private var score = 0
+    private var timer = initialTimer
+    private var score = initialScore
     private var isTouch = false
     private val objectsToBeRemoved = ArrayList<GameObject>()
     private val targetsToBeRemoved = ArrayList<GameObject>()
     private val timerText: TextView = mainActivity.findViewById<View>(R.id.Timer) as TextView
-    private var scoreText: TextView = mainActivity.findViewById<View>(R.id.Score) as TextView
+    private val scoreText: TextView = mainActivity.findViewById<View>(R.id.Score) as TextView
     private val timerProgress: ProgressBar = mainActivity.findViewById(R.id.TimerProgress)
     private val timerPill: View = mainActivity.findViewById(R.id.TimerPill)
     private val fieldHolder: View = mainActivity.findViewById(R.id.GLSurfaceViewHolder)
-    private val renderer: BubbleRenderer
+    private val bubbleRenderer = BubbleRenderer()
+    override val renderer: GLSurfaceView.Renderer = bubbleRenderer
     private val timeLogic = Time()
     private val combo = Combo(mainActivity, effectPlayer)
     private val firstDigitFormat = DecimalFormat("0.0")
 
     init {
 
+        effectPlayer.isMuted = areSoundEffectsMuted
         firstDigitFormat.roundingMode = RoundingMode.CEILING
 
-        renderer = BubbleRenderer()
-        setRenderer(renderer)
-        renderMode = RENDERMODE_CONTINUOUSLY
     }
 
-    fun isMuted(value: Boolean) {
-        effectPlayer.isMuted = value
-    }
-
-    fun pauseGame() {
-        onPause()
-    }
-
-    fun resumeGame() {
-        renderer.lastFrameTime = System.currentTimeMillis()
-        onResume()
+    override fun onResume() {
+        openGlScene.resetFrameTime()
     }
 
     fun getScore(): Int = score
     fun getTimer(): Float = timer
 
-    fun setGameState(score: Int, timer: Float) {
-        this.score = score
-        this.timer = timer
-    }
-
     override fun onTouchEvent(event: MotionEvent): Boolean {
+        var wasBubbleTouched = false
         when (event.action and MotionEvent.ACTION_MASK) {
             MotionEvent.ACTION_DOWN -> {
                 isTouch = true
@@ -99,8 +88,8 @@ class BubbleGLSurfaceView(context: Context) : GLSurfaceView(context) {
                 var i = 0
                 while (i < gameObjects.size) {
                     val bubble = gameObjects[i]
-                    val x = event.x * renderer.unitsPerPixelX - boundaries.right - bubble.x
-                    val y = (event.y * renderer.unitsPerPixelZ - boundaries.top) * -1 - bubble.z
+                    val x = event.x * bubbleRenderer.unitsPerPixelX - boundaries.right - bubble.x
+                    val y = (event.y * bubbleRenderer.unitsPerPixelZ - boundaries.top) * -1 - bubble.z
                     if (sqrt(
                             x.toDouble().pow(2.0) + y.toDouble().pow(2.0)
                         ) <= bubble.scale
@@ -127,23 +116,15 @@ class BubbleGLSurfaceView(context: Context) : GLSurfaceView(context) {
                 }
                 if (targetIndex >= 0) {
                     targetsToBeRemoved.add(gameObjects[targetIndex])
-                    performClick()
+                    wasBubbleTouched = true
                 }
                 isTouch = false
             }
         }
-        return true
+        return wasBubbleTouched
     }
 
-    override fun performClick(): Boolean {
-        super.performClick()
-        return true
-    }
-
-    private inner class BubbleRenderer : Renderer {
-
-        private val modelViewScene = FloatArray(16)
-        var lastFrameTime = System.currentTimeMillis()
+    private inner class BubbleRenderer : GLSurfaceView.Renderer {
 
         var unitsPerPixelX = 0f
             private set
@@ -154,7 +135,8 @@ class BubbleGLSurfaceView(context: Context) : GLSurfaceView(context) {
         private val timerPostfix = TimerPostfix(mainActivity)
         private val scorePostfix = ScorePostfix(mainActivity)
         private var isTimerProgressUrgent = false
-        private var shownCollectColor: BubbleColors? = null
+        private var shownCollectColor = BubbleColors.RED
+        private var isCollectColorShown = false
 
         init {
             timerTextAnimation.duration = 300
@@ -164,9 +146,7 @@ class BubbleGLSurfaceView(context: Context) : GLSurfaceView(context) {
         }
 
         override fun onDrawFrame(gl: GL10) {
-            val delta = System.currentTimeMillis() - lastFrameTime
-            val fracSec = delta.toFloat() / 1000
-            lastFrameTime = System.currentTimeMillis()
+            val fracSec = openGlScene.elapsedSeconds()
             if (timerAlarm.shouldTrigger(timer, SystemClock.elapsedRealtime())) {
                 effectPlayer.playSound(R.raw.alarm)
             }
@@ -195,10 +175,11 @@ class BubbleGLSurfaceView(context: Context) : GLSurfaceView(context) {
                     }
                 }
                 timerText.text =
-                    context.getString(R.string.timer_value, firstDigitFormat.format(timer))
-                scoreText.text = context.getString(R.string.score_value, score)
-                if (shownCollectColor != collectColor) {
+                    mainActivity.getString(R.string.timer_value, firstDigitFormat.format(timer))
+                scoreText.text = mainActivity.getString(R.string.score_value, score)
+                if (!isCollectColorShown || shownCollectColor != collectColor) {
                     shownCollectColor = collectColor
+                    isCollectColorShown = true
                     val targetColor = generator.getGLColor(collectColor)
                     updateCollectColorIndicator(targetColor)
                 }
@@ -213,11 +194,7 @@ class BubbleGLSurfaceView(context: Context) : GLSurfaceView(context) {
             }
             updateGameObjects(fracSec)
             combo.update()
-            gl.glClear(GL10.GL_COLOR_BUFFER_BIT or GL10.GL_DEPTH_BUFFER_BIT)
-            val gl11 = gl as GL11
-            gl.glMatrixMode(GL10.GL_MODELVIEW)
-            gl11.glLoadMatrixf(modelViewScene, 0)
-            gameObjects.forEach { it.draw(gl) }
+            openGlScene.draw(gl, gameObjects)
             drawFieldFrame(gl)
         }
 
@@ -225,12 +202,7 @@ class BubbleGLSurfaceView(context: Context) : GLSurfaceView(context) {
 
             gameObjects.forEach {
                 it.update(fracSec)
-                val offset = it.scale
-                if (it.x > boundaries.right + offset
-                    || it.x < boundaries.left - offset
-                    || it.z > boundaries.top + offset
-                    || it.z < boundaries.bottom - offset
-                ) {
+                if (it.isOutside(boundaries)) {
                     objectsToBeRemoved.add(it)
                 }
             }
@@ -292,55 +264,14 @@ class BubbleGLSurfaceView(context: Context) : GLSurfaceView(context) {
         }
 
         override fun onSurfaceChanged(gl: GL10, width: Int, height: Int) {
-            val gl11 = gl as GL11
-            gl.glViewport(0, 0, width, height)
-            val aspectRatio = width.toFloat() / height
-            gl.glMatrixMode(GL10.GL_PROJECTION)
-            gl.glLoadIdentity()
-            val desiredHeight = if (aspectRatio > 1.0f) 10.0f else 10.0f / aspectRatio
-            val desiredWidth = desiredHeight * aspectRatio
-            gl.glOrthof(
-                -desiredWidth / 2,
-                desiredWidth / 2,
-                -desiredHeight / 2,
-                desiredHeight / 2,
-                0.001f,
-                100.0f,
-            )
-            gl.glMatrixMode(GL10.GL_MODELVIEW)
-            gl.glLoadIdentity()
-            gl.glTranslatef(0.0f, 0.0f, -20.0f)
-            // rotate local to achieve top down view from negative y down to xz-plane
-            // z range is the desired height
-            gl.glRotatef(-90.0f, 1.0f, 0.0f, 0.0f)
-            // save local system as a basis to draw scene items
-            gl11.glGetFloatv(GL11.GL_MODELVIEW_MATRIX, modelViewScene, 0)
-            // window boundaries
-            boundaries.updateWith(desiredHeight, aspectRatio)
+            val dimensions = openGlScene.resize(gl, width, height)
             updateFieldFrame()
-            // touch event pixel coordinates to openGL coordinates
-            unitsPerPixelZ = desiredHeight / height
-            unitsPerPixelX = desiredHeight * aspectRatio / width
+            unitsPerPixelZ = dimensions.height / height
+            unitsPerPixelX = dimensions.height * dimensions.aspectRatio / width
         }
 
         override fun onSurfaceCreated(gl: GL10, config: EGLConfig) {
-            gl.glDisable(GL10.GL_DITHER)
-            gl.glHint(GL10.GL_PERSPECTIVE_CORRECTION_HINT, GL10.GL_FASTEST)
-            gl.glBlendFunc(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA)
-            gl.glEnable(GL10.GL_BLEND)
-            gl.glClearColor(0.027f, 0.035f, 0.11f, 1.0f)
-            gl.glEnable(GL10.GL_CULL_FACE)
-            gl.glShadeModel(GL10.GL_FLAT)
-            gl.glEnable(GL10.GL_DEPTH_TEST)
-            gl.glDepthFunc(GL10.GL_LEQUAL)
-            gl.glShadeModel(GL10.GL_SMOOTH)
-            gl.glEnable(GL10.GL_DEPTH_TEST)
-            gl.glEnable(GL10.GL_NORMALIZE)
-            gl.glLightfv(GL10.GL_LIGHT0, GL10.GL_AMBIENT, LIGHT_AMBIENT, 0)
-            gl.glLightfv(GL10.GL_LIGHT0, GL10.GL_DIFFUSE, LIGHT_DIFFUSE, 0)
-            gl.glLightfv(GL10.GL_LIGHT0, GL10.GL_SPECULAR, LIGHT_SPECULAR, 0)
-            gl.glLightfv(GL10.GL_LIGHT0, GL10.GL_POSITION, LIGHT_POSITION, 0)
-            gl.glEnable(GL10.GL_LIGHT0)
+            openGlScene.initialize(gl)
         }
 
         private fun updateFieldFrame() {
@@ -371,20 +302,19 @@ class BubbleGLSurfaceView(context: Context) : GLSurfaceView(context) {
             val blue = (color[2] * 255).toInt()
             timerPill.background = GradientDrawable().apply {
                 shape = GradientDrawable.RECTANGLE
-                cornerRadius = 18f * resources.displayMetrics.density
+                cornerRadius = 18f * mainActivity.resources.displayMetrics.density
                 setColor(Color.rgb(18, 24, 51))
-                setStroke((2f * resources.displayMetrics.density).toInt(), Color.rgb(red, green, blue))
+                setStroke((2f * mainActivity.resources.displayMetrics.density).toInt(), Color.rgb(red, green, blue))
             }
             scoreText.background = GradientDrawable().apply {
                 shape = GradientDrawable.RECTANGLE
-                cornerRadius = 18f * resources.displayMetrics.density
+                cornerRadius = 18f * mainActivity.resources.displayMetrics.density
                 setColor(Color.rgb(18, 24, 51))
-                setStroke((2f * resources.displayMetrics.density).toInt(), Color.rgb(red, green, blue))
+                setStroke((2f * mainActivity.resources.displayMetrics.density).toInt(), Color.rgb(red, green, blue))
             }
-            // The outer arena frame is the primary, at-a-glance target-colour indicator.
             fieldHolder.background = GradientDrawable().apply {
                 setColor(Color.rgb(red, green, blue))
-                cornerRadius = 10f * resources.displayMetrics.density
+                cornerRadius = 10f * mainActivity.resources.displayMetrics.density
             }
         }
 
@@ -395,10 +325,6 @@ class BubbleGLSurfaceView(context: Context) : GLSurfaceView(context) {
 
     companion object {
         private const val INITIAL_TIMER = 25.0f
-        private val LIGHT_AMBIENT = floatArrayOf(0.20f, 0.20f, 0.30f, 1.0f)
-        private val LIGHT_DIFFUSE = floatArrayOf(0.72f, 0.76f, 0.88f, 1.0f)
-        private val LIGHT_SPECULAR = floatArrayOf(0.76f, 0.80f, 0.92f, 1.0f)
-        private val LIGHT_POSITION = floatArrayOf(-4.0f, 8.0f, 6.0f, 1.0f)
     }
 
 }

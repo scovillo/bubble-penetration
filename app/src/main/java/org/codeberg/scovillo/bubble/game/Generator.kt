@@ -1,6 +1,6 @@
 package org.codeberg.scovillo.bubble.game
 
-import org.codeberg.scovillo.bubble.ui.Boundaries
+import org.codeberg.scovillo.bubble.ui.render.Boundaries
 
 class Generator(
     private val gameObjects: MutableList<GameObject>,

@@ -20,7 +20,6 @@ import org.codeberg.scovillo.bubble.persistence.LocalHighscoreStorage
 import org.codeberg.scovillo.bubble.persistence.SettingsModel
 import org.codeberg.scovillo.bubble.sound.MusicPlayer
 import org.codeberg.scovillo.bubble.sound.SoundEffects
-import org.codeberg.scovillo.bubble.ui.BubbleGLSurfaceView
 import org.codeberg.scovillo.bubble.ui.BubbleFont
 import org.codeberg.scovillo.bubble.ui.layout.GameOverScreenLayout
 import org.codeberg.scovillo.bubble.ui.layout.HighscoreLayout
@@ -28,11 +27,22 @@ import org.codeberg.scovillo.bubble.ui.layout.MainMenuLayout
 import org.codeberg.scovillo.bubble.ui.layout.SettingsLayout
 import org.codeberg.scovillo.bubble.ui.layout.UsernameCreationLayout
 import org.codeberg.scovillo.bubble.ui.layout.UsernameSelectionLayout
+import org.codeberg.scovillo.bubble.ui.render.BubbleGLSurfaceView
+import org.codeberg.scovillo.bubble.ui.render.GameBubbleScene
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 
 val THREAD_POOL: ExecutorService = Executors.newCachedThreadPool()
+
+private sealed interface GameSession {
+    data object Inactive : GameSession
+
+    data class Active(
+        val view: BubbleGLSurfaceView,
+        val scene: GameBubbleScene,
+    ) : GameSession
+}
 
 class MainActivity : ComponentActivity() {
 
@@ -55,7 +65,7 @@ class MainActivity : ComponentActivity() {
     private var users = mutableListOf<UserResource>()
 
     private var isGameRunning = false
-    private var currentBubbleView: BubbleGLSurfaceView? = null
+    private var gameSession: GameSession = GameSession.Inactive
     private var isUsingOfflineFallback = false
 
     override fun setContentView(layoutResID: Int) {
@@ -123,20 +133,27 @@ class MainActivity : ComponentActivity() {
         if (::selectedUser.isInitialized) {
             outState.putString("selectedUserName", selectedUser.username)
         }
-        currentBubbleView?.let {
-            outState.putInt("savedScore", it.getScore())
-            outState.putFloat("savedTimer", it.getTimer())
+        val currentSession = gameSession
+        if (currentSession is GameSession.Active) {
+            outState.putInt("savedScore", currentSession.scene.getScore())
+            outState.putFloat("savedTimer", currentSession.scene.getTimer())
         }
     }
 
     public override fun onResume() {
         super.onResume()
-        currentBubbleView?.resumeGame()
+        val currentSession = gameSession
+        if (currentSession is GameSession.Active) {
+            currentSession.view.resumeScene()
+        }
         musicPlayer.isMuted = settingsModel.isMusicMuted
     }
 
     public override fun onPause() {
-        currentBubbleView?.pauseGame()
+        val currentSession = gameSession
+        if (currentSession is GameSession.Active) {
+            currentSession.view.pauseScene()
+        }
         super.onPause()
         musicPlayer.pause()
     }
@@ -147,21 +164,16 @@ class MainActivity : ComponentActivity() {
         mainMenuLayout.hide()
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         setContentView(R.layout.game_hud)
-        val bubbleGLSurfaceView = BubbleGLSurfaceView(this)
-        bubbleGLSurfaceView.isMuted(settingsModel.areSoundEffectsMuted)
-
-        if (score > 0 || timer != 25.0f) {
-            bubbleGLSurfaceView.setGameState(score, timer)
-        }
-
-        currentBubbleView = bubbleGLSurfaceView
+        val scene = GameBubbleScene(this, score, timer, settingsModel.areSoundEffectsMuted)
+        val bubbleGLSurfaceView = BubbleGLSurfaceView(this, scene)
+        gameSession = GameSession.Active(bubbleGLSurfaceView, scene)
         val glSurfaceViewHolder = findViewById<View>(R.id.GLSurfaceViewHolder) as FrameLayout
         glSurfaceViewHolder.addView(bubbleGLSurfaceView)
     }
 
     fun showGameOverScreenWith(score: String) {
         isGameRunning = false
-        currentBubbleView = null
+        gameSession = GameSession.Inactive
         val glSurfaceViewHolder = this.findViewById<View>(R.id.GLSurfaceViewHolder) as FrameLayout?
         glSurfaceViewHolder?.removeAllViews()
         gameOverScreenLayout.showWith(score)
@@ -173,7 +185,7 @@ class MainActivity : ComponentActivity() {
 
     fun backToMenu(view: View) {
         isGameRunning = false
-        currentBubbleView = null
+        gameSession = GameSession.Inactive
         mainMenuLayout.show()
     }
 

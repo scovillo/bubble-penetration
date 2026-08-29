@@ -1,4 +1,4 @@
-package org.codeberg.scovillo.bubble.ui
+package org.codeberg.scovillo.bubble.ui.render
 
 class Boundaries {
 

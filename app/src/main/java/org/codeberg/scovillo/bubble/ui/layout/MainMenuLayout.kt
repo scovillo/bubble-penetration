@@ -19,12 +19,12 @@ import org.codeberg.scovillo.bubble.R
 import org.codeberg.scovillo.bubble.THREAD_POOL
 import org.codeberg.scovillo.bubble.api.ApiService
 import org.codeberg.scovillo.bubble.sound.MusicPlayer
-import org.codeberg.scovillo.bubble.ui.MenuGLSurfaceView
+import org.codeberg.scovillo.bubble.ui.render.BubbleGLSurfaceView
+import org.codeberg.scovillo.bubble.ui.render.MenuBubbleScene
 import java.util.concurrent.TimeUnit
 
 class MainMenuLayout(private val mainActivity: MainActivity, private val musicPlayer: MusicPlayer) {
 
-    var menuGLSurfaceView: MenuGLSurfaceView? = null
     private var startButtonPulse: AnimatorSet? = null
 
     fun show() {
@@ -32,7 +32,7 @@ class MainMenuLayout(private val mainActivity: MainActivity, private val musicPl
 
         loadCurrentChampionAsync()
 
-        menuGLSurfaceView = MenuGLSurfaceView(mainActivity)
+        val menuGLSurfaceView = BubbleGLSurfaceView(mainActivity, MenuBubbleScene())
         val glSurfaceViewHolder = mainActivity.findViewById<View>(R.id.menuGLSurfaceViewHolder) as FrameLayout
         glSurfaceViewHolder.addView(menuGLSurfaceView)
         (mainActivity.findViewById<View>(R.id.menu_username) as TextView).text = mainActivity.selectedUser.username
