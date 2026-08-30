@@ -1,87 +1,85 @@
 package org.codeberg.scovillo.bubble.ui.layout
 
-import android.graphics.Color
-import android.view.Gravity
 import android.view.View
-import android.widget.LinearLayout
-import android.widget.ScrollView
-import android.widget.TableLayout
-import android.widget.TableRow
-import android.widget.TextView
-import androidx.core.content.ContextCompat
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import org.codeberg.scovillo.bubble.MainActivity
 import org.codeberg.scovillo.bubble.R
 import org.codeberg.scovillo.bubble.THREAD_POOL
 import org.codeberg.scovillo.bubble.api.ApiService
-import org.codeberg.scovillo.bubble.ui.BubbleFont
 import java.util.concurrent.TimeUnit
 import kotlin.math.max
 
 class HighscoreLayout(private val mainActivity: MainActivity) {
 
-    private data class HighscoreRow(val rank: Int, val username: String, val score: String)
+    private companion object {
+        const val PAGE_SIZE = 50
+        const val LOAD_THRESHOLD = 5
+    }
 
-    private var firstRank = 1
-    private var lastRank = 0
+    private var rows = emptyList<HighscoreRow>()
     private var hasPrevious = false
     private var hasNext = false
     private var loading = false
+    private var requestGeneration = 0
+
+    private lateinit var adapter: HighscoreListAdapter
+    private lateinit var layoutManager: LinearLayoutManager
 
     fun show() {
         mainActivity.setContentView(R.layout.highscores)
-        firstRank = 1
-        lastRank = 0
+        requestGeneration++
+        rows = emptyList()
         hasPrevious = false
         hasNext = false
         loading = false
+
+        adapter = HighscoreListAdapter(mainActivity.selectedUser.username)
+        layoutManager = LinearLayoutManager(mainActivity)
+        mainActivity.findViewById<RecyclerView>(R.id.highscore_list).apply {
+            layoutManager = this@HighscoreLayout.layoutManager
+            adapter = this@HighscoreLayout.adapter
+            addOnScrollListener(object : RecyclerView.OnScrollListener() {
+                override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                    val firstVisible =
+                        this@HighscoreLayout.layoutManager.findFirstVisibleItemPosition()
+                    val lastVisible =
+                        this@HighscoreLayout.layoutManager.findLastVisibleItemPosition()
+                    if (
+                        dy < 0 &&
+                        firstVisible != RecyclerView.NO_POSITION &&
+                        firstVisible <= LOAD_THRESHOLD
+                    ) {
+                        loadPreviousPage()
+                    } else if (
+                        dy > 0 &&
+                        lastVisible != RecyclerView.NO_POSITION &&
+                        lastVisible >=
+                        this@HighscoreLayout.adapter.itemCount - 1 - LOAD_THRESHOLD
+                    ) {
+                        loadNextPage()
+                    }
+                }
+            })
+        }
+
         loadPage(username = mainActivity.selectedUser.username)
     }
 
-    private fun generateHighscoreTextView(): TextView {
-        val tv = TextView(mainActivity)
-        tv.layoutParams = TableRow.LayoutParams(
-            TableRow.LayoutParams.WRAP_CONTENT,
-            TableRow.LayoutParams.WRAP_CONTENT,
-            0.25f
-        )
-        tv.gravity = 1
-        tv.setTextColor(Color.WHITE)
-        tv.textSize = 25f
-        return tv
+    private fun loadPreviousPage() {
+        if (!hasPrevious || rows.isEmpty()) return
+        loadPage(startRank = max(1, rows.first().rank - PAGE_SIZE), prepend = true)
     }
 
-    private fun generateEmptyHighscoreView(): View {
-        val density = mainActivity.resources.displayMetrics.density
-        val message = mainActivity.getString(R.string.empty_highscores)
-            .removePrefix("🏆")
-            .trimStart()
-        return LinearLayout(mainActivity).apply {
-            orientation = LinearLayout.VERTICAL
-            gravity = Gravity.CENTER_HORIZONTAL
-            setPadding(0, (40 * density).toInt(), 0, 0)
-            addView(TextView(mainActivity).apply {
-                text = "🏆"
-                gravity = Gravity.CENTER
-                textSize = 72f
-                setTextColor(ContextCompat.getColor(mainActivity, R.color.gold))
-            })
-            addView(generateHighscoreTextView().apply {
-                layoutParams = LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.MATCH_PARENT,
-                    LinearLayout.LayoutParams.WRAP_CONTENT
-                ).apply {
-                    topMargin = (24 * density).toInt()
-                }
-                text = message
-                BubbleFont.applyTo(this, scaleNonButtonText = false)
-            })
-        }
+    private fun loadNextPage() {
+        if (!hasNext || rows.isEmpty()) return
+        loadPage(startRank = rows.last().rank + 1)
     }
 
     private fun loadPage(
         username: String? = null,
         startRank: Int? = null,
-        prepend: Boolean = false
+        prepend: Boolean = false,
     ) {
         if (!mainActivity.settingsModel.useOnlineLeaderboard) {
             addLocalHighscores()
@@ -89,30 +87,35 @@ class HighscoreLayout(private val mainActivity: MainActivity) {
         }
         if (loading) return
         loading = true
+        val generation = requestGeneration
         THREAD_POOL.execute {
             try {
                 val response =
                     ApiService.getHighscorePage(username, startRank)[8000, TimeUnit.MILLISECONDS]
                 val jsonArray = response.getJSONArray("highscores")
-                mainActivity.onBackendRequestSucceeded()
-                val rows = (0 until jsonArray.length()).map { index ->
+                val pageRows = (0 until jsonArray.length()).map { index ->
                     val item = jsonArray.getJSONObject(index)
                     HighscoreRow(
                         item.getInt("rank"),
                         item.getString("username"),
-                        item.getString("score")
+                        item.getString("score"),
                     )
                 }
-                showPage(
-                    rows,
-                    response.getBoolean("hasPrevious"),
-                    response.getBoolean("hasNext"),
-                    prepend
-                )
+                mainActivity.onBackendRequestSucceeded()
+                mainActivity.runOnUiThread {
+                    if (generation != requestGeneration) return@runOnUiThread
+                    showPage(
+                        pageRows,
+                        response.getBoolean("hasPrevious"),
+                        response.getBoolean("hasNext"),
+                        prepend,
+                    )
+                }
             } catch (exception: Exception) {
                 mainActivity.runOnUiThread {
+                    if (generation != requestGeneration) return@runOnUiThread
                     loading = false
-                    if (lastRank == 0) {
+                    if (rows.isEmpty()) {
                         addLocalHighscores()
                         if (!mainActivity.showRateLimitMessage(exception)) {
                             mainActivity.showOfflineFallbackMessageOnce()
@@ -125,89 +128,64 @@ class HighscoreLayout(private val mainActivity: MainActivity) {
     }
 
     private fun showPage(
-        rows: List<HighscoreRow>,
+        pageRows: List<HighscoreRow>,
         pageHasPrevious: Boolean,
         pageHasNext: Boolean,
-        prepend: Boolean
+        prepend: Boolean,
     ) {
-        mainActivity.runOnUiThread {
-            val table = mainActivity.findViewById<TableLayout?>(R.id.highscore_table)
-                ?: return@runOnUiThread
-            val scroll = mainActivity.findViewById<ScrollView?>(R.id.highscore_scroll)
-                ?: return@runOnUiThread
-            val newRows = rows.filter { it.rank !in firstRank..lastRank }
-            val oldHeight = table.height
-            if (rows.isEmpty() && table.childCount == 0) {
-                table.addView(generateEmptyHighscoreView())
-            }
-            val renderedRows = newRows.map { row ->
-                TableRow(mainActivity).apply {
-                    val rank = generateHighscoreTextView().apply {
-                        text = mainActivity.getString(R.string.rank_value, row.rank)
-                        BubbleFont.applyTo(this, scaleNonButtonText = false)
-                    }
-                    val name = generateHighscoreTextView().apply {
-                        text = row.username
-                        BubbleFont.applyTo(this, scaleNonButtonText = false)
-                    }
-                    val score = generateHighscoreTextView().apply {
-                        text = row.score
-                        BubbleFont.applyTo(this, scaleNonButtonText = false)
-                    }
-                    if (row.username == mainActivity.selectedUser.username) {
-                        rank.setTextColor(Color.YELLOW)
-                        name.setTextColor(Color.YELLOW)
-                        score.setTextColor(Color.YELLOW)
-                    }
-                    addView(rank)
-                    addView(name)
-                    addView(score)
-                }
-            }
-            if (prepend) {
-                renderedRows.asReversed().forEach { table.addView(it, 0) }
-                hasPrevious = pageHasPrevious
+        val recycler = mainActivity.findViewById<RecyclerView?>(R.id.highscore_list) ?: return
+        val isInitialPage = rows.isEmpty()
+        val anchorPosition = if (prepend) layoutManager.findFirstVisibleItemPosition() else -1
+        val anchorUsername = rows.getOrNull(anchorPosition)?.username
+        val anchorOffset = if (anchorPosition != RecyclerView.NO_POSITION) {
+            layoutManager.findViewByPosition(anchorPosition)?.let(layoutManager::getDecoratedTop) ?: 0
+        } else {
+            0
+        }
+
+        val knownRanks = rows.asSequence().mapTo(mutableSetOf()) { it.rank }
+        val knownUsernames = rows.asSequence().mapTo(mutableSetOf()) { it.username }
+        val newRows = pageRows.filter {
+            if (it.rank in knownRanks || it.username in knownUsernames) {
+                false
             } else {
-                renderedRows.forEach(table::addView)
-                hasNext = pageHasNext
-            }
-            if (rows.isNotEmpty()) {
-                firstRank =
-                    minOf(firstRank.takeIf { lastRank > 0 } ?: rows.first().rank, rows.first().rank)
-                lastRank = maxOf(lastRank, rows.last().rank)
-            }
-            loading = false
-            table.post {
-                if (prepend) {
-                    scroll.scrollTo(0, scroll.scrollY + table.height - oldHeight)
-                } else if (lastRank == rows.lastOrNull()?.rank && firstRank == rows.firstOrNull()?.rank) {
-                    scroll.scrollTo(0, if (hasPrevious) 1 else 0)
-                    installPagination(scroll)
-                }
+                knownRanks.add(it.rank)
+                knownUsernames.add(it.username)
+                true
             }
         }
-    }
-
-    private fun installPagination(scroll: ScrollView) {
-        val oldScrollY = scroll.scrollY
-        scroll.viewTreeObserver.addOnScrollChangedListener scrollChanged@{
-            val scrollY = scroll.scrollY
-            val child = scroll.getChildAt(0) ?: return@scrollChanged
-            when {
-                scrollY < oldScrollY && scrollY == 0 && hasPrevious ->
-                    loadPage(startRank = max(1, firstRank - 50), prepend = true)
-
-                scrollY > oldScrollY && child.bottom <= scroll.height + scrollY && hasNext ->
-                    loadPage(startRank = lastRank + 1)
+        val updatedRows = if (prepend) newRows + rows else rows + newRows
+        rows = updatedRows.sortedBy { it.rank }
+        if (isInitialPage) {
+            hasPrevious = pageHasPrevious
+            hasNext = pageHasNext
+        } else if (prepend) {
+            hasPrevious = pageHasPrevious
+        } else {
+            hasNext = pageHasNext
+        }
+        if (pageRows.isEmpty()) {
+            if (prepend) hasPrevious = false else hasNext = false
+        }
+        mainActivity.findViewById<View>(R.id.empty_highscores_view).visibility =
+            if (rows.isEmpty()) View.VISIBLE else View.GONE
+        recycler.visibility = if (rows.isEmpty()) View.GONE else View.VISIBLE
+        adapter.submitList(rows) {
+            if (prepend && anchorPosition != RecyclerView.NO_POSITION && anchorUsername != null) {
+                val updatedAnchorPosition = rows.indexOfFirst { it.username == anchorUsername }
+                layoutManager.scrollToPositionWithOffset(
+                    updatedAnchorPosition.takeIf { it != -1 } ?: anchorPosition,
+                    anchorOffset,
+                )
             }
+            loading = false
         }
     }
 
     private fun addLocalHighscores() {
-        val rows = mainActivity.localHighscoreStorage.read().mapIndexed { index, highscore ->
+        val localRows = mainActivity.localHighscoreStorage.read().mapIndexed { index, highscore ->
             HighscoreRow(index + 1, highscore.username, highscore.score.toString())
         }
-        showPage(rows, pageHasPrevious = false, pageHasNext = false, prepend = false)
+        showPage(localRows, pageHasPrevious = false, pageHasNext = false, prepend = false)
     }
-
 }

@@ -12,16 +12,18 @@
         <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
                 android:text="@string/rank"
                 android:textColor="@color/white"
                 android:textSize="28sp"
-                android:textAlignment="center"
+                android:textAlignment="viewStart"
                 android:id="@+id/table_rank"
                 android:enabled="true"
-                android:gravity="center_horizontal"/>
+                android:gravity="start|center_vertical"
+                android:maxLines="1"
+                android:paddingLeft="12dp"
+                android:paddingStart="12dp"/>
         <TextView
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="@string/name"
@@ -30,34 +32,44 @@
                 android:textSize="28sp"
                 android:textAlignment="center"
                 android:enabled="true"
-                android:gravity="center_horizontal"/>
+                android:gravity="center_horizontal"
+                android:maxLines="1"/>
         <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
                 android:text="@string/score"
                 android:id="@+id/table_score"
                 android:textColor="@color/white"
                 android:textSize="28sp"
-                android:textAlignment="center"
+                android:textAlignment="viewEnd"
                 android:enabled="true"
-                android:gravity="center_horizontal"/>
+                android:gravity="end|center_vertical"
+                android:maxLines="1"
+                android:paddingEnd="12dp"
+                android:paddingRight="12dp"/>
     </LinearLayout>
-    <ScrollView
-            android:id="@+id/highscore_scroll"
+    <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="1"
-            android:textAlignment="center"
-            android:gravity="center_horizontal">
-        <TableLayout
-                android:id="@+id/highscore_table"
+            android:layout_weight="1">
+        <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/highscore_list"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:clipToPadding="false"
+                android:paddingTop="16dp"/>
+        <TextView
+                android:id="@+id/empty_highscores_view"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingTop="16dp"
-                android:textAlignment="center"
-                android:gravity="center_horizontal"/>
-    </ScrollView>
+                android:layout_gravity="top"
+                android:gravity="center"
+                android:paddingTop="40dp"
+                android:text="@string/empty_highscores"
+                android:textColor="@color/white"
+                android:textSize="25sp"
+                android:visibility="gone"/>
+    </FrameLayout>
     <Button
                     style="?android:attr/buttonBarButtonStyle"
             android:id="@+id/highscore_back_button"
