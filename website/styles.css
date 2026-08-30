@@ -469,11 +469,11 @@ main {
 }
 .screenshots {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 230px));
+  grid-template-columns: repeat(4, minmax(0, 210px));
   justify-content: center;
-  gap: 32px;
+  gap: 24px;
   align-items: center;
-  max-width: 860px;
+  max-width: 1000px;
   margin: 0 auto;
   padding: 20px 0;
 }
@@ -488,6 +488,9 @@ main {
 }
 .screenshots figure:nth-child(3) {
   transform: rotate(2deg);
+}
+.screenshots figure:nth-child(4) {
+  transform: rotate(1deg);
 }
 .screenshots .raised {
   transform: translateY(-18px);
@@ -630,7 +633,7 @@ footer a {
     grid-template-columns: 1fr;
   }
   .screenshots {
-    grid-template-columns: repeat(3, minmax(0, 190px));
+    grid-template-columns: repeat(4, minmax(0, 160px));
     gap: 16px;
     padding: 10px 0;
   }
@@ -729,7 +732,7 @@ footer a {
     overflow-x: auto;
     scroll-snap-type: x mandatory;
     justify-content: start;
-    grid-template-columns: repeat(3, 44vw);
+    grid-template-columns: repeat(4, 44vw);
     margin-right: 0;
     padding: 8px 0 18px;
   }

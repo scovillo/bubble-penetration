@@ -16,12 +16,11 @@ class UsernameListAdapter(private val mainActivity: MainActivity, private val us
     private var inflater: LayoutInflater = mainActivity.getSystemService(LAYOUT_INFLATER_SERVICE) as LayoutInflater
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
-        var row = convertView
-        if (convertView == null) row = inflater.inflate(R.layout.username_list_row, parent, false)
-        row!!
+        val row = convertView ?: inflater.inflate(R.layout.username_list_row, parent, false).also {
+            BubbleFont.applyTo(it)
+        }
         val usernameRowTextView = row.findViewById<View>(R.id.username_row_text) as TextView
         usernameRowTextView.text = users[position].username
-        BubbleFont.applyTo(usernameRowTextView)
         return row
     }
 
