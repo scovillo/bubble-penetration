@@ -1,0 +1,22 @@
+Bubble Penetration est un jeu d’arcade effréné, conçu pour les parties rapides comme pour les longues chasses au meilleur score.
+
+Des bulles colorées et des étoiles dorées traversent l’écran. Touchez les bonnes cibles avant la fin du temps imparti.
+
+Comment jouer :
+- Attrapez la couleur demandée pour gagner des points et du temps.
+- Touchez la mauvaise bulle et vous perdrez de précieuses secondes ainsi que votre combo.
+- Attrapez les étoiles pour obtenir du temps et des points bonus.
+- Entretenez votre série pour déclencher des multiplicateurs de combo allant jusqu’à x16.
+
+Au programme :
+- Un jeu direct basé sur les réflexes.
+- Une vitesse croissante qui rend chaque partie palpitante.
+- Vos scores, à votre façon : affrontez le monde entier, connectez votre propre classement compatible ou jouez entièrement hors ligne.
+- Entièrement gratuit et open source.
+
+Chaque partie est différente et chaque seconde compte. Combien de temps tiendrez-vous ?
+
+Votre score, votre choix :
+Le classement en ligne vous permet d’affronter des joueurs du monde entier.
+Vous avez votre propre classement ? Saisissez simplement son adresse dans les paramètres.
+Vous pouvez aussi désactiver le classement en ligne : vos meilleurs scores resteront sur votre appareil et vous pourrez continuer à jouer sans connexion Internet.

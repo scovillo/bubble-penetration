@@ -1,0 +1,5 @@
+Novedades de la versión 1.1:
+- Nuevo diseño visual con burbujas, estrellas, fuentes, interfaz e icono renovados.
+- Siete idiomas nuevos: español, francés, japonés, portugués de Brasil, ruso, ucraniano y chino simplificado.
+- La clasificación se abre cerca de tu puesto y carga más resultados al desplazarte.
+- Mejoras en vertical y horizontal, además de correcciones para el temporizador, el modo sin conexión y dispositivos Android antiguos.

@@ -1,0 +1,5 @@
+New in version 1.1:
+- A complete visual refresh with new bubbles, stars, fonts, HUD, and app icon.
+- Seven new app languages: Spanish, French, Japanese, Brazilian Portuguese, Russian, Ukrainian, and Simplified Chinese.
+- The leaderboard now opens around your rank and loads more scores as you scroll.
+- Improved portrait and landscape layouts, plus fixes for timer alerts, offline play, and older Android devices.

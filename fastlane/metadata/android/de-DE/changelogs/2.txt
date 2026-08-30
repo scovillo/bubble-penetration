@@ -1,0 +1,5 @@
+Neu in Version 1.1:
+- Komplett überarbeiteter Look mit neuen Blasen, Sternen, Schriften, HUD und App-Symbol.
+- Sieben neue App-Sprachen: Spanisch, Französisch, Japanisch, brasilianisches Portugiesisch, Russisch, Ukrainisch und vereinfachtes Chinesisch.
+- Die Bestenliste startet bei deinem Rang und lädt beim Scrollen weitere Plätze nach.
+- Verbesserte Hoch- und Querformat-Layouts sowie Fehlerbehebungen für Timer, Offline-Modus und ältere Android-Geräte.

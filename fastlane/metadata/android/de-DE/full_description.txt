@@ -1,22 +1,22 @@
-Bubble Penetration ist ein schnelles Arcade-Spiel fuer kurze Pausen und lange Highscore-Jagden.
+Bubble Penetration ist ein schnelles Arcade-Spiel für kurze Pausen und lange Highscore-Jagden.
 
-Im Spielfeld treiben bunte Blasen und goldene Sterne durch den Raum - du musst blitzschnell entscheiden, was du antippst.
+Im Spielfeld treiben bunte Blasen und goldene Sterne durch den Raum – du musst blitzschnell entscheiden, was du antippst.
 
 So funktioniert es:
 - Sammle die aktuell geforderte Farbe, um Punkte und Zeit zu gewinnen.
-- Tippe die falsche Blase an und du verlierst wertvolle Sekundenund die aktive Combo.
-- Schnapp dir Sterne fuer Extra-Zeit und Extra-Punkte.
+- Tippe die falsche Blase an und du verlierst wertvolle Sekunden und die aktive Combo.
+- Schnapp dir Sterne für Extra-Zeit und Extra-Punkte.
 - Halte Serien am Leben und entfessele Combo-Multiplikatoren bis x16.
 
 Was dich erwartet:
 - Direktes, reaktionsbasiertes Gameplay ohne Umwege.
-- Ansteigende Geschwindigkeit fuer echten Nervenkitzel.
+- Ansteigende Geschwindigkeit für echten Nervenkitzel.
 - Deine Highscores, deine Wahl: weltweit antreten, eine eigene Bestenliste verbinden oder komplett offline spielen.
 - Komplett kostenlos und Open Source.
 
-Jede Runde ist anders, jede Sekunde zählt - wie lange haeltst du durch?
+Jede Runde ist anders, jede Sekunde zählt – wie lange hältst du durch?
 
 Deine Punkte, dein Spiel:
-Die Online-Bestenliste ist sofort bereit fuer den Wettkampf mit Spielerinnen und Spielern aus aller Welt.
+Die Online-Bestenliste ist sofort bereit für den Wettkampf mit Spielerinnen und Spielern aus aller Welt.
 Du hast eine eigene Bestenliste? Dann trage ihre Adresse einfach in den Einstellungen ein und spiel in deiner eigenen Runde.
-Oder du schaltest die Online-Bestenliste aus: Dann bleiben deine Bestleistungen auf deinem Geraet und der Blasen-Spass laeuft auch ohne Internet weiter.
+Oder du schaltest die Online-Bestenliste aus: Dann bleiben deine Bestleistungen auf deinem Gerät und der Blasen-Spaß läuft auch ohne Internet weiter.

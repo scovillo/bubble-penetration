@@ -1,0 +1,5 @@
+Nouveautés de la version 1.1 :
+- Refonte visuelle complète avec de nouvelles bulles, étoiles, polices, interface et icône.
+- Sept nouvelles langues : espagnol, français, japonais, portugais brésilien, russe, ukrainien et chinois simplifié.
+- Le classement s’ouvre autour de votre rang et charge plus de scores pendant le défilement.
+- Meilleures interfaces portrait et paysage, avec des correctifs pour le minuteur, le mode hors ligne et les anciens appareils Android.

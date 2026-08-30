@@ -1,0 +1,22 @@
+Bubble Penetration es un trepidante juego arcade, perfecto tanto para partidas rápidas como para perseguir grandes récords.
+
+Burbujas de colores y estrellas doradas flotan por el campo. Toca los objetivos correctos antes de que se agote el tiempo.
+
+Cómo se juega:
+- Recoge el color indicado para ganar puntos y tiempo.
+- Si tocas la burbuja equivocada, perderás valiosos segundos y el combo activo.
+- Atrapa estrellas para conseguir tiempo y puntos extra.
+- Mantén la racha para activar multiplicadores de combo de hasta x16.
+
+Qué ofrece:
+- Acción directa basada en tus reflejos.
+- Una velocidad creciente que mantiene la emoción en cada partida.
+- Récords a tu manera: compite en todo el mundo, conecta una clasificación compatible propia o juega completamente sin conexión.
+- Totalmente gratis y de código abierto.
+
+Cada partida es diferente y cada segundo cuenta. ¿Cuánto tiempo aguantarás?
+
+Tu puntuación, tu elección:
+La clasificación en línea está lista para competir con jugadores de todo el mundo.
+Si tienes una clasificación propia, introduce su dirección en los ajustes.
+También puedes desactivar la clasificación en línea: tus mejores puntuaciones permanecerán en el dispositivo y podrás seguir jugando sin Internet.

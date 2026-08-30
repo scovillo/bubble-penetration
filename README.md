@@ -1,6 +1,6 @@
 # Bubble Penetration
 
-📦 **Version:** 1 (1.0)  
+📦 **Version:** 2 (1.1)
 ⚙️ **Build Tool:** Gradle 9.7.1
 
 ## 🤖 Android Configuration

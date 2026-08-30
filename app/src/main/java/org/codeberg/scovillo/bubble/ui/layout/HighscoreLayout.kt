@@ -171,7 +171,13 @@ class HighscoreLayout(private val mainActivity: MainActivity) {
             if (rows.isEmpty()) View.VISIBLE else View.GONE
         recycler.visibility = if (rows.isEmpty()) View.GONE else View.VISIBLE
         adapter.submitList(rows) {
-            if (prepend && anchorPosition != RecyclerView.NO_POSITION && anchorUsername != null) {
+            if (isInitialPage) {
+                centerSelectedUser(recycler)
+            } else if (
+                prepend &&
+                anchorPosition != RecyclerView.NO_POSITION &&
+                anchorUsername != null
+            ) {
                 val updatedAnchorPosition = rows.indexOfFirst { it.username == anchorUsername }
                 layoutManager.scrollToPositionWithOffset(
                     updatedAnchorPosition.takeIf { it != -1 } ?: anchorPosition,
@@ -179,6 +185,20 @@ class HighscoreLayout(private val mainActivity: MainActivity) {
                 )
             }
             loading = false
+        }
+    }
+
+    private fun centerSelectedUser(recycler: RecyclerView) {
+        val selectedUserPosition = rows.indexOfFirst {
+            it.username == mainActivity.selectedUser.username
+        }
+        if (selectedUserPosition == -1) return
+
+        recycler.post {
+            val rowHeight = recycler.getChildAt(0)?.height ?: 0
+            val contentHeight = recycler.height - recycler.paddingTop - recycler.paddingBottom
+            val centeredOffset = recycler.paddingTop + max(0, (contentHeight - rowHeight) / 2)
+            layoutManager.scrollToPositionWithOffset(selectedUserPosition, centeredOffset)
         }
     }
 

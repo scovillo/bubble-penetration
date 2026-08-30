@@ -1,0 +1,5 @@
+Novidades da versão 1.1:
+- Visual totalmente renovado, com novas bolhas, estrelas, fontes, interface e ícone.
+- Sete novos idiomas: espanhol, francês, japonês, português do Brasil, russo, ucraniano e chinês simplificado.
+- O placar agora abre perto da sua posição e carrega mais resultados durante a rolagem.
+- Melhorias nos layouts vertical e horizontal, além de correções para o temporizador, o modo off-line e dispositivos Android antigos.
