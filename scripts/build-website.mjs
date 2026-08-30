@@ -27,6 +27,10 @@ await cp(resolve(source, 'assets'), resolve(output, 'assets'), {
 });
 await cp(resolve(source, 'styles.css'), resolve(output, 'styles.css'));
 await cp(resolve(source, 'app.js'), resolve(output, 'app.js'));
+await cp(
+  resolve(source, 'google3ab3e439713db7ac.html'),
+  resolve(output, 'google3ab3e439713db7ac.html'),
+);
 
 for (const [key, copy] of Object.entries(translations)) {
   const base = key === 'en' ? './' : '../';
