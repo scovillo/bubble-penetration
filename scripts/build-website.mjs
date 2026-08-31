@@ -20,6 +20,23 @@ const escapeHtml = (value) =>
     .replaceAll('"', '&quot;');
 const pathFor = (key) => (key === 'en' ? '' : `${key}/`);
 
+const validateLandingPage = (html, destination) => {
+  if (/\{\{\s*[A-Z_]+\s*\}\}/.test(html))
+    throw new Error(`Unresolved template placeholder in ${destination}`);
+
+  const jsonLdMatch = html.match(
+    /<script type="application\/ld\+json">([\s\S]*?)<\/script>/,
+  );
+  if (!jsonLdMatch)
+    throw new Error(`Missing JSON-LD block in ${destination}`);
+
+  try {
+    JSON.parse(jsonLdMatch[1]);
+  } catch (error) {
+    throw new Error(`Invalid JSON-LD in ${destination}: ${error.message}`);
+  }
+};
+
 await rm(output, { recursive: true, force: true });
 await mkdir(output, { recursive: true });
 await cp(resolve(source, 'assets'), resolve(output, 'assets'), {
@@ -164,7 +181,9 @@ for (const [key, copy] of Object.entries(translations)) {
     html = html.replaceAll(`{{${name}}}`, value);
   const destination = key === 'en' ? output : resolve(output, key);
   await mkdir(destination, { recursive: true });
-  await writeFile(resolve(destination, 'index.html'), html);
+  const pagePath = resolve(destination, 'index.html');
+  validateLandingPage(html, pagePath);
+  await writeFile(pagePath, html);
 }
 
 for (const [key, copy] of Object.entries(translations)) {
