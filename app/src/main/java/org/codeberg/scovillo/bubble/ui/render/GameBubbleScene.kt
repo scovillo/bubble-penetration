@@ -21,6 +21,7 @@ import org.codeberg.scovillo.bubble.game.Bubble
 import org.codeberg.scovillo.bubble.game.BubbleColors
 import org.codeberg.scovillo.bubble.game.Combo
 import org.codeberg.scovillo.bubble.game.ComboPulse
+import org.codeberg.scovillo.bubble.game.DisappearAnimation
 import org.codeberg.scovillo.bubble.game.GameObject
 import org.codeberg.scovillo.bubble.game.Generator
 import org.codeberg.scovillo.bubble.game.Star
@@ -100,13 +101,19 @@ class GameBubbleScene(
                 var distance = 0.0
                 var i = 0
                 while (i < gameObjects.size) {
-                    val bubble = gameObjects[i]
-                    val x = event.x * bubbleRenderer.unitsPerPixelX - boundaries.right - bubble.x
+                    val gameObject = gameObjects[i]
+                    if (gameObject is DisappearAnimation && gameObject.isDisappearFinished) {
+                        targetCounter++
+                        i++
+                        continue
+                    }
+                    val x =
+                        event.x * bubbleRenderer.unitsPerPixelX - boundaries.right - gameObject.x
                     val y =
-                        (event.y * bubbleRenderer.unitsPerPixelZ - boundaries.top) * -1 - bubble.z
+                        (event.y * bubbleRenderer.unitsPerPixelZ - boundaries.top) * -1 - gameObject.z
                     if (sqrt(
                             x.toDouble().pow(2.0) + y.toDouble().pow(2.0)
-                        ) <= bubble.scale
+                        ) <= gameObject.scale
                     ) {
                         if (distance <= 1E-20) {
                             distance = sqrt(
@@ -216,7 +223,7 @@ class GameBubbleScene(
 
             gameObjects.forEach {
                 it.update(fracSec)
-                if (it.isOutside(boundaries)) {
+                if (it is DisappearAnimation && it.isDisappearFinished || it.isOutside(boundaries)) {
                     objectsToBeRemoved.add(it)
                 }
             }
@@ -226,6 +233,9 @@ class GameBubbleScene(
                 }
                 when (gameObject) {
                     is Bubble -> {
+                        if (!gameObject.disappear()) {
+                            continue
+                        }
                         if (gameObject.color == collectColor) {
                             val time = timeLogic.getBubbleTimeFor(gameObject.speed)
                             timer += time
@@ -250,6 +260,9 @@ class GameBubbleScene(
                     }
 
                     is Star -> {
+                        if (!gameObject.disappear()) {
+                            continue
+                        }
                         val time = timeLogic.getStarTimeFor(gameObject.speed)
                         timer += time
                         timerPostfix.animateWith(time)
@@ -264,7 +277,6 @@ class GameBubbleScene(
                         effectPlayer.playSound(R.raw.star)
                     }
                 }
-                gameObjects.remove(gameObject)
             }
             targetsToBeRemoved.clear()
             for (gameObject in objectsToBeRemoved) {

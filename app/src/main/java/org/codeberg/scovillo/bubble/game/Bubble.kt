@@ -13,7 +13,7 @@ enum class BubbleColors {
 
 class Bubble(
     val color: BubbleColors?, private val glColor: FloatArray, speed: Float
-) : GameObject(speed) {
+) : GameObject(speed), DisappearAnimation {
 
     val score = 1
 
@@ -23,27 +23,53 @@ class Bubble(
     private var wobbleXup = true
     private var wobbleYup = true
     private val mesh = meshFor(12.0f)
+    private var disappearElapsed = 0f
+    private var isDisappearing = false
+
+    override val isDisappearFinished: Boolean
+        get() = isDisappearing && disappearElapsed >= POP_DURATION_SECONDS
+
+    override fun disappear(): Boolean {
+        if (isDisappearing) return false
+        isDisappearing = true
+        disappearElapsed = 0f
+        return true
+    }
 
     override fun draw(gl: GL10) {
+        val popProgress = (disappearElapsed / POP_DURATION_SECONDS).coerceIn(0f, 1f)
+        val bubbleScale = if (isDisappearing) 1f + 0.22f * popProgress else 1f
+        val bubbleAlpha = if (isDisappearing) 1f - popProgress else 1f
         gl.glMatrixMode(GL10.GL_MODELVIEW)
         gl.glPushMatrix()
         run {
             gl.glMultMatrixf(transformationMatrix, 0)
-            gl.glScalef(scale * wobbleX, scale, scale * wobbleY)
+            gl.glScalef(
+                scale * wobbleX * bubbleScale,
+                scale * bubbleScale,
+                scale * wobbleY * bubbleScale
+            )
             // A faint halo separates overlapping bubbles without changing hit areas.
             gl.glDisable(GL10.GL_LIGHTING)
             gl.glDepthMask(false)
             gl.glBlendFunc(GL10.GL_SRC_ALPHA, GL10.GL_ONE)
-            gl.glColor4f(glColor[0], glColor[1], glColor[2], 0.07f)
+            val haloScale = if (isDisappearing) 1.16f + 0.55f * popProgress else 1.16f
+            val haloAlpha = if (isDisappearing) 0.26f * (1f - popProgress) else 0.07f
+            gl.glColor4f(glColor[0], glColor[1], glColor[2], haloAlpha)
             gl.glPushMatrix()
-            gl.glScalef(1.16f, 1.16f, 1.16f)
+            gl.glScalef(haloScale, haloScale, haloScale)
             drawMesh(gl)
             gl.glPopMatrix()
 
             gl.glBlendFunc(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA)
             gl.glDepthMask(true)
             gl.glEnable(GL10.GL_LIGHTING)
-            gl.glMaterialfv(GL10.GL_FRONT_AND_BACK, GL10.GL_AMBIENT_AND_DIFFUSE, glColor, 0)
+            gl.glMaterialfv(
+                GL10.GL_FRONT_AND_BACK,
+                GL10.GL_AMBIENT_AND_DIFFUSE,
+                floatArrayOf(glColor[0], glColor[1], glColor[2], bubbleAlpha),
+                0
+            )
             gl.glMaterialfv(GL10.GL_FRONT_AND_BACK, GL10.GL_SPECULAR, SPECULAR_COLOR, 0)
             gl.glMaterialf(GL10.GL_FRONT_AND_BACK, GL10.GL_SHININESS, 54.0f)
             // Lighting plus a specular material creates the glossy 2.5D highlight.
@@ -68,7 +94,11 @@ class Bubble(
     }
 
     override fun update(fracSec: Float) {
-        updatePosition(fracSec)
+        if (isDisappearing) {
+            disappearElapsed += fracSec
+        } else {
+            updatePosition(fracSec)
+        }
 
         if (wobbleX + 0.015 <= 1.1 && wobbleXup) {
             wobbleX += 0.015f
@@ -97,6 +127,7 @@ class Bubble(
     private data class BubbleMesh(val strips: List<VertexStrip>)
 
     companion object {
+        private const val POP_DURATION_SECONDS = 0.22f
         private val SPECULAR_COLOR = floatArrayOf(0.68f, 0.72f, 0.84f, 1.0f)
         private val meshes = HashMap<Float, BubbleMesh>()
 

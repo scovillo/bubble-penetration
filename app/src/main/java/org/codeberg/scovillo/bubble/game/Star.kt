@@ -7,18 +7,32 @@ import java.nio.FloatBuffer
 import javax.microedition.khronos.opengles.GL10
 import kotlin.math.sqrt
 
-class Star(speed: Float) : GameObject(speed) {
+class Star(speed: Float) : GameObject(speed), DisappearAnimation {
 
     val score = 3
 
     private var rotation = 0.0f
     private val angularVelocity = 50 + Math.random().toFloat() * 100
+    private var disappearElapsed = 0f
+    private var isDisappearing = false
+
+    override val isDisappearFinished: Boolean
+        get() = isDisappearing && disappearElapsed >= POP_DURATION_SECONDS
+
+    override fun disappear(): Boolean {
+        if (isDisappearing) return false
+        isDisappearing = true
+        disappearElapsed = 0f
+        return true
+    }
 
     override fun draw(gl: GL10) {
+        val popProgress = (disappearElapsed / POP_DURATION_SECONDS).coerceIn(0f, 1f)
+        val popScale = if (isDisappearing) 1f - popProgress else 1f
         gl.glMatrixMode(GL10.GL_MODELVIEW)
         gl.glPushMatrix()
         gl.glMultMatrixf(transformationMatrix, 0)
-        gl.glScalef(scale, scale, scale)
+        gl.glScalef(scale * popScale, scale * popScale, scale * popScale)
         gl.glRotatef(rotation, 0.0f, 1.0f, 0.0f)
         gl.glDisable(GL10.GL_CULL_FACE)
         gl.glEnableClientState(GL10.GL_VERTEX_ARRAY)
@@ -93,8 +107,13 @@ class Star(speed: Float) : GameObject(speed) {
     }
 
     override fun update(fracSec: Float) {
-        updatePosition(fracSec)
-        rotation += fracSec * angularVelocity
+        if (isDisappearing) {
+            disappearElapsed += fracSec
+            rotation += fracSec * angularVelocity * 4
+        } else {
+            updatePosition(fracSec)
+            rotation += fracSec * angularVelocity
+        }
     }
 
     override fun updatePosition(fracSec: Float) {
@@ -118,6 +137,7 @@ class Star(speed: Float) : GameObject(speed) {
     )
 
     companion object {
+        private const val POP_DURATION_SECONDS = 0.22f
         private const val FACE_SCALE = 0.84f
         private const val FACE_Y = -0.20f
         private const val BEVEL_Y = -0.06f
