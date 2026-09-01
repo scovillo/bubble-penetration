@@ -25,9 +25,6 @@ import org.codeberg.scovillo.bubble.game.TimerAlarm
 import org.codeberg.scovillo.bubble.ui.hud.ScorePostfix
 import org.codeberg.scovillo.bubble.ui.hud.TimerPostfix
 import java.math.RoundingMode
-import java.nio.ByteBuffer
-import java.nio.ByteOrder
-import java.nio.FloatBuffer
 import java.text.DecimalFormat
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
@@ -198,7 +195,6 @@ class GameBubbleScene(
             updateGameObjects(fracSec)
             combo.update()
             openGlScene.draw(gl, gameObjects)
-            drawFieldFrame(gl)
         }
 
         private fun updateGameObjects(fracSec: Float) {
@@ -268,35 +264,12 @@ class GameBubbleScene(
 
         override fun onSurfaceChanged(gl: GL10, width: Int, height: Int) {
             val dimensions = openGlScene.resize(gl, width, height)
-            updateFieldFrame()
             unitsPerPixelZ = dimensions.height / height
             unitsPerPixelX = dimensions.height * dimensions.aspectRatio / width
         }
 
         override fun onSurfaceCreated(gl: GL10, config: EGLConfig) {
             openGlScene.initialize(gl)
-        }
-
-        private fun updateFieldFrame() {
-            val inset = 0.06f
-            fieldFrameBuffer.clear()
-            fieldFrameBuffer.put(boundaries.left + inset).put(0f).put(boundaries.bottom + inset)
-            fieldFrameBuffer.put(boundaries.right - inset).put(0f).put(boundaries.bottom + inset)
-            fieldFrameBuffer.put(boundaries.right - inset).put(0f).put(boundaries.top - inset)
-            fieldFrameBuffer.put(boundaries.left + inset).put(0f).put(boundaries.top - inset)
-            fieldFrameBuffer.position(0)
-        }
-
-        private fun drawFieldFrame(gl: GL10) {
-            gl.glDisable(GL10.GL_DEPTH_TEST)
-            gl.glEnableClientState(GL10.GL_VERTEX_ARRAY)
-            fieldFrameBuffer.position(0)
-            gl.glVertexPointer(3, GL10.GL_FLOAT, 0, fieldFrameBuffer)
-            gl.glColor4f(0.30f, 0.48f, 0.86f, 0.34f)
-            gl.glLineWidth(1.5f)
-            gl.glDrawArrays(GL10.GL_LINE_LOOP, 0, 4)
-            gl.glDisableClientState(GL10.GL_VERTEX_ARRAY)
-            gl.glEnable(GL10.GL_DEPTH_TEST)
         }
 
         private fun updateCollectColorIndicator(color: FloatArray) {
@@ -322,9 +295,6 @@ class GameBubbleScene(
         }
 
     }
-
-    private val fieldFrameBuffer: FloatBuffer = ByteBuffer.allocateDirect(12 * Float.SIZE_BYTES)
-        .order(ByteOrder.nativeOrder()).asFloatBuffer()
 
     companion object {
         private const val INITIAL_TIMER = 25.0f
