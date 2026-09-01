@@ -12,6 +12,8 @@ import android.widget.Toast.LENGTH_LONG
 import android.widget.Toast.LENGTH_SHORT
 import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import org.codeberg.scovillo.bubble.api.ApiService
 import org.codeberg.scovillo.bubble.api.UserResource
 import org.codeberg.scovillo.bubble.api.findHttpStatusException
@@ -113,13 +115,16 @@ class MainActivity : ComponentActivity() {
                 mainMenuLayout.show()
                 startGame(null, restoredScore, restoredTimer)
             }
+
             settingsLayout.restore(savedInstanceState) -> Unit
             ::selectedUser.isInitialized -> {
                 mainMenuLayout.show()
             }
+
             users.isEmpty() -> {
                 usernameCreationLayout.showWith(false)
             }
+
             else -> {
                 usernameSelectionLayout.showWith(users)
             }
@@ -164,6 +169,7 @@ class MainActivity : ComponentActivity() {
         mainMenuLayout.hide()
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         setContentView(R.layout.game_hud)
+        applyGameHudInsets()
         val scene = GameBubbleScene(this, score, timer, settingsModel.areSoundEffectsMuted)
         val bubbleGLSurfaceView = BubbleGLSurfaceView(this, scene)
         gameSession = GameSession.Active(bubbleGLSurfaceView, scene)
@@ -296,4 +302,27 @@ class MainActivity : ComponentActivity() {
         startActivity(websiteIntent)
     }
 
+    /**
+     * Android 15+ always lays targetSdk 35+ apps edge-to-edge. Keep the game HUD
+     * out of the status and navigation bars while the play field uses the rest
+     * of the window.
+     */
+    private fun applyGameHudInsets() {
+        val hud = findViewById<View>(R.id.hud)
+        val initialLeft = hud.paddingLeft
+        val initialTop = hud.paddingTop
+        val initialRight = hud.paddingRight
+        val initialBottom = hud.paddingBottom
+        ViewCompat.setOnApplyWindowInsetsListener(hud) { view, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            view.setPadding(
+                initialLeft + systemBars.left,
+                initialTop + systemBars.top,
+                initialRight + systemBars.right,
+                initialBottom + systemBars.bottom,
+            )
+            insets
+        }
+        ViewCompat.requestApplyInsets(hud)
+    }
 }
