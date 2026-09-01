@@ -1,4 +1,5 @@
 package org.codeberg.scovillo.bubble.game
+
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.FloatBuffer
@@ -7,7 +8,7 @@ import kotlin.math.cos
 import kotlin.math.sin
 
 enum class BubbleColors {
-    RED, GREEN, LIGHTBLUE, BLUE, PURPLE
+    RED, GREEN, SILVER, BLUE, PURPLE
 }
 
 class Bubble(
@@ -54,16 +55,16 @@ class Bubble(
     }
 
     private fun drawMesh(gl: GL10) {
-            gl.glEnableClientState(GL10.GL_VERTEX_ARRAY)
-            gl.glEnableClientState(GL10.GL_NORMAL_ARRAY)
-            for (strip in mesh.strips) {
-                strip.vertices.position(0)
-                gl.glVertexPointer(3, GL10.GL_FLOAT, 0, strip.vertices)
-                gl.glNormalPointer(GL10.GL_FLOAT, 0, strip.vertices)
-                gl.glDrawArrays(GL10.GL_TRIANGLE_STRIP, 0, strip.vertexCount)
-            }
-            gl.glDisableClientState(GL10.GL_VERTEX_ARRAY)
-            gl.glDisableClientState(GL10.GL_NORMAL_ARRAY)
+        gl.glEnableClientState(GL10.GL_VERTEX_ARRAY)
+        gl.glEnableClientState(GL10.GL_NORMAL_ARRAY)
+        for (strip in mesh.strips) {
+            strip.vertices.position(0)
+            gl.glVertexPointer(3, GL10.GL_FLOAT, 0, strip.vertices)
+            gl.glNormalPointer(GL10.GL_FLOAT, 0, strip.vertices)
+            gl.glDrawArrays(GL10.GL_TRIANGLE_STRIP, 0, strip.vertexCount)
+        }
+        gl.glDisableClientState(GL10.GL_VERTEX_ARRAY)
+        gl.glDisableClientState(GL10.GL_NORMAL_ARRAY)
     }
 
     override fun update(fracSec: Float) {

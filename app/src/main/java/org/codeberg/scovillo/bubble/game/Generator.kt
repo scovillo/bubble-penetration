@@ -22,12 +22,11 @@ class Generator(
     private val gameSpeed = GameSpeed()
 
     init {
-        // Keep hue and brightness apart so a target is identifiable at a glance.
-        colorCast[BubbleColors.RED] = floatArrayOf(0.76f, 0.08f, 0.18f, 1.0f)       // ruby red
-        colorCast[BubbleColors.GREEN] = floatArrayOf(0.04f, 0.58f, 0.24f, 1.0f)    // emerald green
-        colorCast[BubbleColors.LIGHTBLUE] = floatArrayOf(0.62f, 0.70f, 0.80f, 1.0f) // silver
-        colorCast[BubbleColors.BLUE] = floatArrayOf(0.06f, 0.12f, 0.55f, 1.0f)      // deep indigo
-        colorCast[BubbleColors.PURPLE] = floatArrayOf(0.50f, 0.12f, 0.76f, 1.0f)    // violet
+        colorCast[BubbleColors.RED] = floatArrayOf(0.76f, 0.08f, 0.18f, 1.0f)
+        colorCast[BubbleColors.GREEN] = floatArrayOf(0.04f, 0.58f, 0.24f, 1.0f)
+        colorCast[BubbleColors.SILVER] = floatArrayOf(0.62f, 0.70f, 0.80f, 1.0f)
+        colorCast[BubbleColors.BLUE] = floatArrayOf(0.10f, 0.20f, 0.92f, 1.0f)
+        colorCast[BubbleColors.PURPLE] = floatArrayOf(0.50f, 0.12f, 0.76f, 1.0f)
     }
 
     fun generateGameobject(collectColor: BubbleColors?, score: Int) {
@@ -50,7 +49,8 @@ class Generator(
 					 */
                 // calculate source vertex position, <0.5 horizontal, else vertical
                 if (Math.random() < 0.5) {  // horizontal placing, top or bottom
-                    spawnZ = if (sourceCode and 2 > 0) boundaries.bottom - spawnOffset else boundaries.top + spawnOffset
+                    spawnZ =
+                        if (sourceCode and 2 > 0) boundaries.bottom - spawnOffset else boundaries.top + spawnOffset
                     spawnX =
                         if (sourceCode and 1 > 0) boundaries.right * Math.random()
                             .toFloat() else boundaries.left * Math.random()
@@ -60,7 +60,8 @@ class Generator(
                         if (sourceCode and 2 > 0) boundaries.bottom * Math.random()
                             .toFloat() else boundaries.top * Math.random()
                             .toFloat()
-                    spawnX = if (sourceCode and 1 > 0) boundaries.right + spawnOffset else boundaries.left - spawnOffset
+                    spawnX =
+                        if (sourceCode and 1 > 0) boundaries.right + spawnOffset else boundaries.left - spawnOffset
                 }
                 // calculate destination vertex position, <0.5 horizontal, else vertical
                 if (Math.random() < 0.5) {  // horizontal placing, top or bottom
@@ -107,7 +108,11 @@ class Generator(
                     val newBubble: Bubble = if (collectColorAvailable) {
                         val random = generateColor()
                         Bubble(random, colorCast[random]!!, gameSpeed.getBubbleSpeedFor(score))
-                    } else Bubble(collectColor, colorCast[collectColor]!!, gameSpeed.getBubbleSpeedFor(score))
+                    } else Bubble(
+                        collectColor,
+                        colorCast[collectColor]!!,
+                        gameSpeed.getBubbleSpeedFor(score)
+                    )
                     newBubble.scale = scale
                     newBubble.setPosition(spawnX, 0f, spawnZ)
                     newBubble.velocity = velocity
