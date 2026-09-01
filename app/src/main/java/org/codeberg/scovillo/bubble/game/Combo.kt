@@ -7,8 +7,6 @@ import android.animation.ArgbEvaluator
 import android.animation.ValueAnimator
 import android.util.Log
 import android.view.View
-import android.view.animation.AlphaAnimation
-import android.view.animation.Animation
 import android.widget.TextView
 import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
@@ -20,7 +18,11 @@ import org.codeberg.scovillo.bubble.sound.SoundEffects
 import java.lang.System.currentTimeMillis
 import kotlin.math.pow
 
-class Combo(private val mainActivity: MainActivity, private val effectPlayer: SoundEffects) {
+class Combo(
+    private val mainActivity: MainActivity,
+    private val effectPlayer: SoundEffects,
+    private val onPulseChanged: (Long?) -> Unit = {},
+) {
 
     val multiplier
         get() = run {
@@ -45,6 +47,7 @@ class Combo(private val mainActivity: MainActivity, private val effectPlayer: So
     private var textView = mainActivity.findViewById<View>(R.id.Combo) as TextView
 
     private var pulsingMultiplier = 0
+    private var pulseAnimator: ValueAnimator? = null
     private var unstoppableColorAnimator: ValueAnimator? = null
     @Volatile private var targetAccentColor: Int? = null
     private var lastAppliedTargetAccentColor: Int? = null
@@ -80,10 +83,22 @@ class Combo(private val mainActivity: MainActivity, private val effectPlayer: So
                 textView.visibility = View.VISIBLE
                 updatePulseFor(multiplier)
             } else {
-                textView.animation?.cancel()
-                pulsingMultiplier = 0
+                if (pulsingMultiplier != 0) {
+                    pulsingMultiplier = 0
+                    pulseAnimator?.cancel()
+                    onPulseChanged(null)
+                    pulseAnimator = ValueAnimator.ofFloat(textView.alpha, 1f).apply {
+                        this.duration = ComboPulse.TRANSITION_DURATION_MS
+                        addUpdateListener { animator -> textView.alpha = animator.animatedValue as Float }
+                        doOnEnd {
+                            if (pulsingMultiplier == 0) textView.visibility = View.INVISIBLE
+                        }
+                        start()
+                    }
+                } else if (textView.visibility != View.VISIBLE) {
+                    textView.visibility = View.INVISIBLE
+                }
                 stopUnstoppableColorCycle()
-                textView.visibility = View.INVISIBLE
             }
 
             if (comboProgressText != lastRenderedText) {
@@ -155,19 +170,40 @@ class Combo(private val mainActivity: MainActivity, private val effectPlayer: So
 
     private fun updatePulseFor(multiplier: Int) {
         if (multiplier == pulsingMultiplier) return
-        textView.clearAnimation()
         pulsingMultiplier = multiplier
         val duration = when (multiplier) {
             2 -> 900L
             4 -> 650L
             8 -> 440L
             16 -> 260L
-            else -> return // BUILD COMBO remains deliberately calm.
+            else -> null
         }
-        textView.startAnimation(AlphaAnimation(0.18f, 1.0f).apply {
+        val currentAlpha = textView.alpha
+        pulseAnimator?.cancel()
+        onPulseChanged(duration)
+        pulseAnimator = ValueAnimator.ofFloat(currentAlpha, 1f).apply {
+            this.duration = ComboPulse.TRANSITION_DURATION_MS
+            addUpdateListener { animator -> textView.alpha = animator.animatedValue as Float }
+            doOnEnd {
+                if (duration != null && multiplier == pulsingMultiplier) startPulse(duration)
+            }
+            start()
+        }
+    }
+
+    private fun startPulse(duration: Long) {
+        pulseAnimator = ValueAnimator.ofFloat(1f, ComboPulse.MIN_ALPHA).apply {
             this.duration = duration
-            repeatMode = Animation.REVERSE
-            repeatCount = Animation.INFINITE
+            repeatMode = ValueAnimator.REVERSE
+            repeatCount = ValueAnimator.INFINITE
+            addUpdateListener { animator -> textView.alpha = animator.animatedValue as Float }
+            start()
+        }
+    }
+
+    private fun ValueAnimator.doOnEnd(action: () -> Unit) {
+        addListener(object : android.animation.AnimatorListenerAdapter() {
+            override fun onAnimationEnd(animation: android.animation.Animator) = action()
         })
     }
 

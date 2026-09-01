@@ -1,5 +1,8 @@
 package org.codeberg.scovillo.bubble.ui.render
 
+import android.animation.Animator
+import android.animation.AnimatorListenerAdapter
+import android.animation.ValueAnimator
 import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
 import android.opengl.GLSurfaceView
@@ -17,6 +20,7 @@ import org.codeberg.scovillo.bubble.R
 import org.codeberg.scovillo.bubble.game.Bubble
 import org.codeberg.scovillo.bubble.game.BubbleColors
 import org.codeberg.scovillo.bubble.game.Combo
+import org.codeberg.scovillo.bubble.game.ComboPulse
 import org.codeberg.scovillo.bubble.game.GameObject
 import org.codeberg.scovillo.bubble.game.Generator
 import org.codeberg.scovillo.bubble.game.Star
@@ -59,13 +63,23 @@ class GameBubbleScene(
     private val bubbleRenderer = BubbleRenderer()
     override val renderer: GLSurfaceView.Renderer = bubbleRenderer
     private val timeLogic = Time()
-    private val combo = Combo(mainActivity, effectPlayer)
+    private val combo = Combo(mainActivity, effectPlayer) { duration ->
+        bubbleRenderer.transitionFieldFramePulse(duration)
+    }
+    private var fieldFrameAlpha = 255
+    private val fieldFrameDrawable = GradientDrawable().apply {
+        cornerRadius = 10f * mainActivity.resources.displayMetrics.density
+        alpha = fieldFrameAlpha
+    }
+    private var fieldFramePulseAnimator: ValueAnimator? = null
+    private var fieldFramePulseGeneration = 0
     private val firstDigitFormat = DecimalFormat("0.0")
 
     init {
 
         effectPlayer.isMuted = areSoundEffectsMuted
         firstDigitFormat.roundingMode = RoundingMode.CEILING
+        ViewCompat.setBackground(fieldHolder, fieldFrameDrawable)
 
     }
 
@@ -88,7 +102,8 @@ class GameBubbleScene(
                 while (i < gameObjects.size) {
                     val bubble = gameObjects[i]
                     val x = event.x * bubbleRenderer.unitsPerPixelX - boundaries.right - bubble.x
-                    val y = (event.y * bubbleRenderer.unitsPerPixelZ - boundaries.top) * -1 - bubble.z
+                    val y =
+                        (event.y * bubbleRenderer.unitsPerPixelZ - boundaries.top) * -1 - bubble.z
                     if (sqrt(
                             x.toDouble().pow(2.0) + y.toDouble().pow(2.0)
                         ) <= bubble.scale
@@ -280,18 +295,59 @@ class GameBubbleScene(
                 shape = GradientDrawable.RECTANGLE
                 cornerRadius = 18f * mainActivity.resources.displayMetrics.density
                 setColor(Color.rgb(18, 24, 51))
-                setStroke((2f * mainActivity.resources.displayMetrics.density).toInt(), Color.rgb(red, green, blue))
+                setStroke(
+                    (2f * mainActivity.resources.displayMetrics.density).toInt(),
+                    Color.rgb(red, green, blue)
+                )
             })
             ViewCompat.setBackground(scoreText, GradientDrawable().apply {
                 shape = GradientDrawable.RECTANGLE
                 cornerRadius = 18f * mainActivity.resources.displayMetrics.density
                 setColor(Color.rgb(18, 24, 51))
-                setStroke((2f * mainActivity.resources.displayMetrics.density).toInt(), Color.rgb(red, green, blue))
+                setStroke(
+                    (2f * mainActivity.resources.displayMetrics.density).toInt(),
+                    Color.rgb(red, green, blue)
+                )
             })
-            ViewCompat.setBackground(fieldHolder, GradientDrawable().apply {
-                setColor(Color.rgb(red, green, blue))
-                cornerRadius = 10f * mainActivity.resources.displayMetrics.density
-            })
+            fieldFrameDrawable.setColor(Color.rgb(red, green, blue))
+        }
+
+        fun transitionFieldFramePulse(duration: Long?) {
+            val generation = ++fieldFramePulseGeneration
+            val currentAlpha = fieldFrameAlpha
+            fieldFramePulseAnimator?.cancel()
+            fieldFramePulseAnimator = ValueAnimator.ofInt(currentAlpha, 255).apply {
+                this.duration = ComboPulse.TRANSITION_DURATION_MS
+                addUpdateListener { animator ->
+                    setFieldFrameAlpha(animator.animatedValue as Int)
+                }
+                addListener(object : AnimatorListenerAdapter() {
+                    override fun onAnimationEnd(animation: Animator) {
+                        if (generation == fieldFramePulseGeneration && duration != null) {
+                            startFieldFramePulse(duration)
+                        }
+                    }
+                })
+                start()
+            }
+        }
+
+        private fun startFieldFramePulse(duration: Long) {
+            fieldFramePulseAnimator =
+                ValueAnimator.ofInt(255, (255 * ComboPulse.MIN_ALPHA).toInt()).apply {
+                    this.duration = duration
+                    repeatMode = ValueAnimator.REVERSE
+                    repeatCount = ValueAnimator.INFINITE
+                    addUpdateListener { animator ->
+                        setFieldFrameAlpha(animator.animatedValue as Int)
+                    }
+                    start()
+                }
+        }
+
+        private fun setFieldFrameAlpha(alpha: Int) {
+            fieldFrameAlpha = alpha
+            fieldFrameDrawable.alpha = alpha
         }
 
     }
