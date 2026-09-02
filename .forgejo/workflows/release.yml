@@ -64,9 +64,9 @@ jobs:
         run: |
           echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > release.keystore
 
-      - name: Build signed release APK
+      - name: Build signed F-Droid APK and Play Store bundle
         shell: bash
-        run: ./gradlew assembleRelease
+        run: ./gradlew assembleFdroidRelease bundlePlayRelease
         env:
           KEYSTORE_FILE: ${{ forge.workspace }}/release.keystore
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
@@ -76,8 +76,10 @@ jobs:
       - name: Prepare release
         run: |
           mkdir -p release
-          cp app/build/outputs/apk/release/app-release.apk \
+          cp app/build/outputs/apk/fdroid/release/app-fdroid-release.apk \
             "release/bubble-penetration-${VERSION_NAME}.apk"
+          cp app/build/outputs/bundle/playRelease/app-play-release.aab \
+            "release/bubble-penetration-${VERSION_NAME}.aab"
 
       - name: Create Codeberg release
         uses: https://data.forgejo.org/actions/forgejo-release@v2

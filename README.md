@@ -68,13 +68,19 @@ Thank you for every kind of support! ❤️
 ## 🛠️ Build Instructions
 
 ```bash
-./gradlew assembleDebug
+./gradlew assembleFdroidDebug
 ```
 
-For a release build:
+For an F-Droid release build (minimum Android API 14):
 
 ```bash
-./gradlew assembleRelease
+./gradlew assembleFdroidRelease
+```
+
+For a Google Play release build (minimum Android API 21):
+
+```bash
+./gradlew bundlePlayRelease
 ```
 
 📚 Dependencies
