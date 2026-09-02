@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/username_selection_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:gravity="center"
@@ -34,18 +35,5 @@
         android:layout_height="wrap_content"
         android:divider="@null"
         android:dividerHeight="0dp" />
-
-    <Button
-                    style="?android:attr/buttonBarButtonStyle"
-        android:id="@+id/username_creation_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="24sp"
-        android:layout_marginBottom="12sp"
-        android:background="@drawable/button"
-        android:onClick="showUsernameCreationScreen"
-        android:text="@string/add"
-        android:textColor="@color/gold"
-        android:textSize="28sp" />
 
 </LinearLayout>
