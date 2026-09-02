@@ -1,0 +1,4 @@
+Neu in Version 1.2:
+- Neue Animationen lassen getroffene Blasen und Sterne verschwinden
+- Ein blinkender Rahmen unterstreicht die Combos zusätzlich
+- Verbesserte Darstellung auf aktuellen Android-Geräten

@@ -1,0 +1,4 @@
+Nouveautés de la version 1.2 :
+- De nouvelles animations font disparaître les bulles et les étoiles éclatées.
+- Un cadre clignotant souligne davantage les combos.
+- Affichage amélioré sur les appareils Android récents.

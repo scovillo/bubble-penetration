@@ -1,0 +1,4 @@
+Novedades de la versión 1.2:
+- Nuevas animaciones hacen desaparecer las burbujas y estrellas reventadas.
+- Un marco parpadeante resalta aún más los combos.
+- Visualización mejorada en dispositivos Android actuales.
