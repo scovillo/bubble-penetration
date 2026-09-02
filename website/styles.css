@@ -562,8 +562,8 @@ footer a {
   padding-bottom: 110px;
 }
 .legal-page h1 {
-  font-size: clamp(2.7rem, 6vw, 5.5rem);
-  line-height: 0.95;
+  font-size: 4rem;
+  word-break: break-all;
   margin: 0 0 26px;
   background: linear-gradient(130deg, #fff 18%, var(--gold) 62%, var(--orange));
   -webkit-background-clip: text;
@@ -688,7 +688,6 @@ footer a {
   }
   .legal-page h1 {
     font-size: 2.5rem;
-    line-height: 1.05;
     overflow-wrap: anywhere;
   }
   .brand span {
