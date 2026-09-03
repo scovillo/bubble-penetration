@@ -3,16 +3,16 @@
     android:id="@+id/hud"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:baselineAligned="false"
     android:background="#07091C"
+    android:baselineAligned="false"
     android:orientation="vertical"
     android:weightSum="1">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
         android:layout_marginStart="10dp"
+        android:layout_marginTop="8dp"
         android:layout_marginEnd="10dp"
         android:baselineAligned="false"
         android:gravity="center_horizontal"
@@ -25,19 +25,21 @@
             android:background="@drawable/hud_pill"
             android:gravity="center"
             android:orientation="vertical">
+
             <TextView
                 android:id="@+id/Timer"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:includeFontPadding="false"
-            android:paddingStart="6sp"
-            android:paddingLeft="6sp"
-            android:paddingEnd="6sp"
-            android:paddingRight="6sp"
-            android:text="@string/timer_text"
-            android:textColor="@color/white"
-                android:textSize="18sp" />
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:includeFontPadding="false"
+                android:paddingStart="6sp"
+                android:paddingLeft="6sp"
+                android:paddingEnd="6sp"
+                android:paddingRight="6sp"
+                android:text="@string/timer_text"
+                android:textColor="@color/white"
+                android:textSize="16sp" />
+
             <ProgressBar
                 android:id="@+id/TimerProgress"
                 style="?android:attr/progressBarStyleHorizontal"
@@ -56,12 +58,14 @@
             android:layout_marginStart="4dp"
             android:layout_marginLeft="4dp"
             android:alpha="0"
+            android:ellipsize="end"
             android:gravity="center_vertical"
             android:includeFontPadding="false"
+            android:maxLines="1"
             android:minEms="2"
             android:text=""
             android:textColor="@color/white"
-            android:textSize="18sp" />
+            android:textSize="16sp" />
 
         <TextView
             android:id="@+id/Score"
@@ -78,7 +82,7 @@
             android:paddingRight="6sp"
             android:text="@string/score_text"
             android:textColor="@color/white"
-            android:textSize="18sp" />
+            android:textSize="16sp" />
 
         <TextView
             android:id="@+id/Score_Postfix"
@@ -87,12 +91,14 @@
             android:layout_marginStart="4dp"
             android:layout_marginLeft="4dp"
             android:alpha="0"
+            android:ellipsize="end"
             android:gravity="center_vertical"
             android:includeFontPadding="false"
+            android:maxLines="1"
             android:minEms="2"
             android:text=""
             android:textColor="@color/white"
-            android:textSize="18sp" />
+            android:textSize="16sp" />
 
 
     </LinearLayout>
@@ -101,13 +107,13 @@
         android:id="@+id/GLSurfaceViewHolder"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginTop="@dimen/hud_field_top_margin"
         android:layout_marginStart="8sp"
         android:layout_marginLeft="8sp"
+        android:layout_marginTop="@dimen/hud_field_top_margin"
         android:layout_marginEnd="8sp"
         android:layout_marginRight="8sp"
-        android:padding="5dp"
-        android:layout_weight="1" />
+        android:layout_weight="1"
+        android:padding="5dp" />
 
     <LinearLayout
         android:layout_width="match_parent"
