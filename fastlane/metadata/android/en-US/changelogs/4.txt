@@ -1,0 +1,3 @@
+New in version 1.3:
+- Improved the game display in portrait and landscape mode so important information stays easy to read.
+- Improved access to the Play Store and privacy information.

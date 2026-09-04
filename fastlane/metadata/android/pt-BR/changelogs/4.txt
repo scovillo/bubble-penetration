@@ -1,0 +1,3 @@
+Novidades da versão 1.3:
+- Melhoramos a exibição do jogo nos modos retrato e paisagem para manter as informações importantes fáceis de ler.
+- Melhoramos o acesso ao Google Play e às informações de privacidade.
