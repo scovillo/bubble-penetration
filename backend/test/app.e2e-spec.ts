@@ -16,11 +16,13 @@ describe('AppController (e2e)', () => {
     await app.init();
   });
 
-  it('/ (GET)', () => {
-    return request(app.getHttpServer())
-      .get('/')
-      .expect(200)
-      .expect('Hello World!');
+  it('limits GET / after three requests per minute', async () => {
+    const server = app.getHttpServer();
+
+    await request(server).get('/').expect(200);
+    await request(server).get('/').expect(200);
+    await request(server).get('/').expect(200);
+    await request(server).get('/').expect(429);
   });
 
   afterEach(async () => {

@@ -1,12 +1,17 @@
 import { Controller, Get } from '@nestjs/common';
-import { AppService } from './app.service';
+import { seconds, Throttle } from '@nestjs/throttler';
+import { ApiRootResource } from './api-root.resource';
 
 @Controller()
 export class AppController {
-  constructor(private readonly appService: AppService) {}
-
+  @Throttle({ default: { limit: 3, ttl: seconds(60) } })
   @Get()
-  getHello(): string {
-    return this.appService.getHello();
+  root(): ApiRootResource {
+    return new ApiRootResource();
+  }
+
+  @Get('health')
+  health(): { status: string } {
+    return { status: 'ok' };
   }
 }
