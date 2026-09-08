@@ -1,9 +1,9 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, VERSION_NEUTRAL } from '@nestjs/common';
 import { seconds, Throttle } from '@nestjs/throttler';
 import { ApiRootResource } from './api-root.resource';
 import { RedisClientService } from './redis/redis-client.service';
 
-@Controller()
+@Controller({ version: VERSION_NEUTRAL })
 export class AppController {
   constructor(private readonly redisClient: RedisClientService) {}
 

@@ -1,4 +1,4 @@
-import { ValidationPipe } from '@nestjs/common';
+import { ValidationPipe, VersioningType } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { AppLogger } from './common/app-logger.service';
@@ -20,7 +20,8 @@ async function bootstrap() {
 
   const allowedOrigins = parseAllowedOrigins(process.env.ALLOWED_APP_ORIGINS);
   app.enableCors(allowedOrigins ? { origin: allowedOrigins } : undefined);
-  app.setGlobalPrefix('api/v2');
+  app.setGlobalPrefix('api', { exclude: ['health/ready', 'health/live'] });
+  app.enableVersioning({ type: VersioningType.URI, defaultVersion: '2' });
 
   const trustProxyHops = process.env.TRUST_PROXY_HOPS;
 
