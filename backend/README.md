@@ -1,104 +1,98 @@
-# Bubble Penetration Backend
+<p align="center">
+  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
+</p>
 
-The backend for the game Bubble Penetration, which manages the high scores.
+[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
+[circleci-url]: https://circleci.com/gh/nestjs/nest
 
-## Running the backend
+  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
+    <p align="center">
+<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
+<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
+<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
+<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
+<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
+<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
+<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
+  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
+    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
+  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
+</p>
+  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
+  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
 
-For a local development start, install the dependencies and start the service:
+## Description
 
-```sh
-npm install
-npm start
+[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+
+## Project setup
+
+```bash
+$ npm install
 ```
 
-Configure the database connection through the environment variables listed
-below before using the highscore API.
+## Compile and run the project
 
-The latest container image can be downloaded from Codeberg:
+```bash
+# development
+$ npm run start
 
-```sh
-docker pull codeberg.org/scovillo/bubble-penetration-backend:latest
+# watch mode
+$ npm run start:dev
+
+# production mode
+$ npm run start:prod
 ```
 
-## Dev deployment
+## Run tests
 
-A push to `master` that changes the backend starts the Forgejo workflow
-`.forgejo/workflows/backend-dev.yml`. It installs dependencies, runs the test
-suite, generates the Prisma client, publishes `dev` and commit-specific images,
-and rolls the commit-specific image out to the `bubble-dev` namespace.
+```bash
+# unit tests
+$ npm run test
 
-The Forgejo repository must provide these action secrets:
+# e2e tests
+$ npm run test:e2e
 
-| Secret              | Description                                                      |
-| ------------------- | ---------------------------------------------------------------- |
-| `REGISTRY_USERNAME` | Codeberg username                                                |
-| `REGISTRY_PASSWORD` | Password or access token with permission to push images          |
-| `KUBE_CONFIG`       | Base64-encoded kubeconfig with deployment access to `bubble-dev` |
-
-Create the kubeconfig value without line wrapping, for example with
-`base64 -w 0 ~/.kube/config`.
-
-## Service information
-
-`GET /` returns basic service metadata as JSON, including the backend version
-and the available API versions. It also links to the health check (`/health`)
-and the current API base path (`/api/v1`).
-
-## Configuration
-
-### Environment Variables
-
-The following environment variables can be set to configure the application:
-
-| Name                                | Description                                                                             |
-| ----------------------------------- | --------------------------------------------------------------------------------------- |
-| SERVER_PORT                         | Port on which the server is hosted. **\*\*Default is '3000'.\*\***                      |
-| TRUST_PROXY_HOPS                    | Number of trusted reverse-proxy hops used to resolve the client IP. **Default is `0`.** |
-| LOG_LEVEL                           | Global log level. **\*\*Default is 'INFO'.\*\***                                        |
-| POSTGRES_HOST                       | PostgreSQL hostname. **\*\*Default is '0.0.0.0'.\*\***                                  |
-| POSTGRES_PORT                       | PostgreSQL port. **\*\*Default is '5432'.\*\***                                         |
-| POSTGRES_USER                       | PostgreSQL username.                                                                    |
-| POSTGRES_PASSWORD                   | Password of the PostgreSQL user.                                                        |
-| POSTGRES_DB                         | PostgreSQL database to connect to. **\*\*Default is 'bubble_penetration'.\*\***         |
-| POSTGRES_SCHEMA                     | PostgreSQL database schema to connect to. **\*\*Default is 'public'.\*\***              |
-| RATE_LIMIT_SERVICE_PER_MINUTE       | Shared burst capacity for `/` and `/health` per client IP. **Default is `120`.**        |
-| RATE_LIMIT_READ_PER_MINUTE          | Burst capacity for highscore reads per client IP. **Default is `120`.**                 |
-| RATE_LIMIT_REGISTRATIONS_PER_MINUTE | Burst capacity for username registrations per client IP. **Default is `10`.**           |
-| RATE_LIMIT_SCORES_PER_MINUTE        | Burst capacity for score uploads per client IP and username. **Default is `30`.**       |
-
-## Rate limiting
-
-API limits use the maintained `express-rate-limit` middleware with separate,
-generous quotas for reads, registrations, and score uploads. Responses expose
-standard `RateLimit` headers. When a limit is reached, the API
-returns HTTP `429` with a `Retry-After` header and a JSON error response. The root
-endpoint and `/health` share a separate quota so health probes do not consume the
-highscore API quota.
-
-The built-in store is local to one backend process. Deployments with multiple
-backend replicas should use a shared store or enforce equivalent limits at the
-ingress so that limits apply consistently across replicas.
-
-When the service runs behind a reverse proxy, set `TRUST_PROXY_HOPS` to the exact
-number of trusted proxy hops (commonly `1`). Leaving it at `0` avoids trusting
-spoofable forwarding headers when the backend is exposed directly.
-
-## Monthly highscore reset
-
-The Kubernetes manifests install a `reset-highscores` CronJob. It runs at
-midnight UTC on the first day of every month (`0 0 1 * *`) and sets every
-positive score to zero. Usernames remain registered. The operation is
-idempotent and overlapping jobs are forbidden. The `timeZone` field requires
-Kubernetes 1.27 or newer.
-
-To test the production job manually in MicroK8s:
-
-```sh
-microk8s kubectl create job \
-	--from=cronjob/reset-highscores \
-	reset-highscores-manual \
-	--namespace=bubble-prod
-microk8s kubectl logs \
-	job/reset-highscores-manual \
-	--namespace=bubble-prod
+# test coverage
+$ npm run test:cov
 ```
+
+## Deployment
+
+When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+
+If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+
+```bash
+$ npm install -g @nestjs/mau
+$ mau deploy
+```
+
+With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+
+## Resources
+
+Check out a few resources that may come in handy when working with NestJS:
+
+- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
+- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
+- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
+- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
+- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
+- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
+- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
+- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+
+## Support
+
+Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+
+## Stay in touch
+
+- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
+- Website - [https://nestjs.com](https://nestjs.com/)
+- Twitter - [@nestframework](https://twitter.com/nestframework)
+
+## License
+
+Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).

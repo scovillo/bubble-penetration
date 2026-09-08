@@ -1,38 +1,19 @@
 apiVersion: v1
-kind: Namespace
-metadata:
-  name: bubble-prod
----
-apiVersion: v1
-kind: Secret
-metadata:
-  name: database-auth
-  namespace: bubble-prod
-  labels:
-    app: bubble-backend
-type: Opaque
-data:
-  POSTGRES_HOST: 'bubble-database-service'
-  POSTGRES_DB: 'bubble_penetration'
-  POSTGRES_USER: 'postgres'
-  POSTGRES_PASSWORD: 'postgres'
----
-apiVersion: v1
 kind: ConfigMap
 metadata:
   name: bubble-config
-  namespace: bubble-prod
+  namespace: $NAMESPACE
   labels:
     app: bubble-backend
 data:
-  LOG_LEVEL: 'DEBUG'
+  LOG_LEVEL: 'INFO'
   NODE_ENV: 'production'
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: bubble-database-service
-  namespace: bubble-prod
+  namespace: $NAMESPACE
   labels:
     app: bubble-database
 spec:
@@ -48,7 +29,7 @@ apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: bubble-database
-  namespace: bubble-prod
+  namespace: $NAMESPACE
 spec:
   serviceName: bubble-database-service
   replicas: 1
@@ -83,7 +64,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: bubble-backend
-  namespace: bubble-prod
+  namespace: $NAMESPACE
 spec:
   replicas: 2
   revisionHistoryLimit: 1
@@ -107,7 +88,7 @@ spec:
         fsGroup: 1000
       containers:
         - name: bubble-backend
-          image: codeberg.org/scovillo/bubble-penetration-backend:1.1.0
+          image: codeberg.org/scovillo/bubble-penetration-backend:$IMAGE_TAG
           imagePullPolicy: 'IfNotPresent'
           ports:
             - containerPort: 3000
@@ -133,7 +114,7 @@ apiVersion: batch/v1
 kind: CronJob
 metadata:
   name: reset-highscores
-  namespace: bubble-prod
+  namespace: $NAMESPACE
 spec:
   schedule: '0 0 1 * *'
   timeZone: 'Etc/UTC'
@@ -156,7 +137,7 @@ spec:
             fsGroup: 1000
           containers:
             - name: reset-highscores
-              image: codeberg.org/scovillo/bubble-penetration-backend:1.1.0
+              image: codeberg.org/scovillo/bubble-penetration-backend:$IMAGE_TAG
               imagePullPolicy: 'IfNotPresent'
               command: ['npm', 'run', 'reset-highscores']
               envFrom:
@@ -169,7 +150,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: bubble-backend-service
-  namespace: bubble-prod
+  namespace: $NAMESPACE
 spec:
   selector:
     app: bubble-backend
@@ -182,16 +163,16 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: bubble-ingress
-  namespace: bubble-prod
+  namespace: $NAMESPACE
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt-prod
 spec:
   tls:
     - hosts:
-        - bubble.lukas-scheerer.de
+        - $HOST
       secretName: bubble-tls-secret
   rules:
-    - host: bubble.lukas-scheerer.de
+    - host: $HOST
       http:
         paths:
           - path: /
