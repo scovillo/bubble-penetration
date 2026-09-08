@@ -17,6 +17,7 @@ import androidx.core.view.WindowInsetsCompat
 import org.codeberg.scovillo.bubble.api.ApiService
 import org.codeberg.scovillo.bubble.api.UserResource
 import org.codeberg.scovillo.bubble.api.findHttpStatusException
+import org.codeberg.scovillo.bubble.game.GameActionEvent
 import org.codeberg.scovillo.bubble.persistence.LocalFileStorage
 import org.codeberg.scovillo.bubble.persistence.LocalHighscoreStorage
 import org.codeberg.scovillo.bubble.persistence.SettingsModel
@@ -33,6 +34,7 @@ import org.codeberg.scovillo.bubble.ui.render.BubbleGLSurfaceView
 import org.codeberg.scovillo.bubble.ui.render.GameBubbleScene
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
+import java.util.concurrent.Future
 import java.util.concurrent.TimeUnit
 
 val THREAD_POOL: ExecutorService = Executors.newCachedThreadPool()
@@ -70,6 +72,12 @@ class MainActivity : ComponentActivity() {
     private var gameSession: GameSession = GameSession.Inactive
     private var isUsingOfflineFallback = false
 
+    // Set when a game starts and consumed at game-over to submit the score with its log.
+    var pendingGameSession: Future<String>? = null
+        private set
+    var lastGameActionLog: List<GameActionEvent> = emptyList()
+        private set
+
     override fun setContentView(layoutResID: Int) {
         super.setContentView(layoutResID)
         BubbleFont.applyTo(
@@ -104,7 +112,7 @@ class MainActivity : ComponentActivity() {
             isGameRunning = savedInstanceState.getBoolean("isGameRunning", false)
             val userName = savedInstanceState.getString("selectedUserName")
             if (userName != null) {
-                selectedUser = UserResource(userName)
+                selectedUser = UserResource(userName, savedInstanceState.getString("selectedUserCredential"))
             }
             restoredScore = savedInstanceState.getInt("savedScore", 0)
             restoredTimer = savedInstanceState.getFloat("savedTimer", 25.0f)
@@ -137,6 +145,7 @@ class MainActivity : ComponentActivity() {
         settingsLayout.saveInstanceState(outState)
         if (::selectedUser.isInitialized) {
             outState.putString("selectedUserName", selectedUser.username)
+            outState.putString("selectedUserCredential", selectedUser.credential)
         }
         val currentSession = gameSession
         if (currentSession is GameSession.Active) {
@@ -170,6 +179,7 @@ class MainActivity : ComponentActivity() {
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         setContentView(R.layout.game_hud)
         applyGameHudInsets()
+        pendingGameSession = startGameSessionIfEligible()
         val scene = GameBubbleScene(this, score, timer, settingsModel.areSoundEffectsMuted)
         val bubbleGLSurfaceView = BubbleGLSurfaceView(this, scene)
         gameSession = GameSession.Active(bubbleGLSurfaceView, scene)
@@ -177,8 +187,18 @@ class MainActivity : ComponentActivity() {
         glSurfaceViewHolder.addView(bubbleGLSurfaceView)
     }
 
+    // Kicked off in parallel with gameplay so the session is (almost always) already
+    // resolved by the time the score is submitted at game-over.
+    private fun startGameSessionIfEligible(): Future<String>? {
+        val credential = selectedUser.credential
+        if (!settingsModel.useOnlineLeaderboard || credential == null) return null
+        return ApiService.createGameSession(credential)
+    }
+
     fun showGameOverScreenWith(score: String) {
         isGameRunning = false
+        val finishedSession = gameSession
+        lastGameActionLog = (finishedSession as? GameSession.Active)?.scene?.getActionLog() ?: emptyList()
         gameSession = GameSession.Inactive
         val glSurfaceViewHolder = this.findViewById<View>(R.id.GLSurfaceViewHolder) as FrameLayout?
         glSurfaceViewHolder?.removeAllViews()

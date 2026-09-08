@@ -22,6 +22,9 @@ import org.codeberg.scovillo.bubble.game.BubbleColors
 import org.codeberg.scovillo.bubble.game.Combo
 import org.codeberg.scovillo.bubble.game.ComboPulse
 import org.codeberg.scovillo.bubble.game.DisappearAnimation
+import org.codeberg.scovillo.bubble.game.GameActionEvent
+import org.codeberg.scovillo.bubble.game.GameActionLog
+import org.codeberg.scovillo.bubble.game.GameActionType
 import org.codeberg.scovillo.bubble.game.GameObject
 import org.codeberg.scovillo.bubble.game.Generator
 import org.codeberg.scovillo.bubble.game.Star
@@ -56,6 +59,7 @@ class GameBubbleScene(
     private var isTouch = false
     private val objectsToBeRemoved = ArrayList<GameObject>()
     private val targetsToBeRemoved = ArrayList<GameObject>()
+    private val actionLog = GameActionLog()
     private val timerText: TextView = mainActivity.findViewById<View>(R.id.Timer) as TextView
     private val scoreText: TextView = mainActivity.findViewById<View>(R.id.Score) as TextView
     private val timerProgress: ProgressBar = mainActivity.findViewById(R.id.TimerProgress)
@@ -90,6 +94,7 @@ class GameBubbleScene(
 
     fun getScore(): Int = score
     fun getTimer(): Float = timer
+    fun getActionLog(): List<GameActionEvent> = actionLog.snapshot()
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
         var wasBubbleTouched = false
@@ -246,6 +251,7 @@ class GameBubbleScene(
                             scorePostfix.animateWith(collectScore)
 
                             combo.increment()
+                            actionLog.record(GameActionType.BUBBLE_MATCH)
                             if (combo.isActive) {
                                 combo.giveHapticFeedBack()
                             }
@@ -255,6 +261,7 @@ class GameBubbleScene(
                             timer += time
                             timerPostfix.animateWith(time)
                             combo.reset()
+                            actionLog.record(GameActionType.BUBBLE_MISMATCH)
                             effectPlayer.playSound(R.raw.fart)
                         }
                     }
@@ -270,6 +277,7 @@ class GameBubbleScene(
                         val collectScore = gameObject.score * combo.multiplier
                         score += collectScore
                         scorePostfix.animateWith(collectScore)
+                        actionLog.record(GameActionType.STAR)
 
                         if (combo.isActive) {
                             combo.giveHapticFeedBack()

@@ -44,6 +44,10 @@ android {
         }
     }
 
+    buildFeatures {
+        buildConfig = true
+    }
+
     // Keep the long-supported build for F-Droid while satisfying Google Play's
     // Android 5.0 (API 21) minimum requirement.  The differing minSdk is part
     // of each variant's manifest, so these are intentionally separate APKs.

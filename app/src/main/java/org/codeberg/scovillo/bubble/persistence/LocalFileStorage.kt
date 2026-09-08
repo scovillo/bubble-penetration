@@ -37,7 +37,12 @@ class LocalFileStorage(private val mainActivity: MainActivity) {
                 val users = mutableListOf<UserResource>()
                 while (bufferedReader.readLine().also { line = it } != null) {
                     val json = JSONObject(line!!)
-                    users.add(UserResource(json.getString("username")))
+                    users.add(
+                        UserResource(
+                            json.getString("username"),
+                            if (json.has("credential")) json.getString("credential") else null,
+                        ),
+                    )
                 }
                 inputStream.close()
                 return users

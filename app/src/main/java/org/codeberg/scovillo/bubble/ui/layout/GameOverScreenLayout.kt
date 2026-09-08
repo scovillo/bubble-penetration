@@ -24,7 +24,9 @@ class GameOverScreenLayout(private val mainActivity: MainActivity) {
     private fun setHighscoreResultAsync(score: String) {
         val gameOverScore = mainActivity.findViewById<TextView>(R.id.your_score_textview)
         gameOverScore?.text = score
-        if (!mainActivity.settingsModel.useOnlineLeaderboard) {
+        val credential = mainActivity.selectedUser.credential
+        val sessionFuture = mainActivity.pendingGameSession
+        if (!mainActivity.settingsModel.useOnlineLeaderboard || credential == null || sessionFuture == null) {
             val isRecord = mainActivity.localHighscoreStorage.saveIfHigher(
                 mainActivity.selectedUser.username,
                 score.toInt(),
@@ -34,7 +36,13 @@ class GameOverScreenLayout(private val mainActivity: MainActivity) {
         }
         THREAD_POOL.execute {
             try {
-                val isRecord = ApiService.registerHighscore(mainActivity.selectedUser.username, score)[6000, TimeUnit.MILLISECONDS]
+                val sessionId = sessionFuture[6000, TimeUnit.MILLISECONDS]
+                val isRecord = ApiService.submitScore(
+                    credential,
+                    sessionId,
+                    score.toInt(),
+                    mainActivity.lastGameActionLog,
+                )[6000, TimeUnit.MILLISECONDS]
                 mainActivity.runOnUiThread {
                     mainActivity.onBackendRequestSucceeded()
                     updateHighscoreResult(isRecord)

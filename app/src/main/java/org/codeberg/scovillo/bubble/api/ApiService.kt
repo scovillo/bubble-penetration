@@ -1,7 +1,8 @@
 package org.codeberg.scovillo.bubble.api
 
-import android.util.Log
 import org.codeberg.scovillo.bubble.THREAD_POOL
+import org.codeberg.scovillo.bubble.game.GameActionEvent
+import org.codeberg.scovillo.bubble.log.AppLogger
 import org.codeberg.scovillo.bubble.persistence.SettingsModel
 import org.json.JSONArray
 import org.json.JSONObject
@@ -30,6 +31,7 @@ fun Throwable.findHttpStatusException(): HttpStatusException? =
 object ApiService {
 
     private const val TAG = "ApiService"
+
     @Volatile
     private var configuredBaseUrl = SettingsModel.DEFAULT_BACKEND_BASE_URL
 
@@ -39,43 +41,26 @@ object ApiService {
 
     private fun baseUrl(): String = configuredBaseUrl
 
-    private fun apiUrl(path: String): String = "${baseUrl()}/api/v1/$path"
+    private fun apiUrl(path: String): String = "${baseUrl()}/api/v2/$path"
 
     fun testConnection(baseUrl: String): Future<Boolean> {
         return THREAD_POOL.submit(
             Callable {
-                val url = "${baseUrl.trim().trimEnd('/')}/health"
-                Log.d(TAG, "GET request to: $url")
+                val requestId = AppLogger.newRequestId()
+                val url = "${baseUrl.trim().trimEnd('/')}/health/live"
+                AppLogger.d(TAG, "GET $url", requestId)
                 val httpConn = URL(url).openConnection() as HttpURLConnection
                 httpConn.requestMethod = "GET"
+                httpConn.setRequestProperty("Origin", "app://org.codeberg.scovillo.bubble")
+                httpConn.setRequestProperty("X-Request-Id", requestId)
                 httpConn.connectTimeout = 6000
                 httpConn.readTimeout = 6000
                 try {
                     readResponseFrom(httpConn)
+                    AppLogger.d(TAG, "GET $url succeeded", requestId)
                     true
-                } finally {
-                    httpConn.disconnect()
-                }
-            }
-        )
-    }
-
-    fun getHighscoreData(): Future<JSONArray> {
-        return THREAD_POOL.submit(
-            Callable {
-                val url = apiUrl("highscores")
-                Log.d(TAG, "GET request to: $url")
-                val httpConn =
-                    URL(url).openConnection() as HttpURLConnection
-                httpConn.requestMethod = "GET"
-                httpConn.doOutput = false
-                try {
-                    val result = readResponseFrom(httpConn)
-                    Log.d(TAG, "Highscore response: $result")
-                    val response = JSONObject(result)
-                    return@Callable response.getJSONArray("highscores")
                 } catch (e: Exception) {
-                    Log.e(TAG, "Error fetching highscores", e)
+                    AppLogger.e(TAG, "GET $url failed", e, requestId)
                     throw e
                 } finally {
                     httpConn.disconnect()
@@ -87,18 +72,22 @@ object ApiService {
     fun getHighscorePage(username: String? = null, startRank: Int? = null): Future<JSONObject> {
         return THREAD_POOL.submit(
             Callable {
+                val requestId = AppLogger.newRequestId()
                 val query = when {
                     username != null -> "?username=${URLEncoder.encode(username, Charsets.UTF_8.name())}"
                     startRank != null -> "?startRank=$startRank"
                     else -> ""
                 }
-                val url = apiUrl("highscores$query")
-                Log.d(TAG, "GET request to: $url")
-                val httpConn = URL(url).openConnection() as HttpURLConnection
-                httpConn.requestMethod = "GET"
-                httpConn.doOutput = false
+                val url = apiUrl("bubble-game/highscores$query")
+                AppLogger.d(TAG, "GET $url", requestId)
+                val httpConn = openConnection(url, "GET", requestId)
                 try {
-                    JSONObject(readResponseFrom(httpConn))
+                    val result = JSONObject(readResponseFrom(httpConn))
+                    AppLogger.d(TAG, "GET $url succeeded", requestId)
+                    result
+                } catch (e: Exception) {
+                    AppLogger.e(TAG, "Error fetching highscore page", e, requestId)
+                    throw e
                 } finally {
                     httpConn.disconnect()
                 }
@@ -109,11 +98,10 @@ object ApiService {
     fun registerUsername(username: String): Future<UserResource> {
         return THREAD_POOL.submit(
             Callable {
-                val url = apiUrl("users")
-                Log.d(TAG, "POST request to: $url | payload: { username: $username }")
-                val httpConn = URL(url).openConnection() as HttpURLConnection
-                httpConn.requestMethod = "POST"
-                httpConn.doOutput = true
+                val requestId = AppLogger.newRequestId()
+                val url = apiUrl("players")
+                AppLogger.d(TAG, "POST $url | payload: { username: $username }", requestId)
+                val httpConn = openConnection(url, "POST", requestId)
 
                 val body = JSONObject("{}")
                 body.put("username", username)
@@ -122,16 +110,14 @@ object ApiService {
 
                 try {
                     val resultString = readResponseFrom(httpConn)
-                    Log.d(TAG, "Register user response: $resultString")
+                    AppLogger.d(TAG, "Register player response: $resultString", requestId)
                     val result = JSONObject(resultString)
-                    if (!result.optBoolean("success", false)) {
-                        throw IllegalStateException("Unexpected unsuccessful user registration response")
-                    }
-                    val user = result.getJSONObject("user")
-                    val username = user.getString("username")
-                    return@Callable UserResource(username)
+                    return@Callable UserResource(
+                        result.getString("username"),
+                        result.getString("credential"),
+                    )
                 } catch (e: Exception) {
-                    Log.e(TAG, "Error registering username", e)
+                    AppLogger.e(TAG, "Error registering username", e, requestId)
                     throw e
                 } finally {
                     httpConn.disconnect()
@@ -140,31 +126,85 @@ object ApiService {
         )
     }
 
-    fun registerHighscore(username: String, score: String): Future<Boolean> {
+    fun createGameSession(credential: String): Future<String> {
         return THREAD_POOL.submit(
             Callable {
-                val url = apiUrl("highscores")
-                Log.d(TAG, "POST request to: $url | payload: { username: $username, highscore: $score }")
-                val httpConn = URL(url).openConnection() as HttpURLConnection
-                httpConn.requestMethod = "POST"
-                httpConn.doOutput = true
+                val requestId = AppLogger.newRequestId()
+                val url = apiUrl("bubble-game/sessions")
+                AppLogger.d(TAG, "POST $url", requestId)
+                val httpConn = openConnection(url, "POST", requestId, credential)
 
-                val body = JSONObject("{}")
-                body.put("username", username)
-                body.put("highscore", score)
-
-                sendPost(httpConn, body)
+                sendPost(httpConn, JSONObject("{}"))
 
                 try {
                     val result = readResponseFrom(httpConn)
-                    Log.d(TAG, "Register highscore response: $result")
-                    val response = JSONObject(result)
-                    return@Callable response.getBoolean("isNewHighscore")
+                    AppLogger.d(TAG, "Create game session response: $result", requestId)
+                    JSONObject(result).getString("sessionId")
+                } catch (e: Exception) {
+                    AppLogger.e(TAG, "Error creating game session", e, requestId)
+                    throw e
                 } finally {
                     httpConn.disconnect()
                 }
             }
         )
+    }
+
+    fun submitScore(
+        credential: String,
+        sessionId: String,
+        score: Int,
+        events: List<GameActionEvent>,
+    ): Future<Boolean> {
+        return THREAD_POOL.submit(
+            Callable {
+                val requestId = AppLogger.newRequestId()
+                val url = apiUrl("bubble-game/sessions/$sessionId")
+                AppLogger.d(TAG, "PATCH $url | payload: { score: $score, events: ${events.size} }", requestId)
+                val httpConn = openConnection(url, "PATCH", requestId, credential)
+
+                val body = JSONObject("{}")
+                body.put("score", score)
+                val eventsArray = JSONArray()
+                events.forEach {
+                    val eventJson = JSONObject("{}")
+                    eventJson.put("type", it.type.wireValue)
+                    eventJson.put("timestampMs", it.timestampMs)
+                    eventsArray.put(eventJson)
+                }
+                body.put("events", eventsArray)
+
+                sendPost(httpConn, body)
+
+                try {
+                    val result = readResponseFrom(httpConn)
+                    AppLogger.d(TAG, "Submit score response: $result", requestId)
+                    JSONObject(result).getBoolean("isPersonalBest")
+                } catch (e: Exception) {
+                    AppLogger.e(TAG, "Error submitting score", e, requestId)
+                    throw e
+                } finally {
+                    httpConn.disconnect()
+                }
+            }
+        )
+    }
+
+    private fun openConnection(
+        url: String,
+        method: String,
+        requestId: String,
+        credential: String? = null,
+    ): HttpURLConnection {
+        val httpConn = URL(url).openConnection() as HttpURLConnection
+        httpConn.requestMethod = method
+        httpConn.doOutput = method != "GET"
+        httpConn.setRequestProperty("Origin", "app://org.codeberg.scovillo.bubble")
+        httpConn.setRequestProperty("X-Request-Id", requestId)
+        if (credential != null) {
+            httpConn.setRequestProperty("Authorization", "Bearer $credential")
+        }
+        return httpConn
     }
 
     private fun readResponseFrom(httpURLConnection: HttpURLConnection): String {
