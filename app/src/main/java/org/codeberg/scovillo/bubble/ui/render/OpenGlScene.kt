@@ -1,5 +1,6 @@
 package org.codeberg.scovillo.bubble.ui.render
 
+import org.codeberg.scovillo.bubble.game.Boundaries
 import org.codeberg.scovillo.bubble.game.GameObject
 import javax.microedition.khronos.opengles.GL10
 import javax.microedition.khronos.opengles.GL11
@@ -51,7 +52,7 @@ class OpenGlScene(
         gl.glTranslatef(0.0f, 0.0f, -20.0f)
         gl.glRotatef(-90.0f, 1.0f, 0.0f, 0.0f)
         (gl as GL11).glGetFloatv(GL11.GL_MODELVIEW_MATRIX, modelViewScene, 0)
-        boundaries.updateWith(desiredHeight, aspectRatio)
+        boundaries.update(desiredHeight, aspectRatio)
 
         return SceneDimensions(desiredHeight, aspectRatio)
     }
@@ -92,6 +93,7 @@ enum class SceneLighting {
                 ambient = floatArrayOf(0.20f, 0.20f, 0.30f, 1.0f)
                 diffuse = floatArrayOf(0.72f, 0.76f, 0.88f, 1.0f)
             }
+
             MENU -> {
                 ambient = floatArrayOf(0.32f, 0.32f, 0.42f, 1.0f)
                 diffuse = floatArrayOf(0.78f, 0.82f, 0.92f, 1.0f)
@@ -104,12 +106,4 @@ enum class SceneLighting {
         gl.glLightfv(GL10.GL_LIGHT0, GL10.GL_POSITION, position, 0)
         gl.glEnable(GL10.GL_LIGHT0)
     }
-}
-
-fun GameObject.isOutside(boundaries: Boundaries): Boolean {
-    val offset = scale
-    return x > boundaries.right + offset ||
-        x < boundaries.left - offset ||
-        z > boundaries.top + offset ||
-        z < boundaries.bottom - offset
 }

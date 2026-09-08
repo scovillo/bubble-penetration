@@ -7,6 +7,7 @@ abstract class GameObject(val speed: Float) {
     var transformationMatrix: FloatArray = FloatArray(16)
     var velocity: FloatArray = FloatArray(3)
     var scale = 1.0f
+    var replayMetadata: ReplayObjectMetadata? = null
 
     abstract fun draw(gl: GL10)
     abstract fun update(fracSec: Float)
@@ -54,5 +55,25 @@ abstract class GameObject(val speed: Float) {
 
     init {
         Matrix.setIdentityM(transformationMatrix, 0)
+    }
+}
+
+data class ReplayObjectMetadata(
+    val objectId: String,
+    val spawnAtMs: Long,
+    val expiresAtMs: Long,
+    val radiusX: Double,
+    val radiusY: Double,
+    val startX: Double,
+    val startY: Double,
+    val endX: Double,
+    val endY: Double,
+) {
+    fun positionAt(timestampMs: Long): Pair<Double, Double> {
+        val progress = (timestampMs - spawnAtMs).toDouble() / (expiresAtMs - spawnAtMs)
+        return Pair(
+            startX + (endX - startX) * progress,
+            startY + (endY - startY) * progress,
+        )
     }
 }

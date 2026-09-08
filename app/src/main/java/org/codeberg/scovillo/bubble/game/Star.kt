@@ -14,7 +14,8 @@ class Star(speed: Float) : GameObject(speed), DisappearAnimation {
     private var rotation = 0.0f
     private val angularVelocity = 50 + Math.random().toFloat() * 100
     private var disappearElapsed = 0f
-    private var isDisappearing = false
+    override var isDisappearing = false
+        private set
 
     override val isDisappearFinished: Boolean
         get() = isDisappearing && disappearElapsed >= POP_DURATION_SECONDS

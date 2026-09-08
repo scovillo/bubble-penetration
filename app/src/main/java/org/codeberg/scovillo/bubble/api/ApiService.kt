@@ -74,7 +74,13 @@ object ApiService {
             Callable {
                 val requestId = AppLogger.newRequestId()
                 val query = when {
-                    username != null -> "?username=${URLEncoder.encode(username, Charsets.UTF_8.name())}"
+                    username != null -> "?username=${
+                        URLEncoder.encode(
+                            username,
+                            Charsets.UTF_8.name()
+                        )
+                    }"
+
                     startRank != null -> "?startRank=$startRank"
                     else -> ""
                 }
@@ -126,7 +132,7 @@ object ApiService {
         )
     }
 
-    fun createGameSession(credential: String): Future<String> {
+    fun createGameSession(credential: String): Future<OnlineGameSession> {
         return THREAD_POOL.submit(
             Callable {
                 val requestId = AppLogger.newRequestId()
@@ -139,7 +145,12 @@ object ApiService {
                 try {
                     val result = readResponseFrom(httpConn)
                     AppLogger.d(TAG, "Create game session response: $result", requestId)
-                    JSONObject(result).getString("sessionId")
+                    val json = JSONObject(result)
+                    OnlineGameSession(
+                        sessionId = json.getString("sessionId"),
+                        seed = json.getString("seed"),
+                        replayVersion = json.getInt("replayVersion"),
+                    )
                 } catch (e: Exception) {
                     AppLogger.e(TAG, "Error creating game session", e, requestId)
                     throw e
@@ -154,22 +165,32 @@ object ApiService {
         credential: String,
         sessionId: String,
         score: Int,
+        durationMs: Long,
+        viewportAspectRatio: Float,
         events: List<GameActionEvent>,
     ): Future<Boolean> {
         return THREAD_POOL.submit(
             Callable {
                 val requestId = AppLogger.newRequestId()
                 val url = apiUrl("bubble-game/sessions/$sessionId")
-                AppLogger.d(TAG, "PATCH $url | payload: { score: $score, events: ${events.size} }", requestId)
+                AppLogger.d(
+                    TAG,
+                    "PATCH $url | payload: { score: $score, events: ${events.size} }",
+                    requestId
+                )
                 val httpConn = openConnection(url, "PATCH", requestId, credential)
 
                 val body = JSONObject("{}")
                 body.put("score", score)
+                body.put("durationMs", durationMs)
+                body.put("viewportAspectRatio", viewportAspectRatio)
                 val eventsArray = JSONArray()
                 events.forEach {
                     val eventJson = JSONObject("{}")
-                    eventJson.put("type", it.type.wireValue)
+                    eventJson.put("objectId", it.objectId)
                     eventJson.put("timestampMs", it.timestampMs)
+                    eventJson.put("x", it.x)
+                    eventJson.put("y", it.y)
                     eventsArray.put(eventJson)
                 }
                 body.put("events", eventsArray)
@@ -199,6 +220,8 @@ object ApiService {
         val httpConn = URL(url).openConnection() as HttpURLConnection
         httpConn.requestMethod = method
         httpConn.doOutput = method != "GET"
+        httpConn.connectTimeout = REQUEST_TIMEOUT_MS
+        httpConn.readTimeout = REQUEST_TIMEOUT_MS
         httpConn.setRequestProperty("Origin", "app://org.codeberg.scovillo.bubble")
         httpConn.setRequestProperty("X-Request-Id", requestId)
         if (credential != null) {
@@ -206,6 +229,8 @@ object ApiService {
         }
         return httpConn
     }
+
+    private const val REQUEST_TIMEOUT_MS = 6_000
 
     private fun readResponseFrom(httpURLConnection: HttpURLConnection): String {
         val responseCode = httpURLConnection.responseCode

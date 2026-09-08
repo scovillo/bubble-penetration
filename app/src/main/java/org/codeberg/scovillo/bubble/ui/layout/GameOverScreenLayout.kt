@@ -10,23 +10,21 @@ import org.codeberg.scovillo.bubble.MainActivity
 import org.codeberg.scovillo.bubble.R
 import org.codeberg.scovillo.bubble.THREAD_POOL
 import org.codeberg.scovillo.bubble.api.ApiService
+import org.codeberg.scovillo.bubble.api.OnlineGameSession
 import java.util.concurrent.TimeUnit
 
 class GameOverScreenLayout(private val mainActivity: MainActivity) {
 
-    fun showWith(score: String) {
+    fun show(score: String, session: OnlineGameSession?) {
         mainActivity.setContentView(R.layout.game_over)
-
-        setHighscoreResultAsync(score)
-
+        setHighscoreResultAsync(score, session)
     }
 
-    private fun setHighscoreResultAsync(score: String) {
+    private fun setHighscoreResultAsync(score: String, session: OnlineGameSession?) {
         val gameOverScore = mainActivity.findViewById<TextView>(R.id.your_score_textview)
         gameOverScore?.text = score
         val credential = mainActivity.selectedUser.credential
-        val sessionFuture = mainActivity.pendingGameSession
-        if (!mainActivity.settingsModel.useOnlineLeaderboard || credential == null || sessionFuture == null) {
+        if (!mainActivity.settingsModel.useOnlineLeaderboard || credential == null || session == null) {
             val isRecord = mainActivity.localHighscoreStorage.saveIfHigher(
                 mainActivity.selectedUser.username,
                 score.toInt(),
@@ -36,13 +34,14 @@ class GameOverScreenLayout(private val mainActivity: MainActivity) {
         }
         THREAD_POOL.execute {
             try {
-                val sessionId = sessionFuture[6000, TimeUnit.MILLISECONDS]
                 val isRecord = ApiService.submitScore(
                     credential,
-                    sessionId,
+                    session.sessionId,
                     score.toInt(),
+                    mainActivity.lastGameDurationMs,
+                    mainActivity.lastGameViewportAspectRatio,
                     mainActivity.lastGameActionLog,
-                )[6000, TimeUnit.MILLISECONDS]
+                ).get(6000, TimeUnit.MILLISECONDS)
                 mainActivity.runOnUiThread {
                     mainActivity.onBackendRequestSucceeded()
                     updateHighscoreResult(isRecord)
@@ -70,7 +69,12 @@ class GameOverScreenLayout(private val mainActivity: MainActivity) {
             val message = SpannableString(mainActivity.getString(R.string.msg_new_rank))
             val trophyEnd = message.indexOf('\n')
             if (trophyEnd > 0) {
-                message.setSpan(RelativeSizeSpan(2f), 0, trophyEnd, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+                message.setSpan(
+                    RelativeSizeSpan(2f),
+                    0,
+                    trophyEnd,
+                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                )
             }
             highscoreLabel?.text = message
             yourScoreLabel?.text = mainActivity.getString(R.string.new_highscore)

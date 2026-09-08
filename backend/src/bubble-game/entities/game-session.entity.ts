@@ -13,6 +13,9 @@ export class GameSession {
   @Property({ length: 64 })
   seed!: string;
 
+  @Property({ fieldName: 'replay_version' })
+  replayVersion = 1;
+
   @Property({ fieldName: 'started_at' })
   startedAt: Date = new Date();
 

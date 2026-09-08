@@ -2,9 +2,15 @@ package org.codeberg.scovillo.bubble.persistence
 
 import android.content.Context
 
+data class MatchSettings(
+    val isMusicMuted: Boolean,
+    val areSoundEffectsMuted: Boolean,
+    val isVibrationEnabled: Boolean,
+)
+
 class SettingsModel {
     companion object {
-        const val DEFAULT_BACKEND_BASE_URL = "https://bubble.lukas-scheerer.de"
+        const val DEFAULT_BACKEND_BASE_URL = "https://dev.bubble.lukas-scheerer.de"
     }
 
     var isMusicMuted: Boolean = false
@@ -35,5 +41,13 @@ class SettingsModel {
             ?.trim()
             ?.ifBlank { DEFAULT_BACKEND_BASE_URL }
             ?: DEFAULT_BACKEND_BASE_URL
+    }
+
+    fun toMatchSettings(): MatchSettings {
+        return MatchSettings(
+            isMusicMuted = isMusicMuted,
+            areSoundEffectsMuted = areSoundEffectsMuted,
+            isVibrationEnabled = isVibrationEnabled,
+        )
     }
 }

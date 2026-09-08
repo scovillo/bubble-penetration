@@ -1,0 +1,26 @@
+package org.codeberg.scovillo.bubble.game.generator
+
+import org.codeberg.scovillo.bubble.game.BubbleColor
+
+data class MatchSnapshot(
+    val score: Int,
+    val timerSeconds: Float,
+    val initialTimerSeconds: Float,
+    val collectColor: BubbleColor,
+    val comboProgress: Int,
+    val comboMultiplier: Int,
+)
+
+sealed interface MatchEvent {
+    data class StateChanged(val snapshot: MatchSnapshot) : MatchEvent
+    data object TimerAlarm : MatchEvent
+    data class TargetCollected(
+        val timerDeltaSeconds: Float,
+        val scoreDelta: Int,
+        val wasCorrectColor: Boolean,
+        val isStar: Boolean,
+        val comboMultiplierIncreased: Boolean,
+        val comboIsActive: Boolean,
+    ) : MatchEvent
+    data object GameOver : MatchEvent
+}

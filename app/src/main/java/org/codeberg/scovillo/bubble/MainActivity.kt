@@ -15,9 +15,14 @@ import androidx.activity.OnBackPressedCallback
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import org.codeberg.scovillo.bubble.api.ApiService
+import org.codeberg.scovillo.bubble.api.OnlineGameSession
 import org.codeberg.scovillo.bubble.api.UserResource
 import org.codeberg.scovillo.bubble.api.findHttpStatusException
 import org.codeberg.scovillo.bubble.game.GameActionEvent
+import org.codeberg.scovillo.bubble.game.MatchState
+import org.codeberg.scovillo.bubble.game.Boundaries
+import org.codeberg.scovillo.bubble.game.generator.DeterministicMatchEngine
+import org.codeberg.scovillo.bubble.game.generator.MatchEngineConfig
 import org.codeberg.scovillo.bubble.persistence.LocalFileStorage
 import org.codeberg.scovillo.bubble.persistence.LocalHighscoreStorage
 import org.codeberg.scovillo.bubble.persistence.SettingsModel
@@ -32,9 +37,9 @@ import org.codeberg.scovillo.bubble.ui.layout.UsernameCreationLayout
 import org.codeberg.scovillo.bubble.ui.layout.UsernameSelectionLayout
 import org.codeberg.scovillo.bubble.ui.render.BubbleGLSurfaceView
 import org.codeberg.scovillo.bubble.ui.render.GameBubbleScene
+import java.security.SecureRandom
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
-import java.util.concurrent.Future
 import java.util.concurrent.TimeUnit
 
 val THREAD_POOL: ExecutorService = Executors.newCachedThreadPool()
@@ -72,11 +77,13 @@ class MainActivity : ComponentActivity() {
     private var gameSession: GameSession = GameSession.Inactive
     private var isUsingOfflineFallback = false
 
-    // Set when a game starts and consumed at game-over to submit the score with its log.
-    var pendingGameSession: Future<String>? = null
-        private set
     var lastGameActionLog: List<GameActionEvent> = emptyList()
         private set
+    var lastGameDurationMs: Long = 0
+        private set
+    var lastGameViewportAspectRatio: Float = 1.0f
+        private set
+    private var gameLaunchGeneration = 0
 
     override fun setContentView(layoutResID: Int) {
         super.setContentView(layoutResID)
@@ -107,12 +114,15 @@ class MainActivity : ComponentActivity() {
 
         var restoredScore = 0
         var restoredTimer = 25.0f
+        var restartRunningGame = false
 
         if (savedInstanceState != null) {
             isGameRunning = savedInstanceState.getBoolean("isGameRunning", false)
+            restartRunningGame = savedInstanceState.getBoolean("restartRunningGame", false)
             val userName = savedInstanceState.getString("selectedUserName")
             if (userName != null) {
-                selectedUser = UserResource(userName, savedInstanceState.getString("selectedUserCredential"))
+                selectedUser =
+                    UserResource(userName, savedInstanceState.getString("selectedUserCredential"))
             }
             restoredScore = savedInstanceState.getInt("savedScore", 0)
             restoredTimer = savedInstanceState.getFloat("savedTimer", 25.0f)
@@ -121,7 +131,11 @@ class MainActivity : ComponentActivity() {
         when {
             isGameRunning -> {
                 mainMenuLayout.show()
-                startGame(null, restoredScore, restoredTimer)
+                if (restartRunningGame) {
+                    startGame(null)
+                } else {
+                    startGame(null, restoredScore, restoredTimer)
+                }
             }
 
             settingsLayout.restore(savedInstanceState) -> Unit
@@ -142,6 +156,7 @@ class MainActivity : ComponentActivity() {
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         outState.putBoolean("isGameRunning", isGameRunning)
+        outState.putBoolean("restartRunningGame", isChangingConfigurations && isGameRunning)
         settingsLayout.saveInstanceState(outState)
         if (::selectedUser.isInitialized) {
             outState.putString("selectedUserName", selectedUser.username)
@@ -175,34 +190,88 @@ class MainActivity : ComponentActivity() {
     @JvmOverloads
     fun startGame(view: View?, score: Int = 0, timer: Float = 25.0f) {
         isGameRunning = true
+        val launchGeneration = ++gameLaunchGeneration
+        lastGameActionLog = emptyList()
+        lastGameDurationMs = 0
+        lastGameViewportAspectRatio = 1.0f
         mainMenuLayout.hide()
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         setContentView(R.layout.game_hud)
         applyGameHudInsets()
-        pendingGameSession = startGameSessionIfEligible()
-        val scene = GameBubbleScene(this, score, timer, settingsModel.areSoundEffectsMuted)
+
+        val credential = if (::selectedUser.isInitialized) selectedUser.credential else null
+        val canStartOnlineRound = settingsModel.useOnlineLeaderboard &&
+                credential != null && score == 0 && timer == INITIAL_GAME_TIMER
+        if (!canStartOnlineRound) {
+            launchGameScene(score, timer, null)
+            return
+        }
+
+        val sessionFuture = ApiService.createGameSession(credential)
+        THREAD_POOL.execute {
+            try {
+                val session = sessionFuture[6000, TimeUnit.MILLISECONDS]
+                runOnUiThread {
+                    if (!isGameRunning || launchGeneration != gameLaunchGeneration) return@runOnUiThread
+                    onBackendRequestSucceeded()
+                    launchGameScene(score, timer, session)
+                }
+            } catch (exception: Exception) {
+                runOnUiThread {
+                    if (!isGameRunning || launchGeneration != gameLaunchGeneration) return@runOnUiThread
+                    launchGameScene(score, timer, null)
+                    if (!showRateLimitMessage(exception)) {
+                        showOfflineFallbackMessageOnce()
+                    }
+                }
+                exception.printStackTrace()
+            }
+        }
+    }
+
+    private fun launchGameScene(
+        score: Int,
+        timer: Float,
+        onlineSession: OnlineGameSession?,
+    ) {
+        val replaySeed = onlineSession?.seed ?: ByteArray(32).also(SecureRandom()::nextBytes)
+            .joinToString("") { "%02x".format(it) }
+        val config = MatchEngineConfig(replaySeed)
+        if (onlineSession != null) {
+            if (onlineSession.replayVersion != config.replayVersion) {
+                throw IllegalStateException("Unsupported replay version ${onlineSession.replayVersion}")
+            }
+        }
+        val state = MatchState(score = score, timerValueMs = timer)
+        val boundaries = Boundaries()
+        val scene = GameBubbleScene(
+            this,
+            matchSettings = settingsModel.toMatchSettings(),
+            engine = DeterministicMatchEngine(
+                config = MatchEngineConfig(replaySeed),
+                state = state,
+                boundaries = boundaries
+            ),
+            session = onlineSession
+        )
         val bubbleGLSurfaceView = BubbleGLSurfaceView(this, scene)
         gameSession = GameSession.Active(bubbleGLSurfaceView, scene)
-        val glSurfaceViewHolder = findViewById<View>(R.id.GLSurfaceViewHolder) as FrameLayout
+        val glSurfaceViewHolder = findViewById<FrameLayout>(R.id.GLSurfaceViewHolder)
         glSurfaceViewHolder.addView(bubbleGLSurfaceView)
     }
 
-    // Kicked off in parallel with gameplay so the session is (almost always) already
-    // resolved by the time the score is submitted at game-over.
-    private fun startGameSessionIfEligible(): Future<String>? {
-        val credential = selectedUser.credential
-        if (!settingsModel.useOnlineLeaderboard || credential == null) return null
-        return ApiService.createGameSession(credential)
-    }
-
-    fun showGameOverScreenWith(score: String) {
+    fun showGameOverScreen(score: String, session: OnlineGameSession?) {
         isGameRunning = false
         val finishedSession = gameSession
-        lastGameActionLog = (finishedSession as? GameSession.Active)?.scene?.getActionLog() ?: emptyList()
+        lastGameActionLog =
+            (finishedSession as? GameSession.Active)?.scene?.getActionLog() ?: emptyList()
+        lastGameDurationMs = (finishedSession as? GameSession.Active)?.scene?.getDurationMs() ?: 0
+        lastGameViewportAspectRatio =
+            (finishedSession as? GameSession.Active)?.scene?.getViewportAspectRatio() ?: 1.0f
         gameSession = GameSession.Inactive
         val glSurfaceViewHolder = this.findViewById<View>(R.id.GLSurfaceViewHolder) as FrameLayout?
         glSurfaceViewHolder?.removeAllViews()
-        gameOverScreenLayout.showWith(score)
+        gameOverScreenLayout.show(score, session)
     }
 
     fun showHighscores(view: View) {
@@ -211,6 +280,7 @@ class MainActivity : ComponentActivity() {
 
     fun backToMenu(view: View) {
         isGameRunning = false
+        gameLaunchGeneration++
         gameSession = GameSession.Inactive
         mainMenuLayout.show()
     }
@@ -220,6 +290,7 @@ class MainActivity : ComponentActivity() {
     }
 
     override fun onDestroy() {
+        gameLaunchGeneration++
         if (::soundEffects.isInitialized) {
             soundEffects.release()
         }
@@ -344,5 +415,9 @@ class MainActivity : ComponentActivity() {
             insets
         }
         ViewCompat.requestApplyInsets(hud)
+    }
+
+    companion object {
+        private const val INITIAL_GAME_TIMER = 25.0f
     }
 }

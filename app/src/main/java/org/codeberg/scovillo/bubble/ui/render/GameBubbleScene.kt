@@ -6,7 +6,6 @@ import android.animation.ValueAnimator
 import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
 import android.opengl.GLSurfaceView
-import android.os.SystemClock
 import android.view.MotionEvent
 import android.view.View
 import android.view.animation.AlphaAnimation
@@ -17,60 +16,43 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import org.codeberg.scovillo.bubble.MainActivity
 import org.codeberg.scovillo.bubble.R
-import org.codeberg.scovillo.bubble.game.Bubble
-import org.codeberg.scovillo.bubble.game.BubbleColors
-import org.codeberg.scovillo.bubble.game.Combo
-import org.codeberg.scovillo.bubble.game.ComboPulse
-import org.codeberg.scovillo.bubble.game.DisappearAnimation
+import org.codeberg.scovillo.bubble.api.OnlineGameSession
+import org.codeberg.scovillo.bubble.game.BubbleColor
 import org.codeberg.scovillo.bubble.game.GameActionEvent
-import org.codeberg.scovillo.bubble.game.GameActionLog
-import org.codeberg.scovillo.bubble.game.GameActionType
-import org.codeberg.scovillo.bubble.game.GameObject
-import org.codeberg.scovillo.bubble.game.Generator
-import org.codeberg.scovillo.bubble.game.Star
-import org.codeberg.scovillo.bubble.game.Time
-import org.codeberg.scovillo.bubble.game.TimerAlarm
+import org.codeberg.scovillo.bubble.game.generator.MatchEngine
+import org.codeberg.scovillo.bubble.game.generator.MatchEvent
+import org.codeberg.scovillo.bubble.game.generator.MatchSnapshot
+import org.codeberg.scovillo.bubble.persistence.MatchSettings
 import org.codeberg.scovillo.bubble.ui.hud.ScorePostfix
 import org.codeberg.scovillo.bubble.ui.hud.TimerPostfix
 import java.math.RoundingMode
 import java.text.DecimalFormat
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
-import kotlin.math.pow
-import kotlin.math.sqrt
 
 class GameBubbleScene(
     private val mainActivity: MainActivity,
-    initialScore: Int,
-    initialTimer: Float,
-    areSoundEffectsMuted: Boolean,
+    private val matchSettings: MatchSettings,
+    private val engine: MatchEngine,
+    private val session: OnlineGameSession?
 ) : BubbleScene {
 
     private val effectPlayer = mainActivity.soundEffects
 
-    private val timerAlarm = TimerAlarm()
-    private val boundaries = Boundaries()
-    private val openGlScene = OpenGlScene(boundaries, SceneLighting.GAME)
-    private val gameObjects = ArrayList<GameObject>()
-    private val generator = Generator(gameObjects, boundaries)
-    private var collectColor = BubbleColors.RED
-    private var timer = initialTimer
-    private var score = initialScore
-    private var isTouch = false
-    private val objectsToBeRemoved = ArrayList<GameObject>()
-    private val targetsToBeRemoved = ArrayList<GameObject>()
-    private val actionLog = GameActionLog()
+    private val openGlScene = OpenGlScene(engine.boundaries, SceneLighting.GAME)
+
+    @Volatile
+    private var gameOverQueued = false
     private val timerText: TextView = mainActivity.findViewById<View>(R.id.Timer) as TextView
     private val scoreText: TextView = mainActivity.findViewById<View>(R.id.Score) as TextView
+    private val comboText: TextView = mainActivity.findViewById<View>(R.id.Combo) as TextView
     private val timerProgress: ProgressBar = mainActivity.findViewById(R.id.TimerProgress)
     private val timerPill: View = mainActivity.findViewById(R.id.TimerPill)
     private val fieldHolder: View = mainActivity.findViewById(R.id.GLSurfaceViewHolder)
     private val bubbleRenderer = BubbleRenderer()
     override val renderer: GLSurfaceView.Renderer = bubbleRenderer
-    private val timeLogic = Time()
-    private val combo = Combo(mainActivity, effectPlayer) { duration ->
-        bubbleRenderer.transitionFieldFramePulse(duration)
-    }
+    private val comboPulseMinAlpha = 0.55f
+    private val comboPulseTransitionDurationMs = 180L
     private var fieldFrameAlpha = 255
     private val fieldFrameDrawable = GradientDrawable().apply {
         cornerRadius = 10f * mainActivity.resources.displayMetrics.density
@@ -82,7 +64,7 @@ class GameBubbleScene(
 
     init {
 
-        effectPlayer.isMuted = areSoundEffectsMuted
+        effectPlayer.isMuted = matchSettings.areSoundEffectsMuted
         firstDigitFormat.roundingMode = RoundingMode.CEILING
         ViewCompat.setBackground(fieldHolder, fieldFrameDrawable)
 
@@ -92,62 +74,34 @@ class GameBubbleScene(
         openGlScene.resetFrameTime()
     }
 
-    fun getScore(): Int = score
-    fun getTimer(): Float = timer
-    fun getActionLog(): List<GameActionEvent> = actionLog.snapshot()
+    fun getScore(): Int = engine.score
+    fun getTimer(): Float = engine.timerSeconds
+    fun getActionLog(): List<GameActionEvent> = engine.log
+    fun getDurationMs(): Long = engine.durationMs
+    fun getViewportAspectRatio(): Float = engine.viewportAspectRatio
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
-        var wasBubbleTouched = false
+        if (engine.isGameOver) return false
         when (event.action and MotionEvent.ACTION_MASK) {
             MotionEvent.ACTION_DOWN -> {
-                isTouch = true
-                var targetIndex = -1
-                var targetCounter = 0
-                var distance = 0.0
-                var i = 0
-                while (i < gameObjects.size) {
-                    val gameObject = gameObjects[i]
-                    if (gameObject is DisappearAnimation && gameObject.isDisappearFinished) {
-                        targetCounter++
-                        i++
-                        continue
-                    }
-                    val x =
-                        event.x * bubbleRenderer.unitsPerPixelX - boundaries.right - gameObject.x
-                    val y =
-                        (event.y * bubbleRenderer.unitsPerPixelZ - boundaries.top) * -1 - gameObject.z
-                    if (sqrt(
-                            x.toDouble().pow(2.0) + y.toDouble().pow(2.0)
-                        ) <= gameObject.scale
-                    ) {
-                        if (distance <= 1E-20) {
-                            distance = sqrt(
-                                x.toDouble().pow(2.0) + y.toDouble().pow(2.0)
-                            )
-                            targetIndex = targetCounter
-                        } else {
-                            if (sqrt(
-                                    x.toDouble().pow(2.0) + y.toDouble().pow(2.0)
-                                ) < distance
-                            ) {
-                                distance = sqrt(
-                                    x.toDouble().pow(2.0) + y.toDouble().pow(2.0)
-                                )
-                                targetIndex = targetCounter
-                            }
-                        }
-                    }
-                    targetCounter++
-                    i++
+                val surfaceWidth = bubbleRenderer.surfaceWidth
+                val surfaceHeight = bubbleRenderer.surfaceHeight
+                if (surfaceWidth <= 0 || surfaceHeight <= 0) {
+                    return false
                 }
-                if (targetIndex >= 0) {
-                    targetsToBeRemoved.add(gameObjects[targetIndex])
-                    wasBubbleTouched = true
-                }
-                isTouch = false
+                val normalizedX = engine.roundCoordinate(
+                    (event.x / surfaceWidth).toDouble().coerceIn(0.0, 1.0)
+                )
+                val normalizedY = engine.roundCoordinate(
+                    (event.y / surfaceHeight).toDouble().coerceIn(0.0, 1.0)
+                )
+                val worldX = event.x * bubbleRenderer.unitsPerPixelX - engine.boundaries.right
+                val worldZ = (event.y * bubbleRenderer.unitsPerPixelZ - engine.boundaries.top) * -1
+                val wasBubbleTouched = engine.submitTap(normalizedX, normalizedY, worldX, worldZ)
+                return wasBubbleTouched
             }
         }
-        return wasBubbleTouched
+        return false
     }
 
     private inner class BubbleRenderer : GLSurfaceView.Renderer {
@@ -156,12 +110,16 @@ class GameBubbleScene(
             private set
         var unitsPerPixelZ = 0f
             private set
+        var surfaceWidth = 0
+            private set
+        var surfaceHeight = 0
+            private set
 
         private val timerTextAnimation: Animation = AlphaAnimation(0.35f, 1.0f)
         private val timerPostfix = TimerPostfix(mainActivity)
         private val scorePostfix = ScorePostfix(mainActivity)
         private var isTimerProgressUrgent = false
-        private var shownCollectColor = BubbleColors.RED
+        private var shownCollectColor = BubbleColor.RED
         private var isCollectColorShown = false
 
         init {
@@ -172,133 +130,113 @@ class GameBubbleScene(
         }
 
         override fun onDrawFrame(gl: GL10) {
+            if (gameOverQueued) {
+                openGlScene.draw(gl, engine.gameObjects)
+                return
+            }
             val fracSec = openGlScene.elapsedSeconds()
-            if (timerAlarm.shouldTrigger(timer, SystemClock.elapsedRealtime())) {
-                effectPlayer.playSound(R.raw.alarm)
-            }
-            if (timer - fracSec <= 0.0) {
-                timer = 0.0f
-            } else {
-                timer -= fracSec
-            }
-            collectColor = generator.generateCollectColor(collectColor, score)
-            combo.setTargetColor(generator.getGLColor(collectColor))
-            mainActivity.runOnUiThread {
-                when {
-                    timer <= 0.0 -> {
-                        mainActivity.showGameOverScreenWith(score.toString())
-                        return@runOnUiThread
-                    }
-
-                    timer < 10 -> {
-                        if (timerText.animation == null) {
-                            timerText.startAnimation(timerTextAnimation)
-                        }
-                    }
-
-                    timer >= 10 -> {
-                        timerText.animation?.cancel()
-                    }
-                }
-                timerText.text =
-                    mainActivity.getString(R.string.timer_value, firstDigitFormat.format(timer))
-                scoreText.text = mainActivity.getString(R.string.score_value, score)
-                if (!isCollectColorShown || shownCollectColor != collectColor) {
-                    shownCollectColor = collectColor
-                    isCollectColorShown = true
-                    val targetColor = generator.getGLColor(collectColor)
-                    updateCollectColorIndicator(targetColor)
-                }
-                timerProgress.progress = (timer / INITIAL_TIMER * 1000).toInt().coerceIn(0, 1000)
-                val shouldShowUrgentProgress = timer < 10
-                if (shouldShowUrgentProgress != isTimerProgressUrgent) {
-                    isTimerProgressUrgent = shouldShowUrgentProgress
-                    timerProgress.progressDrawable = ContextCompat.getDrawable(
-                        mainActivity,
-                        if (isTimerProgressUrgent) R.drawable.timer_progress_urgent else R.drawable.timer_progress
-                    )
-                }
-            }
-            updateGameObjects(fracSec)
-            combo.update()
-            openGlScene.draw(gl, gameObjects)
+            engine.advance(fracSec, ::handleEngineEvent)
+            openGlScene.draw(gl, engine.gameObjects)
         }
 
-        private fun updateGameObjects(fracSec: Float) {
-
-            gameObjects.forEach {
-                it.update(fracSec)
-                if (it is DisappearAnimation && it.isDisappearFinished || it.isOutside(boundaries)) {
-                    objectsToBeRemoved.add(it)
-                }
-            }
-            for (gameObject in targetsToBeRemoved) {
-                if (isTouch) {
-                    break
-                }
-                when (gameObject) {
-                    is Bubble -> {
-                        if (!gameObject.disappear()) {
-                            continue
+        fun handleEngineEvent(event: MatchEvent) {
+            when (event) {
+                is MatchEvent.StateChanged -> renderHud(event.snapshot)
+                MatchEvent.TimerAlarm -> effectPlayer.playSound(R.raw.alarm)
+                is MatchEvent.TargetCollected -> {
+                    timerPostfix.animateWith(event.timerDeltaSeconds)
+                    if (event.scoreDelta != 0) scorePostfix.animateWith(event.scoreDelta)
+                    effectPlayer.playSound(
+                        when {
+                            event.isStar -> R.raw.star
+                            event.wasCorrectColor -> R.raw.blubb
+                            else -> R.raw.fart
                         }
-                        if (gameObject.color == collectColor) {
-                            val time = timeLogic.getBubbleTimeFor(gameObject.speed)
-                            timer += time
-                            timerPostfix.animateWith(time)
-
-                            val collectScore = gameObject.score * combo.multiplier
-                            score += collectScore
-                            scorePostfix.animateWith(collectScore)
-
-                            combo.increment()
-                            actionLog.record(GameActionType.BUBBLE_MATCH)
-                            if (combo.isActive) {
-                                combo.giveHapticFeedBack()
+                    )
+                    if (event.comboMultiplierIncreased) {
+                        effectPlayer.playSound(
+                            when (event.comboIsActive) {
+                                true -> R.raw.combo
+                                false -> R.raw.blubb
                             }
-                            effectPlayer.playSound(R.raw.blubb)
-                        } else {
-                            val time = -timeLogic.getBubblePunishmentTimeFor(gameObject.speed)
-                            timer += time
-                            timerPostfix.animateWith(time)
-                            combo.reset()
-                            actionLog.record(GameActionType.BUBBLE_MISMATCH)
-                            effectPlayer.playSound(R.raw.fart)
-                        }
+                        )
                     }
-
-                    is Star -> {
-                        if (!gameObject.disappear()) {
-                            continue
+                    transitionFieldFramePulse(
+                        when (event.comboIsActive) {
+                            true -> 900L
+                            false -> null
                         }
-                        val time = timeLogic.getStarTimeFor(gameObject.speed)
-                        timer += time
-                        timerPostfix.animateWith(time)
+                    )
+                }
 
-                        val collectScore = gameObject.score * combo.multiplier
-                        score += collectScore
-                        scorePostfix.animateWith(collectScore)
-                        actionLog.record(GameActionType.STAR)
-
-                        if (combo.isActive) {
-                            combo.giveHapticFeedBack()
-                        }
-                        effectPlayer.playSound(R.raw.star)
+                MatchEvent.GameOver -> {
+                    gameOverQueued = true
+                    mainActivity.runOnUiThread {
+                        mainActivity.showGameOverScreen(engine.score.toString(), session)
                     }
                 }
             }
-            targetsToBeRemoved.clear()
-            for (gameObject in objectsToBeRemoved) {
-                if (isTouch) {
-                    break
+        }
+
+        private fun renderHud(snapshot: MatchSnapshot) = mainActivity.runOnUiThread {
+            when {
+                snapshot.timerSeconds < 10 -> {
+                    if (timerText.animation == null) {
+                        timerText.startAnimation(timerTextAnimation)
+                    }
                 }
-                gameObjects.remove(gameObject)
+
+                snapshot.timerSeconds >= 10 -> {
+                    timerText.animation?.cancel()
+                }
             }
-            objectsToBeRemoved.clear()
-            generator.generateGameobject(collectColor, score)
+            timerText.text =
+                mainActivity.getString(
+                    R.string.timer_value,
+                    firstDigitFormat.format(snapshot.timerSeconds)
+                )
+            scoreText.text = mainActivity.getString(R.string.score_value, snapshot.score)
+            renderCombo(snapshot)
+            if (!isCollectColorShown || shownCollectColor != snapshot.collectColor) {
+                shownCollectColor = snapshot.collectColor
+                isCollectColorShown = true
+                updateCollectColorIndicator(snapshot.collectColor.rgb())
+            }
+            timerProgress.progress =
+                (snapshot.timerSeconds / snapshot.initialTimerSeconds * 1000).toInt()
+                    .coerceIn(0, 1000)
+            val shouldShowUrgentProgress = snapshot.timerSeconds < 10
+            if (shouldShowUrgentProgress != isTimerProgressUrgent) {
+                isTimerProgressUrgent = shouldShowUrgentProgress
+                timerProgress.progressDrawable = ContextCompat.getDrawable(
+                    mainActivity,
+                    if (isTimerProgressUrgent) R.drawable.timer_progress_urgent else R.drawable.timer_progress
+                )
+            }
+        }
+
+        private fun renderCombo(snapshot: MatchSnapshot) {
+            if (snapshot.comboProgress == 0) {
+                comboText.visibility = View.INVISIBLE
+                return
+            }
+            val filledSteps = snapshot.comboProgress % 6
+            val label = when (snapshot.comboMultiplier) {
+                1 -> mainActivity.getString(R.string.combo_build)
+                2 -> mainActivity.getString(R.string.combo)
+                4 -> mainActivity.getString(R.string.combo_hot_streak)
+                8 -> mainActivity.getString(R.string.combo_on_fire)
+                else -> mainActivity.getString(R.string.combo_mega)
+            }
+            comboText.text =
+                "$label ×${snapshot.comboMultiplier}  ${"●".repeat(filledSteps)}${"○".repeat(6 - filledSteps)}"
+            comboText.visibility = View.VISIBLE
         }
 
         override fun onSurfaceChanged(gl: GL10, width: Int, height: Int) {
             val dimensions = openGlScene.resize(gl, width, height)
+            surfaceWidth = width
+            surfaceHeight = height
             unitsPerPixelZ = dimensions.height / height
             unitsPerPixelX = dimensions.height * dimensions.aspectRatio / width
         }
@@ -337,7 +275,7 @@ class GameBubbleScene(
             val currentAlpha = fieldFrameAlpha
             fieldFramePulseAnimator?.cancel()
             fieldFramePulseAnimator = ValueAnimator.ofInt(currentAlpha, 255).apply {
-                this.duration = ComboPulse.TRANSITION_DURATION_MS
+                this.duration = comboPulseTransitionDurationMs
                 addUpdateListener { animator ->
                     setFieldFrameAlpha(animator.animatedValue as Int)
                 }
@@ -354,7 +292,7 @@ class GameBubbleScene(
 
         private fun startFieldFramePulse(duration: Long) {
             fieldFramePulseAnimator =
-                ValueAnimator.ofInt(255, (255 * ComboPulse.MIN_ALPHA).toInt()).apply {
+                ValueAnimator.ofInt(255, (255 * comboPulseMinAlpha).toInt()).apply {
                     this.duration = duration
                     repeatMode = ValueAnimator.REVERSE
                     repeatCount = ValueAnimator.INFINITE
@@ -370,10 +308,6 @@ class GameBubbleScene(
             fieldFrameDrawable.alpha = alpha
         }
 
-    }
-
-    companion object {
-        private const val INITIAL_TIMER = 25.0f
     }
 
 }

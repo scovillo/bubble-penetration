@@ -7,12 +7,20 @@ import javax.microedition.khronos.opengles.GL10
 import kotlin.math.cos
 import kotlin.math.sin
 
-enum class BubbleColors {
-    RED, GREEN, SILVER, BLUE, PURPLE
+enum class BubbleColor {
+    RED, GREEN, SILVER, BLUE, PURPLE;
+
+    fun rgb(): FloatArray = when (this) {
+        RED -> floatArrayOf(0.76f, 0.08f, 0.18f, 1.0f)
+        GREEN -> floatArrayOf(0.04f, 0.58f, 0.24f, 1.0f)
+        SILVER -> floatArrayOf(0.62f, 0.70f, 0.80f, 1.0f)
+        BLUE -> floatArrayOf(0.16f, 0.30f, 1.0f, 1.0f)
+        PURPLE -> floatArrayOf(0.50f, 0.12f, 0.76f, 1.0f)
+    }
 }
 
 class Bubble(
-    val color: BubbleColors?, private val glColor: FloatArray, speed: Float
+    val color: BubbleColor?, private val glColor: FloatArray, speed: Float
 ) : GameObject(speed), DisappearAnimation {
 
     val score = 1
@@ -24,7 +32,8 @@ class Bubble(
     private var wobbleYup = true
     private val mesh = meshFor(12.0f)
     private var disappearElapsed = 0f
-    private var isDisappearing = false
+    override var isDisappearing = false
+        private set
 
     override val isDisappearFinished: Boolean
         get() = isDisappearing && disappearElapsed >= POP_DURATION_SECONDS

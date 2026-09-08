@@ -1,24 +1,18 @@
 package org.codeberg.scovillo.bubble.game
 
-import android.os.SystemClock
+data class GameActionEvent(
+    val objectId: String,
+    val timestampMs: Long,
+    val x: Double,
+    val y: Double,
+)
 
-enum class GameActionType(val wireValue: String) {
-    BUBBLE_MATCH("bubble_match"),
-    BUBBLE_MISMATCH("bubble_mismatch"),
-    STAR("star"),
-}
-
-data class GameActionEvent(val type: GameActionType, val timestampMs: Long)
-
-// Records what the server needs to recompute the score itself instead of trusting the client.
 class GameActionLog {
-
-    private val startElapsedRealtime = SystemClock.elapsedRealtime()
     private val events = mutableListOf<GameActionEvent>()
 
     @Synchronized
-    fun record(type: GameActionType) {
-        events.add(GameActionEvent(type, SystemClock.elapsedRealtime() - startElapsedRealtime))
+    fun record(objectId: String, timestampMs: Long, x: Double, y: Double) {
+        events.add(GameActionEvent(objectId, timestampMs, x, y))
     }
 
     @Synchronized

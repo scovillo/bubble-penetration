@@ -9,11 +9,15 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { randomBytes } from 'node:crypto';
-import { GameActionEventDto } from './dto/game-action-event.dto';
 import { SubmitScoreDto } from './dto/submit-score.dto';
 import { GameSession } from './entities/game-session.entity';
 import { Highscore } from './entities/highscore.entity';
 import { Player } from './entities/player.entity';
+import {
+  REPLAY_VERSION,
+  ReplayValidationError,
+  ReplayValidator,
+} from './validation/replay-validator';
 
 export type CreatedPlayer = {
   playerId: string;
@@ -30,6 +34,7 @@ export type PlayerProfile = {
 export type CreatedGameSession = {
   sessionId: string;
   seed: string;
+  replayVersion: number;
   startedAt: Date;
   expiresAt: Date;
 };
@@ -54,14 +59,7 @@ export type HighscorePage = {
 };
 
 const SESSION_MAX_DURATION_MS = 20 * 60 * 1000;
-
-const BUBBLE_SCORE = 1;
-const STAR_SCORE = 3;
-const COMBO_COLLECT_FACTOR = 6;
-const COMBO_TIMEOUT_MS = 2500;
-const MAX_COMBO_MULTIPLIER = 16;
-
-const MIN_EVENT_GAP_MS = 30;
+const SUBMISSION_CLOCK_TOLERANCE_MS = 1_000;
 
 const DEFAULT_LEADERBOARD_LIMIT = 20;
 const MAX_LEADERBOARD_LIMIT = 100;
@@ -83,16 +81,17 @@ export class BubbleGameService {
     const activeSession = await this.gameSessions.findOne({
       player,
       completedAt: null,
-      expiresAt: { $gt: now },
     });
 
     if (activeSession) {
       activeSession.completedAt = now;
+      await this.gameSessions.getEntityManager().flush();
     }
 
     const session = this.gameSessions.create({
       player,
       seed: randomBytes(32).toString('hex'),
+      replayVersion: REPLAY_VERSION,
       startedAt: now,
       expiresAt: new Date(now.getTime() + SESSION_MAX_DURATION_MS),
     });
@@ -104,6 +103,7 @@ export class BubbleGameService {
     return {
       sessionId: session.id,
       seed: session.seed,
+      replayVersion: session.replayVersion,
       startedAt: session.startedAt,
       expiresAt: session.expiresAt,
     };
@@ -120,16 +120,28 @@ export class BubbleGameService {
     );
 
     if (!session) {
+      this.logger.warn(
+        `Rejected score submission for player ${player.id}, session ${sessionId}: ` +
+          'session not found.',
+      );
       throw new NotFoundException('Game session not found.');
     }
 
     if (session.player.id !== player.id) {
+      this.logger.warn(
+        `Rejected score submission for player ${player.id}, session ${session.id}: ` +
+          'session belongs to another player.',
+      );
       throw new ForbiddenException(
         'This game session belongs to another player.',
       );
     }
 
     if (session.completedAt) {
+      this.logger.warn(
+        `Rejected score submission for player ${player.id}, session ${session.id}: ` +
+          'session has already been submitted.',
+      );
       throw new ConflictException(
         'This game session has already been submitted.',
       );
@@ -138,22 +150,56 @@ export class BubbleGameService {
     const now = new Date();
 
     if (now > session.expiresAt) {
+      this.logger.warn(
+        `Rejected score submission for player ${player.id}, session ${session.id}: ` +
+          'session has expired.',
+      );
       throw new BadRequestException('This game session has expired.');
     }
 
     const elapsedMs = now.getTime() - session.startedAt.getTime();
-    this.assertPlausibleEventLog(player, session, dto.events, elapsedMs);
-
-    const recomputedScore = this.recomputeScore(dto.events);
-
-    if (recomputedScore !== dto.score) {
+    if (dto.durationMs > elapsedMs + SUBMISSION_CLOCK_TOLERANCE_MS) {
       this.logger.warn(
         `Rejected score submission for player ${player.id}, session ${session.id}: ` +
-          `declared score ${dto.score} does not match recomputed score ${recomputedScore}.`,
+          'submitted duration exceeds elapsed time.',
       );
-      throw new BadRequestException(
-        'Submitted score does not match the action log.',
+      throw new BadRequestException('The submitted replay is not plausible.');
+    }
+    if (session.replayVersion !== REPLAY_VERSION) {
+      this.logger.warn(
+        `Rejected score submission for player ${player.id}, session ${session.id}: ` +
+          'unsupported replay version.',
       );
+      throw new BadRequestException('Unsupported replay version.');
+    }
+
+    try {
+      this.logger.log(
+        `Validating replay for player ${player.id}, session ${session.id}.`,
+      );
+      new ReplayValidator(
+        session.seed,
+        {
+          events: dto.events,
+          declaredScore: dto.score,
+          declaredDurationMs: dto.durationMs,
+          viewportAspectRatio: dto.viewportAspectRatio,
+        },
+        {
+          playerId: player.id,
+          sessionId: session.id,
+        },
+      ).validate();
+    } catch (error: unknown) {
+      const reason =
+        error instanceof ReplayValidationError
+          ? error.message
+          : 'unexpected replay validation failure';
+      this.logger.warn(
+        `Rejected score submission for player ${player.id}, session ${session.id}: ` +
+          reason,
+      );
+      throw new BadRequestException('The submitted replay is not plausible.');
     }
 
     session.completedAt = now;
@@ -175,7 +221,7 @@ export class BubbleGameService {
 
     this.logger.log(
       `Accepted score submission for player ${player.id}, session ${session.id}: ` +
-        `score ${dto.score}, personalBest=${isPersonalBest}.`,
+        `score ${dto.score}, isPersonalBest=${isPersonalBest}.`,
     );
 
     return {
@@ -219,18 +265,17 @@ export class BubbleGameService {
       username: string;
       score: number;
       confirmed_at: Date;
-      rank: string;
-      total_count: string;
+      rank: number;
+      total_count: number;
     };
 
-    // A username anchors the page around that player's rank rather than replacing it.
     if (query.username) {
-      const [userRow] = await connection.execute<{ rank: string }[]>(
+      const [userRow] = await connection.execute<{ rank: number }[]>(
         `${rankedCte} select rank from ranked where username = ?`,
         [query.username],
       );
       if (userRow) {
-        startRank = Math.max(1, Number(userRow.rank) - PRECEDING_RANKS);
+        startRank = Math.max(1, userRow.rank - PRECEDING_RANKS);
       }
     }
 
@@ -244,7 +289,7 @@ export class BubbleGameService {
     const highscores = rows.map((row) => ({
       rank: Number(row.rank),
       username: row.username,
-      score: String(row.score),
+      score: row.score.toString(),
       confirmedAt: new Date(row.confirmed_at),
     }));
 
@@ -256,93 +301,5 @@ export class BubbleGameService {
       hasPrevious: firstRank > 1,
       hasNext: lastRank < totalCount,
     };
-  }
-
-  private assertPlausibleEventLog(
-    player: Player,
-    session: GameSession,
-    events: GameActionEventDto[],
-    elapsedMs: number,
-  ): void {
-    let previousTimestampMs: number | undefined;
-
-    for (const event of events) {
-      if (event.timestampMs > elapsedMs) {
-        this.rejectImplausibleLog(
-          player,
-          session,
-          'event timestamp is after submission time',
-        );
-      }
-
-      if (previousTimestampMs !== undefined) {
-        const gap = event.timestampMs - previousTimestampMs;
-
-        if (gap < 0) {
-          this.rejectImplausibleLog(
-            player,
-            session,
-            'event timestamps are not monotonic',
-          );
-        }
-
-        if (gap < MIN_EVENT_GAP_MS) {
-          this.rejectImplausibleLog(
-            player,
-            session,
-            'events occur faster than humanly possible',
-          );
-        }
-      }
-
-      previousTimestampMs = event.timestampMs;
-    }
-  }
-
-  private rejectImplausibleLog(
-    player: Player,
-    session: GameSession,
-    reason: string,
-  ): never {
-    this.logger.warn(
-      `Rejected score submission for player ${player.id}, session ${session.id}: ${reason}.`,
-    );
-    throw new BadRequestException('The submitted action log is not plausible.');
-  }
-
-  private recomputeScore(events: GameActionEventDto[]): number {
-    let score = 0;
-    let counter = 0;
-    let lastBubbleTimestampMs: number | undefined;
-
-    for (const event of events) {
-      if (
-        lastBubbleTimestampMs !== undefined &&
-        event.timestampMs - lastBubbleTimestampMs > COMBO_TIMEOUT_MS
-      ) {
-        counter = 0;
-      }
-
-      switch (event.type) {
-        case 'bubble_mismatch':
-          counter = 0;
-          break;
-        case 'bubble_match':
-          score += BUBBLE_SCORE * this.comboMultiplier(counter);
-          counter += 1;
-          lastBubbleTimestampMs = event.timestampMs;
-          break;
-        case 'star':
-          score += STAR_SCORE * this.comboMultiplier(counter);
-          break;
-      }
-    }
-
-    return score;
-  }
-
-  private comboMultiplier(counter: number): number {
-    const factor = Math.floor(counter / COMBO_COLLECT_FACTOR);
-    return factor > 0 ? Math.min(MAX_COMBO_MULTIPLIER, 2 ** factor) : 1;
   }
 }
