@@ -48,6 +48,7 @@
         <item quantity="one">Demasiado rápido. Inténtalo de nuevo en %d segundo.</item>
         <item quantity="other">Demasiado rápido. Inténtalo de nuevo en %d segundos.</item>
     </plurals>
+    <string name="rate_limit_retry_minutes">Demasiado rápido. Inténtalo de nuevo en %1$d min %2$d s.</string>
     <string name="error_empty_username">¡El nombre de usuario no puede estar vacío!</string>
     <string name="error_username_too_long">¡Máximo 10 caracteres!</string>
     <string name="error_username_exists">El nombre ya está en uso.</string>

@@ -31,22 +31,31 @@ class RandomizedMatchEngine(
             var spawnZ = 0f
             val spawnOffset = scale * .5f
             val velocity = FloatArray(3)
-            val sourceCode = (if (Random.nextBoolean()) 1 else 0) shl 1 or if (Random.nextBoolean()) 1 else 0
+            val sourceCode =
+                (if (Random.nextBoolean()) 1 else 0) shl 1 or if (Random.nextBoolean()) 1 else 0
             val destinationCode = sourceCode xor 3
 
             if (Random.nextBoolean()) {
-                spawnZ = if (sourceCode and 2 > 0) boundaries.bottom - spawnOffset else boundaries.top + spawnOffset
-                spawnX = if (sourceCode and 1 > 0) boundaries.right * Random.nextFloat() else boundaries.left * Random.nextFloat()
+                spawnZ =
+                    if (sourceCode and 2 > 0) boundaries.bottom - spawnOffset else boundaries.top + spawnOffset
+                spawnX =
+                    if (sourceCode and 1 > 0) boundaries.right * Random.nextFloat() else boundaries.left * Random.nextFloat()
             } else {
-                spawnZ = if (sourceCode and 2 > 0) boundaries.bottom * Random.nextFloat() else boundaries.top * Random.nextFloat()
-                spawnX = if (sourceCode and 1 > 0) boundaries.right + spawnOffset else boundaries.left - spawnOffset
+                spawnZ =
+                    if (sourceCode and 2 > 0) boundaries.bottom * Random.nextFloat() else boundaries.top * Random.nextFloat()
+                spawnX =
+                    if (sourceCode and 1 > 0) boundaries.right + spawnOffset else boundaries.left - spawnOffset
             }
             if (Random.nextBoolean()) {
-                velocity[2] = if (destinationCode and 2 > 0) boundaries.bottom - spawnOffset else boundaries.top + spawnOffset
-                velocity[0] = if (destinationCode and 1 > 0) boundaries.right * Random.nextFloat() else boundaries.left * Random.nextFloat()
+                velocity[2] =
+                    if (destinationCode and 2 > 0) boundaries.bottom - spawnOffset else boundaries.top + spawnOffset
+                velocity[0] =
+                    if (destinationCode and 1 > 0) boundaries.right * Random.nextFloat() else boundaries.left * Random.nextFloat()
             } else {
-                velocity[2] = if (destinationCode and 2 > 0) boundaries.bottom * Random.nextFloat() else boundaries.top * Random.nextFloat()
-                velocity[0] = if (destinationCode and 1 > 0) boundaries.right + spawnOffset else boundaries.left - spawnOffset
+                velocity[2] =
+                    if (destinationCode and 2 > 0) boundaries.bottom * Random.nextFloat() else boundaries.top * Random.nextFloat()
+                velocity[0] =
+                    if (destinationCode and 1 > 0) boundaries.right + spawnOffset else boundaries.left - spawnOffset
             }
             velocity[0] -= spawnX
             velocity[2] -= spawnZ
@@ -62,12 +71,22 @@ class RandomizedMatchEngine(
                 gameObject.type == GameObjectType.BUBBLE && gameObject.color == currentCollectColor
             }
             val gameObject = if (Random.nextFloat() <= randomSpawn) {
-                GameObject(GameObjectType.STAR, GameObjectColor.GOLD, 3, gameSpeed.getStarSpeedFor(score)).apply {
+                GameObject(
+                    GameObjectType.STAR,
+                    GameObjectColor.GOLD,
+                    3,
+                    gameSpeed.getStarSpeedFor(score)
+                ).apply {
                     this.scale = scale * .85f
                 }
             } else {
                 val color = if (collectColorAvailable) generateColor() else currentCollectColor
-                GameObject(GameObjectType.BUBBLE, color, 1, gameSpeed.getBubbleSpeedFor(score)).apply {
+                GameObject(
+                    GameObjectType.BUBBLE,
+                    color,
+                    1,
+                    gameSpeed.getBubbleSpeedFor(score)
+                ).apply {
                     this.scale = scale
                 }
             }

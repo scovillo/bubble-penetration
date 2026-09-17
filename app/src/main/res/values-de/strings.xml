@@ -48,6 +48,7 @@
         <item quantity="one">Das ging etwas zu schnell. Bitte versuche es in %d Sekunde erneut.</item>
         <item quantity="other">Das ging etwas zu schnell. Bitte versuche es in %d Sekunden erneut.</item>
     </plurals>
+    <string name="rate_limit_retry_minutes">Das ging etwas zu schnell. Bitte versuche es in %1$d Min. %2$d Sek. erneut.</string>
     <string name="error_empty_username">Sorry, der Benutzername darf nicht leer sein!</string>
     <string name="error_username_too_long">Sorry, maximal 10 Zeichen!</string>
     <string name="error_username_exists">Name wird bereits verwendet.</string>

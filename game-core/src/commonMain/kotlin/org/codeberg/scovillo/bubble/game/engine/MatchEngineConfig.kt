@@ -7,7 +7,7 @@ class MatchEngineConfig(
 ) {
     val maxObjectsOnField = 20
     val spawnIntervalMs = 250L
-    val baseTravelDurationMs = 9_000.0
+    val baseTravelDurationMs = 10_000.0f
     val targetChangeBaseMs = 6_000L
     val minBubbleScale = 0.75f
     val bubbleScaleRange = 0.15f

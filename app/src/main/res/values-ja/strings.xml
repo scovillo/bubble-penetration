@@ -47,6 +47,7 @@
     <plurals name="rate_limit_retry">
         <item quantity="other">少し速すぎます。%d 秒後にもう一度お試しください。</item>
     </plurals>
+    <string name="rate_limit_retry_minutes">少し速すぎます。%1$d 分 %2$d 秒後にもう一度お試しください。</string>
     <string name="error_empty_username">ユーザー名は空にできません!</string>
     <string name="error_username_too_long">最大 10 文字です!</string>
     <string name="error_username_exists">この名前はすでに使われています。</string>

@@ -50,6 +50,7 @@
         <item quantity="many">Слишком быстро. Повторите через %d секунд.</item>
         <item quantity="other">Слишком быстро. Повторите через %d секунды.</item>
     </plurals>
+    <string name="rate_limit_retry_minutes">Слишком быстро. Повторите через %1$d мин. %2$d сек.</string>
     <string name="error_empty_username">Имя пользователя не может быть пустым!</string>
     <string name="error_username_too_long">Максимум 10 символов!</string>
     <string name="error_username_exists">Это имя уже используется.</string>

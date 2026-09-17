@@ -453,11 +453,19 @@ class MainActivity : ComponentActivity() {
 
         val seconds = httpException.retryAfterSeconds?.coerceAtLeast(1) ?: 60
         runOnUiThread {
-            val message = resources.getQuantityString(
-                org.codeberg.scovillo.bubble.R.plurals.rate_limit_retry,
-                seconds,
-                seconds,
-            )
+            val message = if (seconds < 60) {
+                resources.getQuantityString(
+                    org.codeberg.scovillo.bubble.R.plurals.rate_limit_retry,
+                    seconds,
+                    seconds,
+                )
+            } else {
+                getString(
+                    org.codeberg.scovillo.bubble.R.string.rate_limit_retry_minutes,
+                    seconds / 60,
+                    seconds % 60,
+                )
+            }
             Toast.makeText(this, message, LENGTH_LONG).show()
         }
         return true
