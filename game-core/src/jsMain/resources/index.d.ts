@@ -16,4 +16,5 @@ export type ReplayResult = {
   finishedAtMs: number;
 };
 
+export function replayVersion(): number;
 export function simulateMatch(input: MatchInput): Promise<ReplayResult>;

@@ -50,15 +50,16 @@
     </plurals>
     <string name="error_empty_username">Sorry, username cannot be empty!</string>
     <string name="error_username_too_long">Sorry, maximum 10 letters!</string>
-    <string name="error_username_exists">Username already exists!</string>
+    <string name="error_username_exists">Name is already in use.</string>
+    <string name="profile_name_taken_available_offline">Name is already in use, the profile will be used locally.</string>
     <string name="error_market_app_not_found">Unable to find market app.</string>
     <string name="msg_new_rank">&#x1F3C6;\n\nGreat!\nCheck your new rank!</string>
     <string name="msg_try_again">You were better… try again!</string>
     <string name="msg_your_score">Your score</string>
     <string name="combo_build">BUILD COMBO</string>
     <string name="combo">COMBO</string>
-    <string name="combo_hot_streak">HOT STREAK</string>
-    <string name="combo_on_fire">ON FIRE</string>
-    <string name="combo_mega">MEGA</string>
+    <string name="combo_hot_streak">WOW</string>
+    <string name="combo_on_fire">YEAH!</string>
+    <string name="combo_mega">MEGA!!!</string>
     <string name="backend_default_url" translatable="false">https://bubble.lukas-scheerer.de</string>
 </resources>

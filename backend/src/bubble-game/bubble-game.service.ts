@@ -13,8 +13,10 @@ import { SubmitScoreDto } from './dto/submit-score.dto';
 import { GameSession } from './entities/game-session.entity';
 import { Highscore } from './entities/highscore.entity';
 import { Player } from './entities/player.entity';
-import { simulateMatch } from '@bubble/game-core';
-import { REPLAY_VERSION } from './validation/game-core-replay-validator';
+import {
+  REPLAY_VERSION,
+  validateReplay,
+} from './validation/game-core-replay-validator';
 
 export type CreatedPlayer = {
   playerId: string;
@@ -174,22 +176,18 @@ export class BubbleGameService {
       this.logger.log(
         `Validating replay for player ${player.id}, session ${session.id}.`,
       );
-      if (dto.events.some((event) => event.timestampMs > dto.durationMs)) {
-        throw new Error('event occurs after declared game duration');
-      }
-      const result = await simulateMatch(
-        {
-          seed: session.seed,
-          events: dto.events,
-          viewportAspectRatio: dto.viewportAspectRatio,
-        },
-      );
-      if (result.score !== dto.score || Math.abs(result.finishedAtMs - dto.durationMs) > 500) {
-        throw new Error('declared replay result does not match deterministic match');
-      }
+      await validateReplay({
+        seed: session.seed,
+        score: dto.score,
+        durationMs: dto.durationMs,
+        viewportAspectRatio: dto.viewportAspectRatio,
+        events: dto.events,
+      });
     } catch (error: unknown) {
       const reason =
-        error instanceof Error ? error.message : 'unexpected replay validation failure';
+        error instanceof Error
+          ? error.message
+          : 'unexpected replay validation failure';
       this.logger.warn(
         `Rejected score submission for player ${player.id}, session ${session.id}: ` +
           reason,

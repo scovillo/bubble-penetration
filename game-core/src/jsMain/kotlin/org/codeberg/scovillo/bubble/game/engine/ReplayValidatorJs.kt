@@ -4,6 +4,11 @@ package org.codeberg.scovillo.bubble.game.engine
 @JsExport
 class JsReplayResult(val score: Int, val finishedAtMs: Double)
 
+/** Exposes the version from the canonical core configuration to API clients. */
+@OptIn(ExperimentalJsExport::class)
+@JsExport
+fun replayVersion(): Int = MatchEngineConfig.CURRENT_REPLAY_VERSION
+
 /** Promise-based Node/browser facade for the common replay validator. */
 @OptIn(ExperimentalJsExport::class)
 @JsExport

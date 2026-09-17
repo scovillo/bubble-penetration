@@ -11,7 +11,7 @@
             android:supportsRtl="true"
             android:theme="@style/AppTheme">
         <activity
-                android:name="org.codeberg.scovillo.bubble.MainActivity"
+                android:name="org.codeberg.scovillo.bubble.android.MainActivity"
                 android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

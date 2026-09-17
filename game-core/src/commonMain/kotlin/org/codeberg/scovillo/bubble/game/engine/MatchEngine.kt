@@ -66,7 +66,7 @@ abstract class MatchEngine(
     fun submitTap(normalizedX: Double, normalizedY: Double): Boolean {
         if (isGameOver) return false
         val target =
-            state.activeGameObjects.filterNot { it.isDisappearFinished }.filter(::isTapAllowed)
+            state.activeGameObjects.filterNot { it.isDisappearFinished || it.isDisappearing }.filter(::isTapAllowed)
                 .minByOrNull { hitDistance(it, normalizedX, normalizedY) }
                 ?.takeIf { hitDistance(it, normalizedX, normalizedY) <= 1.0 } ?: return false
         target.replayMetadata?.let { lastReplayTouchMs = elapsedMs }

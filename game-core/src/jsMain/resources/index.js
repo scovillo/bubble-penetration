@@ -2,6 +2,10 @@ const kotlinCore = require('./bubble-penetration-game-core.js');
 
 const simulateCoreMatch =
   kotlinCore.org.codeberg.scovillo.bubble.game.engine.simulateMatch;
+const coreReplayVersion =
+  kotlinCore.org.codeberg.scovillo.bubble.game.engine.replayVersion;
+
+exports.replayVersion = () => coreReplayVersion();
 
 /**
  * Validates an authoritative deterministic replay.

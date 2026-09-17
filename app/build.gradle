@@ -85,13 +85,13 @@ dependencies {
     implementation project(':game-core')
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation 'org.jetbrains.kotlin:kotlin-stdlib:2.4.20'
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2'
-    implementation 'androidx.appcompat:appcompat:1.2.0'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.11.0'
+    implementation 'androidx.appcompat:appcompat:1.4.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
     implementation 'androidx.recyclerview:recyclerview:1.3.2'
-    testImplementation 'org.junit.jupiter:junit-jupiter:5.11.3'
-    testRuntimeOnly 'org.junit.platform:junit-platform-launcher:1.11.3'
-    implementation "org.jetbrains.kotlin:kotlin-test:2.2.10"
+    testImplementation 'org.junit.jupiter:junit-jupiter:6.1.3'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher:6.1.3'
+    implementation "org.jetbrains.kotlin:kotlin-test:2.4.20"
 }
 
 tasks.register("generateReadme") {
@@ -118,7 +118,7 @@ Collect the right colors, use combos to maximize your score, and become the cham
         def versionName = android?.defaultConfig?.versionName ?: "Unknown"
 
         def dependencies = configurations
-                .findByName("implementation")
+                .named("implementation")
                 ?.allDependencies
                 ?.findAll { it.group != null }
                 ?.collect {
