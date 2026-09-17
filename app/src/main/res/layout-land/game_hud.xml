@@ -131,6 +131,5 @@
         android:layout_marginEnd="8sp"
         android:layout_marginRight="8sp"
         android:layout_marginBottom="8sp"
-        android:layout_weight="1"
-        android:padding="5dp" />
+        android:layout_weight="1" />
 </LinearLayout>

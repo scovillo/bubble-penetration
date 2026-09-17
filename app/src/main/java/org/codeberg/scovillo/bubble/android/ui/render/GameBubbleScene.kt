@@ -10,6 +10,7 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.animation.AlphaAnimation
 import android.view.animation.Animation
+import android.widget.FrameLayout
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.core.content.ContextCompat
@@ -38,9 +39,7 @@ class GameBubbleScene(
     private val engine: MatchEngine,
     private val session: OnlineGameSession?
 ) : BubbleScene {
-
     private val effectPlayer = mainActivity.soundEffects
-
     private val openGlScene = OpenGlScene(engine.boundaries, SceneLighting.GAME)
 
     @Volatile
@@ -50,26 +49,43 @@ class GameBubbleScene(
     private val comboText: TextView = mainActivity.findViewById<View>(R.id.Combo) as TextView
     private val timerProgress: ProgressBar = mainActivity.findViewById(R.id.TimerProgress)
     private val timerPill: View = mainActivity.findViewById(R.id.TimerPill)
-    private val fieldHolder: View = mainActivity.findViewById(R.id.GLSurfaceViewHolder)
+    private val fieldHolder: FrameLayout = mainActivity.findViewById(R.id.GLSurfaceViewHolder)
     private val bubbleRenderer = BubbleRenderer()
     override val renderer: GLSurfaceView.Renderer = bubbleRenderer
     private val comboPulseMinAlpha = 0.55f
     private val comboPulseTransitionDurationMs = 180L
+    private val fieldFrameStrokeWidth = 8f * mainActivity.resources.displayMetrics.density
     private var fieldFrameAlpha = 255
     private val fieldFrameDrawable = GradientDrawable().apply {
-        cornerRadius = 10f * mainActivity.resources.displayMetrics.density
+        shape = GradientDrawable.RECTANGLE
+        cornerRadius = 5f * mainActivity.resources.displayMetrics.density
+        setColor(Color.TRANSPARENT)
         alpha = fieldFrameAlpha
+    }
+    private val fieldFrameOverlay = View(mainActivity).also { overlay ->
+        ViewCompat.setBackground(overlay, fieldFrameDrawable)
+        overlay.isClickable = false
+        overlay.isFocusable = false
     }
     private var fieldFramePulseAnimator: ValueAnimator? = null
     private var fieldFramePulseGeneration = 0
     private val firstDigitFormat = DecimalFormat("0.0")
 
     init {
-
         effectPlayer.isMuted = matchSettings.areSoundEffectsMuted
         firstDigitFormat.roundingMode = RoundingMode.CEILING
-        ViewCompat.setBackground(fieldHolder, fieldFrameDrawable)
+    }
 
+    fun addFieldFrameOverlay() {
+        if (fieldFrameOverlay.parent == null) {
+            fieldHolder.addView(
+                fieldFrameOverlay,
+                FrameLayout.LayoutParams(
+                    FrameLayout.LayoutParams.MATCH_PARENT,
+                    FrameLayout.LayoutParams.MATCH_PARENT
+                )
+            )
+        }
     }
 
     override fun onResume() {
@@ -161,9 +177,6 @@ class GameBubbleScene(
                             }
                         )
                     }
-                    // Match events are emitted from the OpenGL render thread. ValueAnimator
-                    // requires a Looper, so creating the frame animation there crashes as
-                    // soon as the first target is collected.
                     mainActivity.runOnUiThread {
                         transitionFieldFramePulse(
                             when (event.comboIsActive) {
@@ -272,7 +285,10 @@ class GameBubbleScene(
                     Color.rgb(red, green, blue)
                 )
             })
-            fieldFrameDrawable.setColor(Color.rgb(red, green, blue))
+            fieldFrameDrawable.setStroke(
+                fieldFrameStrokeWidth.toInt(),
+                Color.rgb(red, green, blue)
+            )
         }
 
         fun transitionFieldFramePulse(duration: Long?) {

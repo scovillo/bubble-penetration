@@ -262,6 +262,7 @@ class MainActivity : ComponentActivity() {
         val glSurfaceViewHolder =
             findViewById<FrameLayout>(org.codeberg.scovillo.bubble.R.id.GLSurfaceViewHolder)
         glSurfaceViewHolder.addView(bubbleGLSurfaceView)
+        scene.addFieldFrameOverlay()
     }
 
     fun showGameOverScreen(score: String, session: OnlineGameSession?) {
