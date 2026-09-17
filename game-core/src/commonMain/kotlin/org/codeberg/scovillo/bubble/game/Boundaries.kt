@@ -18,9 +18,3 @@ class Boundaries {
         right = desiredHeight / 2 * aspectRatio
     }
 }
-
-fun GameObject.isOutside(boundaries: Boundaries): Boolean {
-    val offset = scale
-    return x > boundaries.right + offset || x < boundaries.left - offset ||
-            z > boundaries.top + offset || z < boundaries.bottom - offset
-}

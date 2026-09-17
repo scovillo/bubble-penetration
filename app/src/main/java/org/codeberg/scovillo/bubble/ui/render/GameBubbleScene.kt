@@ -17,16 +17,18 @@ import androidx.core.view.ViewCompat
 import org.codeberg.scovillo.bubble.MainActivity
 import org.codeberg.scovillo.bubble.R
 import org.codeberg.scovillo.bubble.api.OnlineGameSession
-import org.codeberg.scovillo.bubble.game.BubbleColor
 import org.codeberg.scovillo.bubble.game.GameActionEvent
-import org.codeberg.scovillo.bubble.game.generator.MatchEngine
-import org.codeberg.scovillo.bubble.game.generator.MatchEvent
-import org.codeberg.scovillo.bubble.game.generator.MatchSnapshot
+import org.codeberg.scovillo.bubble.game.GameObjectColor
+import org.codeberg.scovillo.bubble.game.engine.MatchEngine
+import org.codeberg.scovillo.bubble.game.engine.MatchEvent
+import org.codeberg.scovillo.bubble.game.engine.MatchSnapshot
+import org.codeberg.scovillo.bubble.game.rgb
 import org.codeberg.scovillo.bubble.persistence.MatchSettings
 import org.codeberg.scovillo.bubble.ui.hud.ScorePostfix
 import org.codeberg.scovillo.bubble.ui.hud.TimerPostfix
 import java.math.RoundingMode
 import java.text.DecimalFormat
+import kotlinx.coroutines.runBlocking
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
 
@@ -95,9 +97,7 @@ class GameBubbleScene(
                 val normalizedY = engine.roundCoordinate(
                     (event.y / surfaceHeight).toDouble().coerceIn(0.0, 1.0)
                 )
-                val worldX = event.x * bubbleRenderer.unitsPerPixelX - engine.boundaries.right
-                val worldZ = (event.y * bubbleRenderer.unitsPerPixelZ - engine.boundaries.top) * -1
-                val wasBubbleTouched = engine.submitTap(normalizedX, normalizedY, worldX, worldZ)
+                val wasBubbleTouched = engine.submitTap(normalizedX, normalizedY)
                 return wasBubbleTouched
             }
         }
@@ -119,7 +119,7 @@ class GameBubbleScene(
         private val timerPostfix = TimerPostfix(mainActivity)
         private val scorePostfix = ScorePostfix(mainActivity)
         private var isTimerProgressUrgent = false
-        private var shownCollectColor = BubbleColor.RED
+        private var shownCollectColor = GameObjectColor.RED
         private var isCollectColorShown = false
 
         init {
@@ -135,7 +135,7 @@ class GameBubbleScene(
                 return
             }
             val fracSec = openGlScene.elapsedSeconds()
-            engine.advance(fracSec, ::handleEngineEvent)
+            runBlocking { engine.advance(fracSec, ::handleEngineEvent) }
             openGlScene.draw(gl, engine.gameObjects)
         }
 
@@ -161,12 +161,17 @@ class GameBubbleScene(
                             }
                         )
                     }
-                    transitionFieldFramePulse(
-                        when (event.comboIsActive) {
-                            true -> 900L
-                            false -> null
-                        }
-                    )
+                    // Match events are emitted from the OpenGL render thread. ValueAnimator
+                    // requires a Looper, so creating the frame animation there crashes as
+                    // soon as the first target is collected.
+                    mainActivity.runOnUiThread {
+                        transitionFieldFramePulse(
+                            when (event.comboIsActive) {
+                                true -> 900L
+                                false -> null
+                            }
+                        )
+                    }
                 }
 
                 MatchEvent.GameOver -> {

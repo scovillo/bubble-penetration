@@ -6,7 +6,8 @@
   "private": false,
   "license": "GPL-3.0-only",
   "scripts": {
-    "build": "nest build",
+    "build:game-core": "../gradlew -p .. :game-core:jsNodeProductionLibraryDistribution",
+    "build": "npm run build:game-core && nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
     "start:dev": "nest start --watch",
@@ -23,6 +24,7 @@
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
+    "@bubble/game-core": "file:../game-core/build/dist/js/productionLibrary",
     "@mikro-orm/core": "^6.6.16",
     "@mikro-orm/migrations": "^6.6.16",
     "@mikro-orm/nestjs": "^6.1.2",

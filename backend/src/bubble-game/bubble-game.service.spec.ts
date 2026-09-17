@@ -10,7 +10,7 @@ import { BubbleGameService } from './bubble-game.service';
 import { GameSession } from './entities/game-session.entity';
 import { Highscore } from './entities/highscore.entity';
 import { Player } from './entities/player.entity';
-import { REPLAY_VERSION } from './validation/replay-validator';
+import { REPLAY_VERSION } from './validation/game-core-replay-validator';
 
 describe('BubbleGameService', () => {
   let service: BubbleGameService;

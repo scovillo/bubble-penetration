@@ -1,5 +1,6 @@
-package org.codeberg.scovillo.bubble.game.generator
+package org.codeberg.scovillo.bubble.game.engine
 
+/** Versioned constants shared by every deterministic match implementation. */
 class MatchEngineConfig(val seed: String, val replayVersion: Int = 1) {
     val maxObjectsOnField = 20
     val spawnIntervalMs = 250L

@@ -3,13 +3,14 @@ package org.codeberg.scovillo.bubble.ui.render
 import android.opengl.GLSurfaceView
 import org.codeberg.scovillo.bubble.game.Boundaries
 import org.codeberg.scovillo.bubble.game.MatchState
-import org.codeberg.scovillo.bubble.game.generator.MatchEngine
-import org.codeberg.scovillo.bubble.game.generator.MatchEngineConfig
-import org.codeberg.scovillo.bubble.game.generator.RandomizedMatchEngine
+import org.codeberg.scovillo.bubble.game.engine.MatchEngine
+import org.codeberg.scovillo.bubble.game.engine.MatchEngineConfig
+import org.codeberg.scovillo.bubble.game.engine.RandomizedMatchEngine
 import java.lang.Math.random
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
 import kotlin.math.roundToInt
+import kotlinx.coroutines.runBlocking
 
 class MenuBubbleScene(
     private val boundaries: Boundaries = Boundaries(),
@@ -29,7 +30,7 @@ class MenuBubbleScene(
 
         override fun onDrawFrame(gl: GL10) {
             val fracSec = openGlScene.elapsedSeconds()
-            generator.advanceVisuals(fracSec)
+            runBlocking { generator.advanceVisuals(fracSec) }
             openGlScene.draw(gl, generator.gameObjects)
         }
 

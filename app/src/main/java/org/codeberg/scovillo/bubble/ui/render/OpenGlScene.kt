@@ -1,7 +1,10 @@
 package org.codeberg.scovillo.bubble.ui.render
 
 import org.codeberg.scovillo.bubble.game.Boundaries
+import org.codeberg.scovillo.bubble.game.Bubble
 import org.codeberg.scovillo.bubble.game.GameObject
+import org.codeberg.scovillo.bubble.game.GameObjectType
+import org.codeberg.scovillo.bubble.game.Star
 import javax.microedition.khronos.opengles.GL10
 import javax.microedition.khronos.opengles.GL11
 
@@ -28,7 +31,12 @@ class OpenGlScene(
         gl.glClear(GL10.GL_COLOR_BUFFER_BIT or GL10.GL_DEPTH_BUFFER_BIT)
         gl.glMatrixMode(GL10.GL_MODELVIEW)
         (gl as GL11).glLoadMatrixf(modelViewScene, 0)
-        gameObjects.forEach { it.draw(gl) }
+        gameObjects.forEach {
+            when (it.type) {
+                GameObjectType.BUBBLE -> Bubble(it).draw(gl)
+                GameObjectType.STAR -> Star(it).draw(gl)
+            }
+        }
     }
 
     fun resize(gl: GL10, width: Int, height: Int): SceneDimensions {

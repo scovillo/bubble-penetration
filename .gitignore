@@ -10,3 +10,4 @@ build/
 /.vscode/
 /gradle/gradle-daemon-jvm.properties
 _site/
+.kotlin/

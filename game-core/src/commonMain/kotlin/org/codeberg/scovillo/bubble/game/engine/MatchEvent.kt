@@ -1,12 +1,12 @@
-package org.codeberg.scovillo.bubble.game.generator
+package org.codeberg.scovillo.bubble.game.engine
 
-import org.codeberg.scovillo.bubble.game.BubbleColor
+import org.codeberg.scovillo.bubble.game.GameObjectColor
 
 data class MatchSnapshot(
     val score: Int,
     val timerSeconds: Float,
     val initialTimerSeconds: Float,
-    val collectColor: BubbleColor,
+    val collectColor: GameObjectColor,
     val comboProgress: Int,
     val comboMultiplier: Int,
 )
@@ -22,5 +22,6 @@ sealed interface MatchEvent {
         val comboMultiplierIncreased: Boolean,
         val comboIsActive: Boolean,
     ) : MatchEvent
+
     data object GameOver : MatchEvent
 }

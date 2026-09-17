@@ -1,39 +1,22 @@
 package org.codeberg.scovillo.bubble.game
 
-import android.opengl.Matrix
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.FloatBuffer
 import javax.microedition.khronos.opengles.GL10
-import kotlin.math.sqrt
 
-class Star(speed: Float) : GameObject(speed), DisappearAnimation {
+class Star(state: GameObject) : UiGameObject(state) {
 
-    val score = 3
-
-    private var rotation = 0.0f
-    private val angularVelocity = 50 + Math.random().toFloat() * 100
-    private var disappearElapsed = 0f
-    override var isDisappearing = false
-        private set
-
-    override val isDisappearFinished: Boolean
-        get() = isDisappearing && disappearElapsed >= POP_DURATION_SECONDS
-
-    override fun disappear(): Boolean {
-        if (isDisappearing) return false
-        isDisappearing = true
-        disappearElapsed = 0f
-        return true
-    }
+    val score get() = state.score
 
     override fun draw(gl: GL10) {
-        val popProgress = (disappearElapsed / POP_DURATION_SECONDS).coerceIn(0f, 1f)
-        val popScale = if (isDisappearing) 1f - popProgress else 1f
+        val popProgress = (state.disappearElapsedSeconds / POP_DURATION_SECONDS).coerceIn(0f, 1f)
+        val rotation = state.ageSeconds * 90f
+        val popScale = if (state.isDisappearing) 1f - popProgress else 1f
         gl.glMatrixMode(GL10.GL_MODELVIEW)
         gl.glPushMatrix()
         gl.glMultMatrixf(transformationMatrix, 0)
-        gl.glScalef(scale * popScale, scale * popScale, scale * popScale)
+        gl.glScalef(state.scale * popScale, state.scale * popScale, state.scale * popScale)
         gl.glRotatef(rotation, 0.0f, 1.0f, 0.0f)
         gl.glDisable(GL10.GL_CULL_FACE)
         gl.glEnableClientState(GL10.GL_VERTEX_ARRAY)
@@ -107,185 +90,45 @@ class Star(speed: Float) : GameObject(speed), DisappearAnimation {
         gl.glDisableClientState(GL10.GL_COLOR_ARRAY)
     }
 
-    override fun update(fracSec: Float) {
-        if (isDisappearing) {
-            disappearElapsed += fracSec
-            rotation += fracSec * angularVelocity * 4
-        } else {
-            updatePosition(fracSec)
-            rotation += fracSec * angularVelocity
-        }
-    }
-
-    override fun updatePosition(fracSec: Float) {
-        Matrix.translateM(
-            transformationMatrix, 0, fracSec * velocity[0] * speed,
-            fracSec * velocity[1] * speed,
-            fracSec * velocity[2] * speed
-        )
-    }
-
     private data class Mesh(
         val vertices: FloatBuffer,
         val normals: FloatBuffer,
-        val vertexCount: Int,
+        val vertexCount: Int
     )
 
     private data class GradientMesh(
         val vertices: FloatBuffer,
         val colors: FloatBuffer,
-        val vertexCount: Int,
+        val vertexCount: Int
     )
 
     companion object {
         private const val POP_DURATION_SECONDS = 0.22f
-        private const val FACE_SCALE = 0.84f
-        private const val FACE_Y = -0.20f
-        private const val BEVEL_Y = -0.06f
-        private const val BACK_Y = 0.16f
-
         private val GOLD_MATERIAL = floatArrayOf(0.82f, 0.52f, 0.035f, 1.0f)
         private val BEVEL_MATERIAL = floatArrayOf(0.68f, 0.31f, 0.015f, 1.0f)
         private val SIDE_MATERIAL = floatArrayOf(0.34f, 0.12f, 0.005f, 1.0f)
         private val GOLD_SPECULAR = floatArrayOf(0.64f, 0.54f, 0.30f, 1.0f)
         private val LOW_SPECULAR = floatArrayOf(0.24f, 0.12f, 0.015f, 1.0f)
 
-        private val points = arrayOf(
-            floatArrayOf(0.0f, 1.0f),
-            floatArrayOf(-0.5f, 0.0f),
-            floatArrayOf(0.5f, 0.0f),
-            floatArrayOf(-1.5f, 0.0f),
-            floatArrayOf(-0.75f, -0.75f),
-            floatArrayOf(-1.0f, -1.75f),
-            floatArrayOf(0.0f, -1.25f),
-            floatArrayOf(1.5f, 0.0f),
-            floatArrayOf(0.75f, -0.75f),
-            floatArrayOf(1.0f, -1.75f),
+        private val coreMeshes = StarMeshFactory.create()
+        private val faceMesh = meshOf(coreMeshes.face)
+        private val glowMesh = meshOf(coreMeshes.glow)
+        private val bevelMesh = meshOf(coreMeshes.bevel)
+        private val sideMesh = meshOf(coreMeshes.side)
+        private val faceLightMesh = gradientMeshOf(coreMeshes.faceLight)
+
+        private fun meshOf(data: MeshData) = Mesh(
+            bufferOf(data.vertices), bufferOf(requireNotNull(data.normals)), data.vertexCount
         )
-        private val triangles = intArrayOf(
-            0, 1, 2,
-            1, 3, 4,
-            4, 5, 6,
-            8, 6, 9,
-            2, 8, 7,
-            2, 1, 4,
-            4, 8, 2,
-            8, 4, 6,
+
+        private fun gradientMeshOf(data: MeshData) = GradientMesh(
+            bufferOf(data.vertices), bufferOf(requireNotNull(data.colors)), data.vertexCount
         )
-        private val perimeter = intArrayOf(0, 1, 3, 4, 5, 6, 9, 8, 7, 2)
 
-        private val faceMesh = createFaceMesh(FACE_SCALE, FACE_Y)
-        private val glowMesh = createFaceMesh(1.0f, BACK_Y + 0.01f)
-        private val bevelMesh = createBevelMesh()
-        private val sideMesh = createSideMesh()
-        private val faceLightMesh = createFaceLightMesh()
-
-        private fun createFaceMesh(scale: Float, y: Float): Mesh {
-            val vertices = mutableListOf<Float>()
-            val normals = mutableListOf<Float>()
-            triangles.forEach { index ->
-                vertices.add(points[index][0] * scale)
-                vertices.add(y)
-                vertices.add(points[index][1] * scale)
-                normals.add(0.0f)
-                normals.add(-1.0f)
-                normals.add(0.0f)
-            }
-            return meshOf(vertices, normals)
-        }
-
-        private fun createFaceLightMesh(): GradientMesh {
-            val vertices = mutableListOf<Float>()
-            val colors = mutableListOf<Float>()
-            forEachPerimeterEdge { start, end ->
-                vertices.addAll(listOf(0.0f, FACE_Y - 0.01f, -0.34f))
-                colors.addAll(listOf(1.0f, 0.82f, 0.30f, 0.42f))
-                vertices.addAll(point(start, FACE_SCALE, FACE_Y - 0.01f).toList())
-                colors.addAll(listOf(0.34f, 0.12f, 0.0f, 0.0f))
-                vertices.addAll(point(end, FACE_SCALE, FACE_Y - 0.01f).toList())
-                colors.addAll(listOf(0.34f, 0.12f, 0.0f, 0.0f))
-            }
-            return GradientMesh(bufferOf(vertices), bufferOf(colors), vertices.size / 3)
-        }
-
-        private fun createBevelMesh(): Mesh {
-            val vertices = mutableListOf<Float>()
-            val normals = mutableListOf<Float>()
-            forEachPerimeterEdge { start, end ->
-                addQuad(
-                    vertices,
-                    normals,
-                    point(start, 1.0f, BEVEL_Y),
-                    point(end, 1.0f, BEVEL_Y),
-                    point(end, FACE_SCALE, FACE_Y),
-                    point(start, FACE_SCALE, FACE_Y),
-                    edgeNormal(start, end, -0.72f),
-                )
-            }
-            return meshOf(vertices, normals)
-        }
-
-        private fun createSideMesh(): Mesh {
-            val vertices = mutableListOf<Float>()
-            val normals = mutableListOf<Float>()
-            forEachPerimeterEdge { start, end ->
-                addQuad(
-                    vertices,
-                    normals,
-                    point(start, 1.0f, BACK_Y),
-                    point(end, 1.0f, BACK_Y),
-                    point(end, 1.0f, BEVEL_Y),
-                    point(start, 1.0f, BEVEL_Y),
-                    edgeNormal(start, end, 0.0f),
-                )
-            }
-            return meshOf(vertices, normals)
-        }
-
-        private inline fun forEachPerimeterEdge(block: (Int, Int) -> Unit) {
-            perimeter.indices.forEach { index ->
-                block(perimeter[index], perimeter[(index + 1) % perimeter.size])
-            }
-        }
-
-        private fun point(index: Int, scale: Float, y: Float) =
-            floatArrayOf(points[index][0] * scale, y, points[index][1] * scale)
-
-        private fun edgeNormal(start: Int, end: Int, normalY: Float): FloatArray {
-            val deltaX = points[end][0] - points[start][0]
-            val deltaZ = points[end][1] - points[start][1]
-            val normalX = deltaZ
-            val normalZ = -deltaX
-            val length = sqrt(normalX * normalX + normalY * normalY + normalZ * normalZ)
-            return floatArrayOf(normalX / length, normalY / length, normalZ / length)
-        }
-
-        private fun addQuad(
-            vertices: MutableList<Float>,
-            normals: MutableList<Float>,
-            first: FloatArray,
-            second: FloatArray,
-            third: FloatArray,
-            fourth: FloatArray,
-            normal: FloatArray,
-        ) {
-            arrayOf(first, second, third, first, third, fourth).forEach { vertex ->
-                vertices.addAll(vertex.toList())
-                normals.addAll(normal.toList())
-            }
-        }
-
-        private fun meshOf(vertices: List<Float>, normals: List<Float>): Mesh {
-            return Mesh(bufferOf(vertices), bufferOf(normals), vertices.size / 3)
-        }
-
-        private fun bufferOf(values: List<Float>): FloatBuffer =
+        private fun bufferOf(values: FloatArray): FloatBuffer =
             ByteBuffer.allocateDirect(values.size * Float.SIZE_BYTES)
                 .order(ByteOrder.nativeOrder())
                 .asFloatBuffer()
-                .apply {
-                    values.forEach { put(it) }
-                    position(0)
-                }
+                .apply { put(values); position(0) }
     }
 }

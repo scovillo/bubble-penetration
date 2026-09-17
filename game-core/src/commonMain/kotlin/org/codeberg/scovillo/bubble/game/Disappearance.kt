@@ -1,6 +1,6 @@
 package org.codeberg.scovillo.bubble.game
 
-interface DisappearAnimation {
+interface Disappearance {
 
     val isDisappearing: Boolean
     val isDisappearFinished: Boolean

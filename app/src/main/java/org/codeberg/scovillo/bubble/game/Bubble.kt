@@ -4,66 +4,46 @@ import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.FloatBuffer
 import javax.microedition.khronos.opengles.GL10
-import kotlin.math.cos
 import kotlin.math.sin
 
-enum class BubbleColor {
-    RED, GREEN, SILVER, BLUE, PURPLE;
-
-    fun rgb(): FloatArray = when (this) {
-        RED -> floatArrayOf(0.76f, 0.08f, 0.18f, 1.0f)
-        GREEN -> floatArrayOf(0.04f, 0.58f, 0.24f, 1.0f)
-        SILVER -> floatArrayOf(0.62f, 0.70f, 0.80f, 1.0f)
-        BLUE -> floatArrayOf(0.16f, 0.30f, 1.0f, 1.0f)
-        PURPLE -> floatArrayOf(0.50f, 0.12f, 0.76f, 1.0f)
-    }
+fun GameObjectColor.rgb(): FloatArray = when (this) {
+    GameObjectColor.RED -> floatArrayOf(0.76f, 0.08f, 0.18f, 1.0f)
+    GameObjectColor.GREEN -> floatArrayOf(0.04f, 0.58f, 0.24f, 1.0f)
+    GameObjectColor.SILVER -> floatArrayOf(0.62f, 0.70f, 0.80f, 1.0f)
+    GameObjectColor.BLUE -> floatArrayOf(0.16f, 0.30f, 1.0f, 1.0f)
+    GameObjectColor.PURPLE -> floatArrayOf(0.50f, 0.12f, 0.76f, 1.0f)
+    GameObjectColor.GOLD -> floatArrayOf(0.82f, 0.52f, 0.035f, 1.0f)
 }
 
-class Bubble(
-    val color: BubbleColor?, private val glColor: FloatArray, speed: Float
-) : GameObject(speed), DisappearAnimation {
+class Bubble(state: GameObject) : UiGameObject(state) {
 
-    val score = 1
+    private val glColor = requireNotNull(state.color).rgb()
 
-    private var wobbleX = 1.0f
-    private var wobbleY = 0.7f
+    val color: GameObjectColor get() = state.color
+    val score: Int get() = state.score
 
-    private var wobbleXup = true
-    private var wobbleYup = true
     private val mesh = meshFor(12.0f)
-    private var disappearElapsed = 0f
-    override var isDisappearing = false
-        private set
-
-    override val isDisappearFinished: Boolean
-        get() = isDisappearing && disappearElapsed >= POP_DURATION_SECONDS
-
-    override fun disappear(): Boolean {
-        if (isDisappearing) return false
-        isDisappearing = true
-        disappearElapsed = 0f
-        return true
-    }
-
     override fun draw(gl: GL10) {
-        val popProgress = (disappearElapsed / POP_DURATION_SECONDS).coerceIn(0f, 1f)
-        val bubbleScale = if (isDisappearing) 1f + 0.22f * popProgress else 1f
-        val bubbleAlpha = if (isDisappearing) 1f - popProgress else 1f
+        val popProgress = (state.disappearElapsedSeconds / POP_DURATION_SECONDS).coerceIn(0f, 1f)
+        val wobbleX = 1f + .1f * sin(state.ageSeconds * 4f)
+        val wobbleY = 1f + .1f * sin(state.ageSeconds * 4f + 1.7f)
+        val bubbleScale = if (state.isDisappearing) 1f + 0.22f * popProgress else 1f
+        val bubbleAlpha = if (state.isDisappearing) 1f - popProgress else 1f
         gl.glMatrixMode(GL10.GL_MODELVIEW)
         gl.glPushMatrix()
         run {
             gl.glMultMatrixf(transformationMatrix, 0)
             gl.glScalef(
-                scale * wobbleX * bubbleScale,
-                scale * bubbleScale,
-                scale * wobbleY * bubbleScale
+                state.scale * wobbleX * bubbleScale,
+                state.scale * bubbleScale,
+                state.scale * wobbleY * bubbleScale
             )
             // A faint halo separates overlapping bubbles without changing hit areas.
             gl.glDisable(GL10.GL_LIGHTING)
             gl.glDepthMask(false)
             gl.glBlendFunc(GL10.GL_SRC_ALPHA, GL10.GL_ONE)
-            val haloScale = if (isDisappearing) 1.16f + 0.55f * popProgress else 1.16f
-            val haloAlpha = if (isDisappearing) 0.26f * (1f - popProgress) else 0.07f
+            val haloScale = if (state.isDisappearing) 1.16f + 0.55f * popProgress else 1.16f
+            val haloAlpha = if (state.isDisappearing) 0.26f * (1f - popProgress) else 0.07f
             gl.glColor4f(glColor[0], glColor[1], glColor[2], haloAlpha)
             gl.glPushMatrix()
             gl.glScalef(haloScale, haloScale, haloScale)
@@ -81,7 +61,6 @@ class Bubble(
             )
             gl.glMaterialfv(GL10.GL_FRONT_AND_BACK, GL10.GL_SPECULAR, SPECULAR_COLOR, 0)
             gl.glMaterialf(GL10.GL_FRONT_AND_BACK, GL10.GL_SHININESS, 54.0f)
-            // Lighting plus a specular material creates the glossy 2.5D highlight.
             drawMesh(gl)
             gl.glDisable(GL10.GL_LIGHTING)
             gl.glDepthMask(true)
@@ -95,43 +74,19 @@ class Bubble(
         for (strip in mesh.strips) {
             strip.vertices.position(0)
             gl.glVertexPointer(3, GL10.GL_FLOAT, 0, strip.vertices)
-            gl.glNormalPointer(GL10.GL_FLOAT, 0, strip.vertices)
+            strip.normals.position(0)
+            gl.glNormalPointer(GL10.GL_FLOAT, 0, strip.normals)
             gl.glDrawArrays(GL10.GL_TRIANGLE_STRIP, 0, strip.vertexCount)
         }
         gl.glDisableClientState(GL10.GL_VERTEX_ARRAY)
         gl.glDisableClientState(GL10.GL_NORMAL_ARRAY)
     }
 
-    override fun update(fracSec: Float) {
-        if (isDisappearing) {
-            disappearElapsed += fracSec
-        } else {
-            updatePosition(fracSec)
-        }
-
-        if (wobbleX + 0.015 <= 1.1 && wobbleXup) {
-            wobbleX += 0.015f
-        } else {
-            wobbleXup = false
-        }
-        if (wobbleX - 0.015 >= 0.9 && !wobbleXup) {
-            wobbleX -= 0.015f
-        } else {
-            wobbleXup = true
-        }
-        if (wobbleY + 0.015 <= 1.1 && wobbleYup) {
-            wobbleY += 0.015f
-        } else {
-            wobbleYup = false
-        }
-        if (wobbleY - 0.015 >= 0.9 && !wobbleYup) {
-            wobbleY -= 0.015f
-        } else {
-            wobbleYup = true
-        }
-    }
-
-    private data class VertexStrip(val vertices: FloatBuffer, val vertexCount: Int)
+    private data class VertexStrip(
+        val vertices: FloatBuffer,
+        val normals: FloatBuffer,
+        val vertexCount: Int,
+    )
 
     private data class BubbleMesh(val strips: List<VertexStrip>)
 
@@ -141,34 +96,22 @@ class Bubble(
         private val meshes = HashMap<Float, BubbleMesh>()
 
         private fun meshFor(smoothness: Float): BubbleMesh = synchronized(meshes) {
-            meshes.getOrPut(smoothness) { createMesh(smoothness) }
+            meshes.getOrPut(smoothness) {
+                BubbleMeshFactory.create(smoothness).map { data ->
+                    VertexStrip(
+                        vertices = bufferOf(data.vertices),
+                        normals = bufferOf(requireNotNull(data.normals)),
+                        vertexCount = data.vertexCount,
+                    )
+                }.let(::BubbleMesh)
+            }
         }
 
-        private fun createMesh(smoothness: Float): BubbleMesh {
-            val strips = mutableListOf<VertexStrip>()
-            var angleA = -90.0f
-            while (angleA < 90.0f) {
-                val vertexCount = ((360.0f / smoothness).toInt() + 1) * 2
-                val vertices = ByteBuffer.allocateDirect(vertexCount * 3 * Float.SIZE_BYTES)
-                    .order(ByteOrder.nativeOrder())
-                    .asFloatBuffer()
-                val r1 = cos(angleA * Math.PI / 180.0).toFloat()
-                val r2 = cos((angleA + smoothness) * Math.PI / 180.0).toFloat()
-                val h1 = sin(angleA * Math.PI / 180.0).toFloat()
-                val h2 = sin((angleA + smoothness) * Math.PI / 180.0).toFloat()
-                var angleB = 0.0f
-                while (angleB <= 360.0f) {
-                    val cosine = cos(angleB * Math.PI / 180.0).toFloat()
-                    val sine = (-sin(angleB * Math.PI / 180.0)).toFloat()
-                    vertices.put(r2 * cosine).put(h2).put(r2 * sine)
-                    vertices.put(r1 * cosine).put(h1).put(r1 * sine)
-                    angleB += smoothness
-                }
-                strips.add(VertexStrip(vertices, vertexCount))
-                angleA += smoothness
-            }
-            return BubbleMesh(strips)
-        }
+        private fun bufferOf(values: FloatArray): FloatBuffer =
+            ByteBuffer.allocateDirect(values.size * Float.SIZE_BYTES)
+                .order(ByteOrder.nativeOrder())
+                .asFloatBuffer()
+                .apply { put(values); position(0) }
     }
 
 }

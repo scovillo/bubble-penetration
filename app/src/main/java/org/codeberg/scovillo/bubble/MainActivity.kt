@@ -18,11 +18,11 @@ import org.codeberg.scovillo.bubble.api.ApiService
 import org.codeberg.scovillo.bubble.api.OnlineGameSession
 import org.codeberg.scovillo.bubble.api.UserResource
 import org.codeberg.scovillo.bubble.api.findHttpStatusException
+import org.codeberg.scovillo.bubble.game.Boundaries
 import org.codeberg.scovillo.bubble.game.GameActionEvent
 import org.codeberg.scovillo.bubble.game.MatchState
-import org.codeberg.scovillo.bubble.game.Boundaries
-import org.codeberg.scovillo.bubble.game.generator.DeterministicMatchEngine
-import org.codeberg.scovillo.bubble.game.generator.MatchEngineConfig
+import org.codeberg.scovillo.bubble.game.engine.DeterministicMatchEngine
+import org.codeberg.scovillo.bubble.game.engine.MatchEngineConfig
 import org.codeberg.scovillo.bubble.persistence.LocalFileStorage
 import org.codeberg.scovillo.bubble.persistence.LocalHighscoreStorage
 import org.codeberg.scovillo.bubble.persistence.SettingsModel
