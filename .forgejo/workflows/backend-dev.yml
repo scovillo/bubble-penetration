@@ -71,8 +71,9 @@ jobs:
 
           buildah build \
             --isolation chroot \
+            --file backend/Dockerfile \
             --tag "$IMAGE_DEV" \
             --tag "$IMAGE_SHA" \
-            backend
+            .
           buildah push "$IMAGE_DEV" "docker://$IMAGE_DEV"
           buildah push "$IMAGE_SHA" "docker://$IMAGE_SHA"

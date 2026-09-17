@@ -1,0 +1,12 @@
+.git
+.gradle
+.idea
+.kotlin
+app
+backend/node_modules
+backend/dist
+backend/coverage
+build
+game-core/build
+kotlin-js-store
+_site

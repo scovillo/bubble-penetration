@@ -17,9 +17,7 @@ class RandomizedMatchEngine(
     config: MatchEngineConfig,
     state: MatchState,
 ) : MatchEngine(boundaries, config, state) {
-    private val randomSpawn = 0.05f
-    private val delay = 6_000L
-    private var timeFlag = currentTimeMs() + delay
+    private var timeFlag = currentTimeMs() + config.targetChangeBaseMs
     private val gameSpeed = GameSpeed()
 
     override suspend fun generateGameObjects(score: Int, elapsedMs: Long) {
@@ -70,7 +68,7 @@ class RandomizedMatchEngine(
             val collectColorAvailable = state.activeGameObjects.any { gameObject ->
                 gameObject.type == GameObjectType.BUBBLE && gameObject.color == currentCollectColor
             }
-            val gameObject = if (Random.nextFloat() <= randomSpawn) {
+            val gameObject = if (Random.nextFloat() <= 0.05f) {
                 GameObject(
                     GameObjectType.STAR,
                     GameObjectColor.GOLD,
@@ -106,7 +104,7 @@ class RandomizedMatchEngine(
         if (currentTimeMs() >= timeFlag) {
             while (collectColor == currentCollectColor) collectColor = generateColor()
             val scoreScale = (1f - score / 400f).coerceAtLeast(.75f)
-            timeFlag = currentTimeMs() + (delay * scoreScale).toLong()
+            timeFlag = currentTimeMs() + (config.targetChangeBaseMs * scoreScale).toLong()
         }
         currentCollectColor = collectColor
     }

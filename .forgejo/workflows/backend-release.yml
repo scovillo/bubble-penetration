@@ -74,8 +74,9 @@ jobs:
 
           buildah build \
             --isolation chroot \
+            --file backend/Dockerfile \
             --tag "$IMAGE_VERSION" \
             --tag "$IMAGE_LATEST" \
-            backend
+            .
           buildah push "$IMAGE_VERSION" "docker://$IMAGE_VERSION"
           buildah push "$IMAGE_LATEST" "docker://$IMAGE_LATEST"
