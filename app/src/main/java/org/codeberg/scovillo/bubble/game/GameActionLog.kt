@@ -1,12 +1,5 @@
 package org.codeberg.scovillo.bubble.game
 
-data class GameActionEvent(
-    val objectId: String,
-    val timestampMs: Long,
-    val x: Double,
-    val y: Double,
-)
-
 class GameActionLog {
     private val events = mutableListOf<GameActionEvent>()
 
