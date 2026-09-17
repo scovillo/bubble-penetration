@@ -28,6 +28,8 @@ import org.codeberg.scovillo.bubble.game.GameObjectColor
 import org.codeberg.scovillo.bubble.game.engine.MatchEngine
 import org.codeberg.scovillo.bubble.game.engine.MatchEvent
 import org.codeberg.scovillo.bubble.game.engine.MatchSnapshot
+import org.codeberg.scovillo.bubble.game.engine.MATCH_SIMULATION_STEP_MS
+import org.codeberg.scovillo.bubble.game.engine.MATCH_SIMULATION_STEP_SECONDS
 import java.math.RoundingMode
 import java.text.DecimalFormat
 import javax.microedition.khronos.egl.EGLConfig
@@ -70,6 +72,7 @@ class GameBubbleScene(
     private var fieldFramePulseAnimator: ValueAnimator? = null
     private var fieldFramePulseGeneration = 0
     private val firstDigitFormat = DecimalFormat("0.0")
+    private var pendingSimulationMs = 0L
 
     init {
         effectPlayer.isMuted = matchSettings.areSoundEffectsMuted
@@ -90,6 +93,7 @@ class GameBubbleScene(
 
     override fun onResume() {
         openGlScene.resetFrameTime()
+        pendingSimulationMs = 0L
     }
 
     fun getScore(): Int = engine.score
@@ -150,8 +154,13 @@ class GameBubbleScene(
                 openGlScene.draw(gl, engine.gameObjects)
                 return
             }
-            val fracSec = openGlScene.elapsedSeconds()
-            runBlocking { engine.advance(fracSec, ::handleEngineEvent) }
+            pendingSimulationMs += openGlScene.elapsedMilliseconds()
+            runBlocking {
+                while (pendingSimulationMs >= MATCH_SIMULATION_STEP_MS && !engine.isGameOver) {
+                    engine.advance(MATCH_SIMULATION_STEP_SECONDS, ::handleEngineEvent)
+                    pendingSimulationMs -= MATCH_SIMULATION_STEP_MS
+                }
+            }
             openGlScene.draw(gl, engine.gameObjects)
         }
 

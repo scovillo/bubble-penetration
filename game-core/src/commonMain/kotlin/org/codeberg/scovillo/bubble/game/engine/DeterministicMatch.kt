@@ -13,18 +13,27 @@ class DeterministicMatch(private val seed: String) {
         }
         val state = MatchState(timerValueMs = INITIAL_TIMER_SECONDS)
         val engine = DeterministicMatchEngine(boundaries, MatchEngineConfig(seed), state)
-        input.events.forEach { event ->
+        input.events.forEachIndexed { index, event ->
+            require(event.timestampMs % MATCH_SIMULATION_STEP_MS == 0L) {
+                "event timestamp is not aligned to the simulation step"
+            }
             require(event.timestampMs >= engine.durationMs) { "events are not ordered" }
             advanceTo(engine, event.timestampMs)
-            val resolvedActions = engine.log.size
-            require(engine.submitTap(event.x, event.y)) { "tap does not hit a valid target" }
-            engine.advance(0f) { }
-            require(engine.log.getOrNull(resolvedActions)?.objectId == event.objectId) {
-                "tap does not match declared object"
+            requireResolvedEvent(engine, input.events, index - 1)
+            require(engine.submitTap(event.x, event.y)) {
+                "tap #${index + 1} for ${event.objectId} at ${event.timestampMs}ms does not hit a valid target"
             }
         }
-        engine.advance(engine.timerSeconds) { }
+        while (!engine.isGameOver) engine.advance(MATCH_SIMULATION_STEP_SECONDS) { }
+        input.events.indices.forEach { requireResolvedEvent(engine, input.events, it) }
         return MatchResult(engine.score, engine.durationMs)
+    }
+
+    private fun requireResolvedEvent(engine: DeterministicMatchEngine, events: List<GameActionEvent>, index: Int) {
+        if (index < 0) return
+        require(engine.log.getOrNull(index)?.objectId == events[index].objectId) {
+            "tap does not match declared object"
+        }
     }
 
     /**
@@ -35,14 +44,12 @@ class DeterministicMatch(private val seed: String) {
     private suspend fun advanceTo(engine: DeterministicMatchEngine, timestampMs: Long) {
         while (engine.durationMs < timestampMs) {
             require(!engine.isGameOver) { "event occurs after game over" }
-            val stepMs = minOf(REPLAY_TICK_MS, timestampMs - engine.durationMs)
-            engine.advance(stepMs / 1_000f) { }
+            engine.advance(MATCH_SIMULATION_STEP_SECONDS) { }
         }
     }
 
     private companion object {
         const val INITIAL_TIMER_SECONDS = 25f
-        const val REPLAY_TICK_MS = 50L
     }
 }
 

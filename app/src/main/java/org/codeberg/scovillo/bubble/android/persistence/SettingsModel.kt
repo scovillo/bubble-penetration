@@ -10,7 +10,7 @@ data class MatchSettings(
 
 class SettingsModel {
     companion object {
-        const val DEFAULT_BACKEND_BASE_URL = "https://dev.bubble.lukas-scheerer.de"
+        const val DEFAULT_BACKEND_BASE_URL = "https://bubble.lukas-scheerer.de"
     }
 
     var isMusicMuted: Boolean = false

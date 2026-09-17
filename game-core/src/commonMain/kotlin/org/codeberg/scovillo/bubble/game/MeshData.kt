@@ -21,7 +21,7 @@ data class MeshData(
     }
 
     val vertexCount: Int get() = vertices.size / 3
-    
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other == null || this::class != other::class) return false
@@ -61,15 +61,12 @@ object BubbleMeshFactory {
             while (angleB <= 360f) {
                 val cosine = cos(angleB * PI / 180.0).toFloat()
                 val sine = (-sin(angleB * PI / 180.0)).toFloat()
-                vertices += r2 * cosine
-                vertices += h2
-                vertices += r2 * sine
-                vertices += r1 * cosine
-                vertices += h1
-                vertices += r1 * sine
+                vertices += listOf(
+                    r2 * cosine, h2, r2 * sine,
+                    r1 * cosine, h1, r1 * sine,
+                )
                 angleB += smoothnessDegrees
             }
-            // A sphere's unit position vector is also its outward normal.
             strips += MeshData(vertices.toFloatArray(), vertices.toFloatArray())
             angleA += smoothnessDegrees
         }

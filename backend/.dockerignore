@@ -9,3 +9,4 @@ coverage
 .kubernetes
 *.md
 npm-debug.log*
+**/test-logs/

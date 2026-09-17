@@ -65,12 +65,22 @@ abstract class MatchEngine(
     /** Input is normalized screen space; OpenGL/world coordinates never enter the core. */
     fun submitTap(normalizedX: Double, normalizedY: Double): Boolean {
         if (isGameOver) return false
+        val tappedAtMs = elapsedMs
         val target =
-            state.activeGameObjects.filterNot { it.isDisappearFinished || it.isDisappearing }.filter(::isTapAllowed)
+            state.activeGameObjects.filterNot { it.isDisappearFinished || it.isDisappearing }
+                .filter(::isTapAllowed)
                 .minByOrNull { hitDistance(it, normalizedX, normalizedY) }
                 ?.takeIf { hitDistance(it, normalizedX, normalizedY) <= 1.0 } ?: return false
-        target.replayMetadata?.let { lastReplayTouchMs = elapsedMs }
-        queuedTargets += QueuedTarget(target, normalizedX, normalizedY)
+        target.replayMetadata?.let { lastReplayTouchMs = tappedAtMs }
+        target.replayMetadata?.let { metadata ->
+            actionLog.record(
+                metadata.objectId,
+                tappedAtMs,
+                roundCoordinate(normalizedX),
+                roundCoordinate(normalizedY),
+            )
+        }
+        queuedTargets += QueuedTarget(target, normalizedX, normalizedY, tappedAtMs)
         return true
     }
 
@@ -117,7 +127,6 @@ abstract class MatchEngine(
             if (correct || value.type == GameObjectType.STAR) value.score * combo.multiplier else 0
         state.timerValueMs += timerDelta; state.score += scoreDelta
         if (correct) combo.increment(elapsedMs) else if (value.type == GameObjectType.BUBBLE) combo.reset()
-        value.replayMetadata?.let { actionLog.record(it.objectId, elapsedMs, queued.x, queued.y) }
         emit(
             MatchEvent.TargetCollected(
                 timerDelta,
@@ -144,4 +153,9 @@ abstract class MatchEngine(
     abstract suspend fun updateCollectColor(score: Int, elapsedMs: Long)
 }
 
-private data class QueuedTarget(val value: GameObject, val x: Double, val y: Double)
+private data class QueuedTarget(
+    val value: GameObject,
+    val x: Double,
+    val y: Double,
+    val tappedAtMs: Long,
+)

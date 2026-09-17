@@ -15,6 +15,7 @@ import { Highscore } from './entities/highscore.entity';
 import { Player } from './entities/player.entity';
 import {
   REPLAY_VERSION,
+  ReplayValidationInput,
   validateReplay,
 } from './validation/game-core-replay-validator';
 
@@ -176,13 +177,15 @@ export class BubbleGameService {
       this.logger.log(
         `Validating replay for player ${player.id}, session ${session.id}.`,
       );
-      await validateReplay({
+      const replayInput: ReplayValidationInput = {
         seed: session.seed,
         score: dto.score,
         durationMs: dto.durationMs,
         viewportAspectRatio: dto.viewportAspectRatio,
         events: dto.events,
-      });
+      };
+      this.logger.debug(JSON.stringify(replayInput));
+      await validateReplay(replayInput);
     } catch (error: unknown) {
       const reason =
         error instanceof Error

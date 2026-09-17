@@ -21,10 +21,14 @@ class OpenGlScene(
     }
 
     fun elapsedSeconds(): Float {
+        return elapsedMilliseconds() / 1_000f
+    }
+
+    fun elapsedMilliseconds(): Long {
         val currentFrameTime = System.currentTimeMillis()
-        val elapsedSeconds = (currentFrameTime - lastFrameTime).toFloat() / 1000
+        val elapsedMilliseconds = currentFrameTime - lastFrameTime
         lastFrameTime = currentFrameTime
-        return elapsedSeconds
+        return elapsedMilliseconds
     }
 
     fun draw(gl: GL10, gameObjects: Iterable<GameObject>) {

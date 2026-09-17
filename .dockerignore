@@ -10,3 +10,4 @@ build
 game-core/build
 kotlin-js-store
 _site
+**/replay-validation-test/
