@@ -51,7 +51,7 @@
     <string name="error_empty_username">ユーザー名は空にできません!</string>
     <string name="error_username_too_long">最大 10 文字です!</string>
     <string name="error_username_exists">この名前はすでに使われています。</string>
-    <string name="error_username_not_allowed">このユーザー名は使用できません。</string>
+    <string name="error_username_not_allowed">このユーザー名は使用できません。別の名前を選んでください。</string>
     <string name="profile_name_taken_available_offline">この名前はすでに使われています。プロフィールはローカルで使用されます。</string>
     <string name="error_market_app_not_found">アプリストアが見つかりません。</string>
     <string name="msg_new_rank">&#x1F3C6;\n\nすばらしい!\n新しい順位を確認しましょう!</string>

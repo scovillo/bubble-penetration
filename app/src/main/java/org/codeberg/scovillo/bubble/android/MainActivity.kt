@@ -350,7 +350,7 @@ class MainActivity : ComponentActivity() {
                 Toast.makeText(
                     this,
                     getString(org.codeberg.scovillo.bubble.R.string.error_username_not_allowed),
-                    LENGTH_SHORT
+                    LENGTH_LONG
                 ).show()
                 return
             }

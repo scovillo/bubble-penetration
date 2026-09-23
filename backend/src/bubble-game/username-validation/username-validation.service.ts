@@ -61,7 +61,9 @@ export class UsernameValidationService {
           );
         }
         if (result.inappropriate) {
-          this.logger.warn('Inappropriate username detected by classifier.');
+          this.logger.warn(
+            `Inappropriate username "${username}" detected by classifier.`,
+          );
           throw new BadRequestException('This username is not allowed.');
         }
       }
