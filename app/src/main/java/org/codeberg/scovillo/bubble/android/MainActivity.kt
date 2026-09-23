@@ -330,6 +330,7 @@ class MainActivity : ComponentActivity() {
             return
         }
         try {
+            ApiService.validateUsername(value)[6000, TimeUnit.MILLISECONDS]
             val created = ApiService.registerUsername(value)[6000, TimeUnit.MILLISECONDS]
             onBackendRequestSucceeded()
             users.add(created)
@@ -341,6 +342,14 @@ class MainActivity : ComponentActivity() {
                 Toast.makeText(
                     this,
                     getString(org.codeberg.scovillo.bubble.R.string.error_username_exists),
+                    LENGTH_SHORT
+                ).show()
+                return
+            }
+            if (httpException?.statusCode == 400) {
+                Toast.makeText(
+                    this,
+                    getString(org.codeberg.scovillo.bubble.R.string.error_username_not_allowed),
                     LENGTH_SHORT
                 ).show()
                 return

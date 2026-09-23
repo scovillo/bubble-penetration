@@ -52,6 +52,7 @@
     <string name="error_empty_username">Sorry, username cannot be empty!</string>
     <string name="error_username_too_long">Sorry, maximum 10 letters!</string>
     <string name="error_username_exists">Name is already in use.</string>
+    <string name="error_username_not_allowed">Username not permitted.</string>
     <string name="profile_name_taken_available_offline">Name is already in use, the profile will be used locally.</string>
     <string name="error_market_app_not_found">Unable to find market app.</string>
     <string name="msg_new_rank">&#x1F3C6;\n\nGreat!\nCheck your new rank!</string>

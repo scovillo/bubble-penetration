@@ -132,6 +132,30 @@ object ApiService {
         )
     }
 
+    fun validateUsername(username: String): Future<Unit> {
+        return THREAD_POOL.submit(
+            Callable {
+                val requestId = AppLogger.newRequestId()
+                val url = apiUrl("players/username-validation")
+                AppLogger.d(TAG, "POST $url | payload: { username: $username }", requestId)
+                val httpConn = openConnection(url, "POST", requestId)
+
+                sendPost(httpConn, JSONObject().put("username", username))
+
+                try {
+                    readResponseFrom(httpConn)
+                    AppLogger.d(TAG, "Username validation succeeded", requestId)
+                    Unit
+                } catch (e: Exception) {
+                    AppLogger.e(TAG, "Error validating username", e, requestId)
+                    throw e
+                } finally {
+                    httpConn.disconnect()
+                }
+            }
+        )
+    }
+
     fun createGameSession(credential: String): Future<OnlineGameSession> {
         return THREAD_POOL.submit(
             Callable {

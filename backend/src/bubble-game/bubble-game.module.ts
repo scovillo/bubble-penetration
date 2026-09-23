@@ -9,9 +9,13 @@ import { Player } from './entities/player.entity';
 import { PlayerCredentialGuard } from './player/player-credential.guard';
 import { PlayerController } from './player/player.controller';
 import { PlayerService } from './player/player.service';
+import { UsernameValidationModule } from './username-validation/username-validation.module';
 
 @Module({
-  imports: [MikroOrmModule.forFeature([Player, GameSession, Highscore])],
+  imports: [
+    MikroOrmModule.forFeature([Player, GameSession, Highscore]),
+    UsernameValidationModule,
+  ],
   providers: [
     BubbleGameService,
     PlayerCredentialGuard,

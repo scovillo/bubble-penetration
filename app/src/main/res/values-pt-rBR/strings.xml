@@ -52,6 +52,7 @@
     <string name="error_empty_username">O nome de usuário não pode ficar vazio!</string>
     <string name="error_username_too_long">Máximo de 10 caracteres!</string>
     <string name="error_username_exists">O nome já está em uso.</string>
+    <string name="error_username_not_allowed">Nome de usuário não permitido.</string>
     <string name="profile_name_taken_available_offline">O nome já está em uso; o perfil será usado localmente.</string>
     <string name="error_market_app_not_found">Não foi possível encontrar a loja de apps.</string>
     <string name="msg_new_rank">&#x1F3C6;\n\nÓtimo!\nConfira sua nova posição!</string>

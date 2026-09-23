@@ -1,7 +1,9 @@
+import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 import { getRepositoryToken } from '@mikro-orm/nestjs';
 import { ConflictException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Player } from '../entities/player.entity';
+import { UsernameValidationService } from '../username-validation/username-validation.service';
 import { PlayerService } from './player.service';
 
 describe('PlayerService', () => {
@@ -17,6 +19,10 @@ describe('PlayerService', () => {
       providers: [
         PlayerService,
         { provide: getRepositoryToken(Player), useValue: players },
+        {
+          provide: UsernameValidationService,
+          useValue: { validate: jest.fn() },
+        },
       ],
     }).compile();
 

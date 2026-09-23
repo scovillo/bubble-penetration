@@ -3,6 +3,7 @@ import { EntityRepository } from '@mikro-orm/postgresql';
 import { ConflictException, Injectable, Logger } from '@nestjs/common';
 import { createHash, randomBytes } from 'crypto';
 import { Player } from '../entities/player.entity';
+import { UsernameValidationService } from '../username-validation/username-validation.service';
 
 export type CreatedPlayer = {
   playerId: string;
@@ -23,9 +24,11 @@ export class PlayerService {
   constructor(
     @InjectRepository(Player)
     private readonly players: EntityRepository<Player>,
+    private readonly usernameValidationService: UsernameValidationService,
   ) {}
 
   async createPlayer(username: string): Promise<CreatedPlayer> {
+    await this.usernameValidationService.validate(username);
     const usernameKey = username.toLowerCase();
     const existingPlayer = await this.players.findOne({ usernameKey });
 

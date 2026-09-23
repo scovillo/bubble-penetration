@@ -54,6 +54,7 @@
     <string name="error_empty_username">Ім’я користувача не може бути порожнім!</string>
     <string name="error_username_too_long">Максимум 10 символів!</string>
     <string name="error_username_exists">Це ім’я вже використовується.</string>
+    <string name="error_username_not_allowed">Ім’я користувача заборонено.</string>
     <string name="profile_name_taken_available_offline">Це ім’я вже використовується; профіль використовуватиметься локально.</string>
     <string name="error_market_app_not_found">Не вдалося знайти магазин застосунків.</string>
     <string name="msg_new_rank">&#x1F3C6;\n\nЧудово!\nПерегляньте своє нове місце!</string>

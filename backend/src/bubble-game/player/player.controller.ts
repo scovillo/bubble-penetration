@@ -1,16 +1,30 @@
 import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
-import { Throttle, hours } from '@nestjs/throttler';
+import { Throttle, hours, minutes } from '@nestjs/throttler';
 import { OriginAllowlistGuard } from '../../common/origin-allowlist.guard';
 import type { CreatedPlayer, PlayerProfile } from '../bubble-game.service';
 import { CreatePlayerDto } from '../dto/create-player.dto';
 import { Player } from '../entities/player.entity';
+import { UsernameValidationService } from '../username-validation/username-validation.service';
 import { CurrentPlayer } from './current-player.decorator';
 import { PlayerCredentialGuard } from './player-credential.guard';
 import { PlayerService } from './player.service';
 
 @Controller('players')
 export class PlayerController {
-  constructor(private readonly playerService: PlayerService) {}
+  constructor(
+    private readonly playerService: PlayerService,
+    private readonly usernameValidationService: UsernameValidationService,
+  ) {}
+
+  @UseGuards(OriginAllowlistGuard)
+  @Throttle({ default: { limit: 10, ttl: minutes(1) } })
+  @Post('username-validation')
+  async validateUsername(
+    @Body() createPlayerDto: CreatePlayerDto,
+  ): Promise<{ valid: true }> {
+    await this.usernameValidationService.validate(createPlayerDto.username);
+    return { valid: true };
+  }
 
   @UseGuards(OriginAllowlistGuard)
   @Throttle({ default: { limit: 3, ttl: hours(1) } })

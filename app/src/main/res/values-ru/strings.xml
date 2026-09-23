@@ -54,6 +54,7 @@
     <string name="error_empty_username">Имя пользователя не может быть пустым!</string>
     <string name="error_username_too_long">Максимум 10 символов!</string>
     <string name="error_username_exists">Это имя уже используется.</string>
+    <string name="error_username_not_allowed">Имя пользователя недопустимо.</string>
     <string name="profile_name_taken_available_offline">Это имя уже используется; профиль будет использоваться локально.</string>
     <string name="error_market_app_not_found">Не удалось найти магазин приложений.</string>
     <string name="msg_new_rank">&#x1F3C6;\n\nОтлично!\nПосмотрите своё новое место!</string>

@@ -17,13 +17,14 @@
     "migration:up": "mikro-orm migration:up --config ./dist/src/database/mikro-orm.config.js",
     "migration:down": "mikro-orm migration:down --config ./dist/src/database/mikro-orm.config.js",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
-    "test": "jest",
-    "test:watch": "jest --watch",
+    "test": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js",
+    "test:watch": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
+    "@badwords/languages": "^3.0.0",
     "@bubble/game-core": "file:../game-core/build/dist/js/productionLibrary",
     "@mikro-orm/core": "^6.6.16",
     "@mikro-orm/migrations": "^6.6.16",
@@ -36,9 +37,11 @@
     "@nestjs/platform-express": "^11.0.1",
     "@nestjs/swagger": "^11.4.7",
     "@nestjs/throttler": "^6.5.0",
+    "badwords-wasm": "^3.0.0",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.15.1",
     "ioredis": "^5.11.1",
+    "profanease": "^2.0.3",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1"
   },
