@@ -8,6 +8,68 @@ metadata:
 data:
   LOG_LEVEL: 'DEBUG'
   NODE_ENV: 'development'
+  INAPPROPRIATE_USERNAME_API_URL: 'http://inappropriate-usernames-api'
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: inappropriate-usernames-api
+  namespace: $NAMESPACE
+  labels:
+    app: inappropriate-usernames-api
+spec:
+  replicas: 1
+  revisionHistoryLimit: 1
+  selector:
+    matchLabels:
+      app: inappropriate-usernames-api
+  template:
+    metadata:
+      labels:
+        app: inappropriate-usernames-api
+    spec:
+      containers:
+        - name: api
+          image: registry.codeberg.org/scovillo/inappropriate-usernames:latest
+          imagePullPolicy: Always
+          ports:
+            - name: http
+              containerPort: 8080
+          env:
+            - name: MODEL_THRESHOLD
+              value: '0.2'
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 20
+          resources:
+            requests:
+              cpu: 100m
+              memory: 512Mi
+            limits:
+              cpu: '1'
+              memory: 1Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: inappropriate-usernames-api
+  namespace: $NAMESPACE
+spec:
+  selector:
+    app: inappropriate-usernames-api
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
 ---
 apiVersion: v1
 kind: Service

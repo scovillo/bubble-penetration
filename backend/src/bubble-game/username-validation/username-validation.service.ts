@@ -57,6 +57,12 @@ const USERNAME_LANGUAGE_PACKS = [
   'zh',
 ];
 
+type InappropriateUsernameResponse = {
+  inappropriate: boolean;
+};
+
+const INAPPROPRIATE_USERNAME_API_TIMEOUT_MS = 3_000;
+
 @Injectable()
 export class UsernameValidationService {
   private readonly logger = new Logger(UsernameValidationService.name);
@@ -93,7 +99,7 @@ export class UsernameValidationService {
   }
 
   validate(username: string): Promise<void> {
-    return Promise.resolve().then(() => {
+    return Promise.resolve().then(async () => {
       const isCustomRuleViolated = CUSTOM_USERNAME_RULES.some(
         ({ regex, mustMatch }) => regex.test(username) !== mustMatch,
       );
@@ -117,6 +123,35 @@ export class UsernameValidationService {
       if (this.filter.check(username)) {
         this.logger.warn(`Profanity detected in ${username} by profanease.`);
         throw new BadRequestException('This username is not allowed.');
+      }
+
+      const classifierUrl = process.env.INAPPROPRIATE_USERNAME_API_URL;
+      if (classifierUrl) {
+        const response = await fetch(
+          `${classifierUrl.replace(/\/$/, '')}/v1/predict`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username }),
+            signal: AbortSignal.timeout(INAPPROPRIATE_USERNAME_API_TIMEOUT_MS),
+          },
+        );
+        if (!response.ok) {
+          throw new Error(
+            `Inappropriate username API returned HTTP ${response.status}.`,
+          );
+        }
+
+        const result = (await response.json()) as InappropriateUsernameResponse;
+        if (typeof result.inappropriate !== 'boolean') {
+          throw new Error(
+            'Inappropriate username API returned an invalid response.',
+          );
+        }
+        if (result.inappropriate) {
+          this.logger.warn('Inappropriate username detected by classifier.');
+          throw new BadRequestException('This username is not allowed.');
+        }
       }
     });
   }
