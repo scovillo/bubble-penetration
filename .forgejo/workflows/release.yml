@@ -19,6 +19,14 @@ jobs:
           distribution: temurin
           java-version: 17
 
+      - name: Install Android SDK prerequisites
+        shell: bash
+        run: |
+          if ! command -v unzip >/dev/null 2>&1; then
+            apt-get update
+            apt-get install -y unzip
+          fi
+
       - name: Setup Android SDK
         uses: https://github.com/android-actions/setup-android@v4
 
