@@ -11,15 +11,22 @@ export class RequestLoggingMiddleware implements NestMiddleware {
   private readonly logger = new Logger('Request');
 
   use(request: Request, response: Response, next: NextFunction): void {
+    const healthCheck = this.isHealthCheck(request);
     const requestId = this.resolveRequestId(request);
     response.setHeader('X-Request-Id', requestId);
 
     runWithRequestContext({ requestId }, () => {
       const startedAt = process.hrtime.bigint();
 
-      this.logger.log(`=> ${request.method} ${request.originalUrl}`);
+      if (!healthCheck) {
+        this.logger.log(`=> ${request.method} ${request.originalUrl}`);
+      }
 
       response.on('finish', () => {
+        if (healthCheck) {
+          return;
+        }
+
         const durationMs =
           Number(process.hrtime.bigint() - startedAt) / 1_000_000;
         this.logger.log(
@@ -40,9 +47,17 @@ export class RequestLoggingMiddleware implements NestMiddleware {
     }
 
     const generated = randomUUID();
-    this.logger.warn(
-      `Request is missing a valid ${REQUEST_ID_HEADER} header, generated ${generated}.`,
-    );
+    if (!this.isHealthCheck(request)) {
+      this.logger.warn(
+        `Request is missing a valid ${REQUEST_ID_HEADER} header, generated ${generated}.`,
+      );
+    }
     return generated;
+  }
+
+  private isHealthCheck(request: Request): boolean {
+    return (
+      request.path === '/health/live' || request.path === '/health/ready'
+    );
   }
 }
