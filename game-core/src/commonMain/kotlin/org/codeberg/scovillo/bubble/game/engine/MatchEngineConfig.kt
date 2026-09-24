@@ -14,6 +14,9 @@ class MatchEngineConfig(
     /** Travel duration used for newly generated objects. */
     val baseTravelDurationMs: Float
 
+    /** Timer value at the start of a match, in seconds. */
+    val initialTimerSeconds: Float
+
     /** Base interval at which the collectible target changes. */
     val targetChangeBaseMs: Long
 
@@ -44,6 +47,7 @@ class MatchEngineConfig(
                 maxObjectsOnField = 20
                 spawnIntervalMs = 100L
                 baseTravelDurationMs = 10_000.0f
+                initialTimerSeconds = 20f
                 targetChangeBaseMs = 6_000L
                 minBubbleScale = 0.75f
                 bubbleScaleRange = 0.15f
@@ -62,6 +66,7 @@ class MatchEngineConfig(
     fun summary(): String =
         "replayVersion=$replayVersion, maxObjectsOnField=$maxObjectsOnField, " +
                 "spawnIntervalMs=$spawnIntervalMs, baseTravelDurationMs=$baseTravelDurationMs, " +
+                "initialTimerSeconds=$initialTimerSeconds, " +
                 "targetChangeBaseMs=$targetChangeBaseMs, minBubbleScale=$minBubbleScale, " +
                 "bubbleScaleRange=$bubbleScaleRange, starScale=$starScale, " +
                 "maxSpawnDelayMs=$maxSpawnDelayMs, minSpawnDistance=$minSpawnDistance, " +

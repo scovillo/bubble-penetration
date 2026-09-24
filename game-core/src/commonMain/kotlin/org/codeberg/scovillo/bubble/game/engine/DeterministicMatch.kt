@@ -17,8 +17,9 @@ class DeterministicMatch(
                 input.viewportAspectRatio.toFloat()
             )
         }
-        val state = MatchState(timerValueMs = INITIAL_TIMER_SECONDS)
-        val engine = DeterministicMatchEngine(boundaries, MatchEngineConfig(seed, version), state)
+        val config = MatchEngineConfig(seed, version)
+        val state = MatchState(timerValueMs = config.initialTimerSeconds)
+        val engine = DeterministicMatchEngine(boundaries, config, state)
         input.events.forEachIndexed { index, event ->
             require(event.timestampMs % MATCH_SIMULATION_STEP_MS == 0L) {
                 "event timestamp is not aligned to the simulation step"
@@ -58,9 +59,6 @@ class DeterministicMatch(
         }
     }
 
-    private companion object {
-        const val INITIAL_TIMER_SECONDS = 25f
-    }
 }
 
 data class MatchInput(val events: List<GameActionEvent>, val viewportAspectRatio: Double)
