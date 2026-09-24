@@ -2,6 +2,9 @@
     <string name="app_name">Bubble Penetration</string>
     <string name="action_settings">Ajustes</string>
     <string name="start_button_text">Empezar</string>
+    <string name="preparation_ready">Preparados</string>
+    <string name="preparation_collect">Recoge</string>
+    <string name="preparation_go">¡YA!</string>
     <string name="play_again_button_text">Jugar de nuevo</string>
     <string name="highscore_button_text">Mejores puntuaciones</string>
     <string name="score_text">Puntos</string>

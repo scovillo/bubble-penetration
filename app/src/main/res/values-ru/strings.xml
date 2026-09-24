@@ -2,6 +2,9 @@
     <string name="app_name">Bubble Penetration</string>
     <string name="action_settings">Настройки</string>
     <string name="start_button_text">Начать</string>
+    <string name="preparation_ready">На старт</string>
+    <string name="preparation_collect">Собирай</string>
+    <string name="preparation_go">ВПЕРЁД!</string>
     <string name="play_again_button_text">Играть снова</string>
     <string name="highscore_button_text">Рекорды</string>
     <string name="score_text">Очки</string>

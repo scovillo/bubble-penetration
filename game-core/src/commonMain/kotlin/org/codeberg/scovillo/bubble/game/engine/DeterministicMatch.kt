@@ -5,7 +5,10 @@ import org.codeberg.scovillo.bubble.game.GameActionEvent
 import org.codeberg.scovillo.bubble.game.MatchState
 
 /** Headless convenience API around the actual [DeterministicMatchEngine]. */
-class DeterministicMatch(private val seed: String, private val version: Int) {
+class DeterministicMatch(
+    private val seed: String,
+    private val version: Int = MatchEngineConfig.CURRENT_REPLAY_VERSION,
+) {
     suspend fun replay(input: MatchInput): MatchResult {
         require(input.viewportAspectRatio > 0) { "invalid viewport aspect ratio" }
         val boundaries = Boundaries().apply {
