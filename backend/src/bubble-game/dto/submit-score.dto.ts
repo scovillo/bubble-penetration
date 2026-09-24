@@ -13,6 +13,7 @@ import { GameActionEventDto } from './game-action-event.dto';
 export class SubmitScoreDto {
   @IsInt()
   @Min(0)
+  @Max(9999)
   score!: number;
 
   @IsInt()
