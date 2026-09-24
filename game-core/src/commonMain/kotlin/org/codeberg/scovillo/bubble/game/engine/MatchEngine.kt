@@ -87,24 +87,29 @@ abstract class MatchEngine(
     private suspend fun updateGameObjects(seconds: Float, nowMs: Long) {
         state.activeGameObjects.forEach { it.advance(seconds) }
         state.activeGameObjects.removeAll {
-            it.isDisappearFinished || it.replayMetadata?.let { meta -> nowMs > meta.expiresAtMs } == true || isOutside(
-                it
-            )
+            it.isDisappearFinished || isOutside(it)
         }
         generateGameObjects(state.score, nowMs)
     }
 
     private fun isOutside(value: GameObject): Boolean {
-        val radius = value.scale / 2f
-        return value.x < boundaries.left - radius ||
-                value.x > boundaries.right + radius ||
-                value.z < boundaries.bottom - radius ||
-                value.z > boundaries.top + radius
+        val (extentX, extentZ) = when (value.type) {
+            // BubbleGl renders a unit sphere, then applies wobble and a 1.16x halo.
+            GameObjectType.BUBBLE -> value.scale * 1.276f to value.scale * 1.276f
+            // StarGl's mesh reaches 1.5/1.75 units and its glow is scaled by 1.10x.
+            GameObjectType.STAR -> value.scale * 1.65f to value.scale * 1.925f
+        }
+        return value.x < boundaries.left - extentX ||
+                value.x > boundaries.right + extentX ||
+                value.z < boundaries.bottom - extentZ ||
+                value.z > boundaries.top + extentZ
     }
 
     private fun isTapAllowed(value: GameObject): Boolean {
         val meta = value.replayMetadata ?: return false
-        return elapsedMs >= meta.spawnAtMs + config.minReactionMs && elapsedMs <= meta.expiresAtMs && (lastReplayTouchMs?.let { elapsedMs - it >= config.minEventGapMs } != false)
+        return elapsedMs >= meta.spawnAtMs + config.minReactionMs &&
+            !isOutside(value) &&
+            (lastReplayTouchMs?.let { elapsedMs - it >= config.minEventGapMs } != false)
     }
 
     private fun hitDistance(value: GameObject, x: Double, y: Double): Double {
