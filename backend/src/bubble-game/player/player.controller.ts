@@ -5,6 +5,7 @@ import type { CreatedPlayer, PlayerProfile } from '../bubble-game.service';
 import { CreatePlayerDto } from '../dto/create-player.dto';
 import { Player } from '../entities/player.entity';
 import { UsernameValidationService } from '../username-validation/username-validation.service';
+import { UsernameAvailabilityService } from '../username-validation/username-availability.service';
 import { CurrentPlayer } from './current-player.decorator';
 import { PlayerCredentialGuard } from './player-credential.guard';
 import { PlayerService } from './player.service';
@@ -14,6 +15,7 @@ export class PlayerController {
   constructor(
     private readonly playerService: PlayerService,
     private readonly usernameValidationService: UsernameValidationService,
+    private readonly usernameAvailabilityService: UsernameAvailabilityService,
   ) {}
 
   @UseGuards(OriginAllowlistGuard)
@@ -23,6 +25,9 @@ export class PlayerController {
     @Body() createPlayerDto: CreatePlayerDto,
   ): Promise<{ valid: true }> {
     await this.usernameValidationService.validate(createPlayerDto.username);
+    await this.usernameAvailabilityService.ensureAvailable(
+      createPlayerDto.username,
+    );
     return { valid: true };
   }
 

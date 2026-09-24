@@ -102,7 +102,7 @@ describe('BubbleGameService', () => {
       await expect(
         service.submitScore(player, 'missing', {
           score: 0,
-          durationMs: 25_000,
+          durationMs: 20_000,
           viewportAspectRatio: 1,
           events: [],
         }),
@@ -117,7 +117,7 @@ describe('BubbleGameService', () => {
       await expect(
         service.submitScore(player, 'session-1', {
           score: 0,
-          durationMs: 25_000,
+          durationMs: 20_000,
           viewportAspectRatio: 1,
           events: [],
         }),
@@ -132,7 +132,7 @@ describe('BubbleGameService', () => {
       await expect(
         service.submitScore(player, 'session-1', {
           score: 0,
-          durationMs: 25_000,
+          durationMs: 20_000,
           viewportAspectRatio: 1,
           events: [],
         }),
@@ -147,7 +147,7 @@ describe('BubbleGameService', () => {
       await expect(
         service.submitScore(player, 'session-1', {
           score: 0,
-          durationMs: 25_000,
+          durationMs: 20_000,
           viewportAspectRatio: 1,
           events: [],
         }),
@@ -160,7 +160,7 @@ describe('BubbleGameService', () => {
       await expect(
         service.submitScore(player, 'session-1', {
           score: 0,
-          durationMs: 25_000,
+          durationMs: 20_000,
           viewportAspectRatio: 1,
           events: [
             {
@@ -193,7 +193,7 @@ describe('BubbleGameService', () => {
 
       const result = await service.submitScore(player, 'session-1', {
         score: 0,
-        durationMs: 25_000,
+        durationMs: 20_000,
         viewportAspectRatio: 1,
         events: [],
       });
@@ -208,7 +208,7 @@ describe('BubbleGameService', () => {
 
       const result = await service.submitScore(player, 'session-1', {
         score: 0,
-        durationMs: 25_000,
+        durationMs: 20_000,
         viewportAspectRatio: 1,
         events: [],
       });

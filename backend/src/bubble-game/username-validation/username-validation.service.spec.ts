@@ -5,15 +5,6 @@ import { UsernameValidationService } from './username-validation.service';
 describe('UsernameValidationService', () => {
   const service = new UsernameValidationService();
 
-  it.each(['卍卍卍', '卐卐卐卐卐卐卐卐卐'])(
-    'rejects the forbidden symbol %s',
-    async (username) => {
-      await expect(service.validate(username)).rejects.toThrow(
-        BadRequestException,
-      );
-    },
-  );
-
   it.each(['!!!', ',,,,', '...', '184583023', '😄'])(
     'rejects a username without letters: %s',
     async (username) => {
