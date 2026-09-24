@@ -13,13 +13,13 @@ export class AppController {
     return new ApiRootResource();
   }
 
-  @Throttle({ default: { limit: 60, ttl: seconds(60) } })
+  @Throttle({ default: { limit: 10, ttl: seconds(10) } })
   @Get('health/ready')
   ready(): { status: string } {
     return { status: 'ok' };
   }
 
-  @Throttle({ default: { limit: 60, ttl: seconds(60) } })
+  @Throttle({ default: { limit: 10, ttl: seconds(10) } })
   @Get('health/live')
   async live(): Promise<{ status: string }> {
     await this.redisClient.assertReady();
