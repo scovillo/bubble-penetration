@@ -1,3 +1,5 @@
+# syntax=docker/dockerfile:1.7
+
 # game-core produces platform-independent Kotlin/JS. Build it once on the
 # builder host instead of compiling it independently for amd64 and arm64.
 FROM --platform=$BUILDPLATFORM eclipse-temurin:17-jdk AS game-core-builder
@@ -7,7 +9,9 @@ COPY gradlew build.gradle settings.gradle gradle.properties ./
 COPY gradle ./gradle
 COPY game-core ./game-core
 # settings.gradle also includes the Android app, which is not needed to build game-core.
-RUN mkdir app && ./gradlew :game-core:jsNodeProductionLibraryDistribution --no-daemon
+RUN --mount=type=cache,target=/root/.gradle \
+    mkdir app && ./gradlew :game-core:jsNodeProductionLibraryDistribution \
+    --no-daemon --max-workers=2
 
 FROM node:lts-bookworm-slim AS base
 WORKDIR /app
