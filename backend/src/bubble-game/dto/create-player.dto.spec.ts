@@ -13,7 +13,8 @@ describe('CreatePlayerDto', () => {
   );
 
   it('enforces the minimum length', async () => {
-    await expect(validateUsername('a')).resolves.not.toHaveLength(0);
+    await expect(validateUsername('')).resolves.not.toHaveLength(0);
+    await expect(validateUsername('a')).resolves.toHaveLength(0);
     await expect(validateUsername('Äa')).resolves.toHaveLength(0);
   });
 });

@@ -60,6 +60,10 @@
     <string name="error_username_too_long">¡Máximo 12 caracteres!</string>
     <string name="error_username_exists">El nombre ya está en uso.</string>
     <string name="error_username_not_allowed">Este nombre de usuario no está permitido. Elige otro.</string>
+    <string name="error_username_invalid_format">Usa caracteres permitidos y empieza y termina con una letra, número, marca o emoji.</string>
+    <string name="error_username_no_letter">El nombre de usuario debe contener al menos una letra.</string>
+    <string name="error_username_inappropriate">Este nombre de usuario fue rechazado por el filtro de contenido.</string>
+    <string name="error_username_validation_unavailable">La validación del nombre no está disponible. El perfil se creó sin conexión.</string>
     <string name="profile_name_taken_available_offline">El nombre ya está en uso; el perfil se usará localmente.</string>
     <string name="error_market_app_not_found">No se encontró la tienda de apps.</string>
     <string name="msg_new_rank">&#x1F3C6;\n\n¡Genial!\n¡Mira tu nuevo puesto!</string>

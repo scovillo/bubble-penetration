@@ -57,10 +57,13 @@
     <string name="rate_limit_retry_minutes">That was a little too fast. Please try again in %1$d min %2$d sec.</string>
     <string name="rate_limit_profile_retry">Too many online profiles from this connection. You can play offline now or try again in %1$d min.</string>
     <string name="error_empty_username">Sorry, username cannot be empty!</string>
-    <string name="error_username_too_short">Sorry, enter at least 2 characters!</string>
     <string name="error_username_too_long">Sorry, maximum 12 characters!</string>
     <string name="error_username_exists">Name is already in use.</string>
     <string name="error_username_not_allowed">This username is not allowed. Please choose another.</string>
+    <string name="error_username_invalid_format">Use allowed characters and start and end with a letter, number, mark, or emoji.</string>
+    <string name="error_username_no_letter">The username must contain at least one letter.</string>
+    <string name="error_username_inappropriate">This username was rejected by the content filter.</string>
+    <string name="error_username_validation_unavailable">Username validation is unavailable. The profile was created offline.</string>
     <string name="profile_name_taken_available_offline">Name is already in use, the profile will be used locally.</string>
     <string name="error_market_app_not_found">Unable to find market app.</string>
     <string name="msg_new_rank">&#x1F3C6;\n\nGreat!\nCheck your new rank!</string>

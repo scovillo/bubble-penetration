@@ -1,29 +1,5 @@
 import { BadRequestException, Injectable, Logger } from '@nestjs/common';
-
-type CustomUsernameRule = {
-  regex: RegExp;
-  mustMatch: boolean;
-};
-
-const EMOJI_SEQUENCE_PATTERN = String.raw`\p{Extended_Pictographic}(?:\uFE0F)?(?:\u200D\p{Extended_Pictographic}(?:\uFE0F)?)*`;
-const USERNAME_CHARACTER_PATTERN = String.raw`(?:[\p{L}\p{N}\p{M} _!\-]|${EMOJI_SEQUENCE_PATTERN})`;
-const USERNAME_END_CHARACTER_PATTERN = String.raw`(?:[\p{L}\p{N}\p{M}]|${EMOJI_SEQUENCE_PATTERN})`;
-const USERNAME_FORMAT_REGEX = new RegExp(
-  String.raw`^[\p{L}\p{N}](?:${USERNAME_CHARACTER_PATTERN}*${USERNAME_END_CHARACTER_PATTERN})?$`,
-  'u',
-);
-
-const CUSTOM_USERNAME_RULES: readonly CustomUsernameRule[] = [
-  {
-    // Allow Unicode letters/numbers, combining marks, spaces, !, -, and emoji.
-    // Names must start and end with a letter, number, mark, or emoji; ZWJ and
-    // variation selectors are handled as part of complete emoji sequences.
-    regex: USERNAME_FORMAT_REGEX,
-    mustMatch: true,
-  },
-  // Require at least one Unicode letter; numbers or emoji alone are rejected.
-  { regex: /\p{L}/u, mustMatch: true },
-];
+import { UsernameCustomRule } from './username-custom-rule';
 
 interface InappropriateUsernameResponse {
   username: string;
@@ -40,17 +16,21 @@ interface InappropriateUsernameResponse {
 @Injectable()
 export class UsernameValidationService {
   private readonly logger = new Logger(UsernameValidationService.name);
+  private readonly customRules = [
+    UsernameCustomRule.hasValidFormat(),
+    UsernameCustomRule.containsLetter(),
+  ];
 
   validate(username: string): Promise<void> {
     return Promise.resolve().then(async () => {
-      const isCustomRuleViolated = CUSTOM_USERNAME_RULES.some(
-        ({ regex, mustMatch }) => regex.test(username) !== mustMatch,
+      const failedRule = this.customRules.find((rule) =>
+        rule.isViolated(username),
       );
-      if (isCustomRuleViolated) {
+      if (failedRule) {
         this.logger.warn(
-          `Username validation in ${username} failed a custom rule.`,
+          `Username validation in ${username} failed the ${failedRule.name} rule.`,
         );
-        throw new BadRequestException('This username is not allowed.');
+        throw new BadRequestException(failedRule.rejectionMessage);
       }
       const classifierUrl = process.env.INAPPROPRIATE_USERNAME_API_URL;
       if (classifierUrl) {
@@ -72,7 +52,9 @@ export class UsernameValidationService {
         const logMessage = `Username classification: ${JSON.stringify(result)}`;
         if (result.inappropriate) {
           this.logger.warn(logMessage);
-          throw new BadRequestException('This username is not allowed.');
+          throw new BadRequestException(
+            'This username was rejected by the content filter.',
+          );
         }
         this.logger.log(logMessage);
       }

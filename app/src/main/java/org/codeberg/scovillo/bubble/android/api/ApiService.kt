@@ -18,7 +18,7 @@ import java.util.concurrent.Future
 class HttpStatusException(
     val statusCode: Int,
     val retryAfterSeconds: Int?,
-    responseBody: String,
+    val responseBody: String,
 ) : Exception(
     "HTTP $statusCode: $responseBody",
 )

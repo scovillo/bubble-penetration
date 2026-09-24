@@ -62,6 +62,10 @@
     <string name="error_username_too_long">Максимум 12 символів!</string>
     <string name="error_username_exists">Це ім’я вже використовується.</string>
     <string name="error_username_not_allowed">Це ім’я користувача заборонене. Будь ласка, виберіть інше.</string>
+    <string name="error_username_invalid_format">Використовуйте дозволені символи та починайте й закінчуйте літерою, цифрою, знаком або емодзі.</string>
+    <string name="error_username_no_letter">Ім’я користувача має містити принаймні одну літеру.</string>
+    <string name="error_username_inappropriate">Це ім’я користувача відхилено фільтром вмісту.</string>
+    <string name="error_username_validation_unavailable">Перевірка імені недоступна. Профіль створено офлайн.</string>
     <string name="profile_name_taken_available_offline">Це ім’я вже використовується; профіль використовуватиметься локально.</string>
     <string name="error_market_app_not_found">Не вдалося знайти магазин застосунків.</string>
     <string name="msg_new_rank">&#x1F3C6;\n\nЧудово!\nПерегляньте своє нове місце!</string>

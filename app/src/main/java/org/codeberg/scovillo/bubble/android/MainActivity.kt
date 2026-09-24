@@ -406,18 +406,43 @@ class MainActivity : ComponentActivity() {
                 return
             }
             if (httpException?.statusCode == 400) {
+                val validationError = usernameValidationError(httpException)
                 Toast.makeText(
                     this,
-                    getString(org.codeberg.scovillo.bubble.R.string.error_username_not_allowed),
+                    getString(validationError),
                     LENGTH_LONG
                 ).show()
                 return
             }
             if (showProfileRegistrationRateLimitMessage(exception)) return
-            val created = UserResource(value)
-            profileManagement.addProfile(created)
+            val created = profileManagement.createOfflineProfile(value)
             selectUser(created)
-            showOfflineFallbackMessageOnce()
+            if (httpException == null || httpException.statusCode >= 500) {
+                Toast.makeText(
+                    this,
+                    getString(org.codeberg.scovillo.bubble.R.string.error_username_validation_unavailable),
+                    LENGTH_LONG,
+                ).show()
+            } else {
+                showOfflineFallbackMessageOnce()
+            }
+        }
+    }
+
+    private fun usernameValidationError(
+        exception: org.codeberg.scovillo.bubble.android.api.HttpStatusException,
+    ): Int {
+        val response = exception.responseBody.lowercase()
+        return when {
+            "at most 12 characters" in response ->
+                org.codeberg.scovillo.bubble.R.string.error_username_too_long
+            "invalid characters" in response || "invalid start" in response ->
+                org.codeberg.scovillo.bubble.R.string.error_username_invalid_format
+            "at least one letter" in response ->
+                org.codeberg.scovillo.bubble.R.string.error_username_no_letter
+            "content filter" in response ->
+                org.codeberg.scovillo.bubble.R.string.error_username_inappropriate
+            else -> org.codeberg.scovillo.bubble.R.string.error_username_not_allowed
         }
     }
 
@@ -434,7 +459,6 @@ class MainActivity : ComponentActivity() {
     private fun isLocallyValidUsername(value: String): Boolean {
         val error = when {
             value.isBlank() -> org.codeberg.scovillo.bubble.R.string.error_empty_username
-            value.length < 2 -> org.codeberg.scovillo.bubble.R.string.error_username_too_short
             value.length > 12 -> org.codeberg.scovillo.bubble.R.string.error_username_too_long
             else -> return true
         }

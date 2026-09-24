@@ -79,6 +79,9 @@
     "transform": {
       "^.+\\.(t|j)s$": "ts-jest"
     },
+    "moduleNameMapper": {
+      "^@bubble/game-core$": "<rootDir>/../node_modules/@bubble/game-core/index.js"
+    },
     "collectCoverageFrom": [
       "**/*.(t|j)s"
     ],
