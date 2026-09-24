@@ -17,7 +17,7 @@
     "migration:up": "mikro-orm migration:up --config ./dist/src/database/mikro-orm.config.js",
     "migration:down": "mikro-orm migration:down --config ./dist/src/database/mikro-orm.config.js",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
-    "test": "npm run build:game-core && node --experimental-vm-modules ./node_modules/jest/bin/jest.js",
+    "test": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js",
     "test:watch": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",

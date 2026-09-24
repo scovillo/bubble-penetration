@@ -17,7 +17,7 @@ WORKDIR /workspace/backend
 COPY backend/package.json backend/package-lock.json ./
 RUN npm ci
 COPY backend .
-RUN ./node_modules/.bin/nest build
+RUN npm test && ./node_modules/.bin/nest build
 
 FROM base AS runtime
 ENV NODE_ENV=production

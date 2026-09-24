@@ -27,24 +27,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Java
-        uses: https://github.com/actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: '17'
-
-      - name: Install dependencies
-        working-directory: backend
-        run: npm ci
-
-      - name: Run tests
-        working-directory: backend
-        run: npm test
-
-      - name: Build backend
-        working-directory: backend
-        run: npm run build
-
       - name: Log in to Codeberg container registry
         uses: docker/login-action@v3
         with:
