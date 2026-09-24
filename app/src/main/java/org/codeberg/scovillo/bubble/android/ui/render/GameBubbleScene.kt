@@ -23,6 +23,7 @@ import org.codeberg.scovillo.bubble.android.game.rgb
 import org.codeberg.scovillo.bubble.android.persistence.MatchSettings
 import org.codeberg.scovillo.bubble.android.ui.hud.ScorePostfix
 import org.codeberg.scovillo.bubble.android.ui.hud.TimerPostfix
+import org.codeberg.scovillo.bubble.android.ui.hud.Combo
 import org.codeberg.scovillo.bubble.game.GameActionEvent
 import org.codeberg.scovillo.bubble.game.GameObjectColor
 import org.codeberg.scovillo.bubble.game.engine.MatchEngine
@@ -72,6 +73,7 @@ class GameBubbleScene(
     private var fieldFramePulseAnimator: ValueAnimator? = null
     private var fieldFramePulseGeneration = 0
     private val firstDigitFormat = DecimalFormat("0.0")
+    private val combo = Combo(comboText)
     private var pendingSimulationMs = 0L
 
     init {
@@ -166,7 +168,10 @@ class GameBubbleScene(
 
         fun handleEngineEvent(event: MatchEvent) {
             when (event) {
-                is MatchEvent.StateChanged -> renderHud(event.snapshot)
+                is MatchEvent.StateChanged -> {
+                    val multiplierIncreased = combo.multiplierIncreased(event.snapshot)
+                    renderHud(event.snapshot, multiplierIncreased)
+                }
                 MatchEvent.TimerAlarm -> effectPlayer.playSound(R.raw.alarm)
                 is MatchEvent.TargetCollected -> {
                     timerPostfix.animateWith(event.timerDeltaSeconds)
@@ -178,22 +183,6 @@ class GameBubbleScene(
                             else -> R.raw.fart
                         }
                     )
-                    if (event.comboMultiplierIncreased) {
-                        effectPlayer.playSound(
-                            when (event.comboIsActive) {
-                                true -> R.raw.combo
-                                false -> R.raw.blubb
-                            }
-                        )
-                    }
-                    mainActivity.runOnUiThread {
-                        transitionFieldFramePulse(
-                            when (event.comboIsActive) {
-                                true -> 900L
-                                false -> null
-                            }
-                        )
-                    }
                 }
 
                 MatchEvent.GameOver -> {
@@ -205,7 +194,7 @@ class GameBubbleScene(
             }
         }
 
-        private fun renderHud(snapshot: MatchSnapshot) = mainActivity.runOnUiThread {
+        private fun renderHud(snapshot: MatchSnapshot, multiplierIncreased: Boolean = false) = mainActivity.runOnUiThread {
             when {
                 snapshot.timerSeconds < 10 -> {
                     if (timerText.animation == null) {
@@ -223,7 +212,13 @@ class GameBubbleScene(
                     firstDigitFormat.format(snapshot.timerSeconds)
                 )
             scoreText.text = mainActivity.getString(R.string.score_value, snapshot.score)
-            renderCombo(snapshot)
+            combo.render(snapshot)
+            if (multiplierIncreased) {
+                effectPlayer.playSound(combo.soundResource(snapshot.comboMultiplier))
+                transitionFieldFramePulse(combo.pulseDuration(snapshot.comboMultiplier))
+            } else if (!combo.isPulsing) {
+                transitionFieldFramePulse(null)
+            }
             if (!isCollectColorShown || shownCollectColor != snapshot.collectColor) {
                 shownCollectColor = snapshot.collectColor
                 isCollectColorShown = true
@@ -240,24 +235,6 @@ class GameBubbleScene(
                     if (isTimerProgressUrgent) R.drawable.timer_progress_urgent else R.drawable.timer_progress
                 )
             }
-        }
-
-        private fun renderCombo(snapshot: MatchSnapshot) {
-            if (snapshot.comboProgress == 0) {
-                comboText.visibility = View.INVISIBLE
-                return
-            }
-            val filledSteps = snapshot.comboProgress % 6
-            val label = when (snapshot.comboMultiplier) {
-                1 -> mainActivity.getString(R.string.combo_build)
-                2 -> mainActivity.getString(R.string.combo)
-                4 -> mainActivity.getString(R.string.combo_hot_streak)
-                8 -> mainActivity.getString(R.string.combo_on_fire)
-                else -> mainActivity.getString(R.string.combo_mega)
-            }
-            comboText.text =
-                "$label ×${snapshot.comboMultiplier}  ${"●".repeat(filledSteps)}${"○".repeat(6 - filledSteps)}"
-            comboText.visibility = View.VISIBLE
         }
 
         override fun onSurfaceChanged(gl: GL10, width: Int, height: Int) {
@@ -302,6 +279,12 @@ class GameBubbleScene(
 
         fun transitionFieldFramePulse(duration: Long?) {
             val generation = ++fieldFramePulseGeneration
+            if (duration != null) {
+                fieldFramePulseAnimator?.cancel()
+                startFieldFramePulse(duration)
+                return
+            }
+            if (fieldFramePulseAnimator?.repeatCount != ValueAnimator.INFINITE) return
             val currentAlpha = fieldFrameAlpha
             fieldFramePulseAnimator?.cancel()
             fieldFramePulseAnimator = ValueAnimator.ofInt(currentAlpha, 255).apply {

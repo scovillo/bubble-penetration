@@ -122,7 +122,6 @@ abstract class MatchEngine(
                 value.speed
             ); GameObjectType.STAR -> time.getStarTimeFor(value.speed)
         }
-        val previousMultiplier = combo.multiplier
         val scoreDelta =
             if (correct || value.type == GameObjectType.STAR) value.score * combo.multiplier else 0
         state.timerValueMs += timerDelta; state.score += scoreDelta
@@ -132,9 +131,7 @@ abstract class MatchEngine(
                 timerDelta,
                 scoreDelta,
                 correct,
-                value.type == GameObjectType.STAR,
-                combo.multiplier > previousMultiplier,
-                combo.isActive
+                value.type == GameObjectType.STAR
             )
         )
     }

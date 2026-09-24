@@ -19,8 +19,6 @@ sealed interface MatchEvent {
         val scoreDelta: Int,
         val wasCorrectColor: Boolean,
         val isStar: Boolean,
-        val comboMultiplierIncreased: Boolean,
-        val comboIsActive: Boolean,
     ) : MatchEvent
 
     data object GameOver : MatchEvent
