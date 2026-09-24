@@ -42,6 +42,9 @@ Notes:
   (build.gradle config or the fastlane description) instead.
 - Async UI updates: never keep a strong casted view reference from a worker
   thread; resolve the view on the UI thread and null-check before updating.
+- Whenever adding or changing user-facing Android text, update the string in
+  every existing `app/src/main/res/values*/strings.xml` locale; do not rely on
+  fallback-language resources for newly introduced UI text.
 
 ## Backend (`backend/`)
 

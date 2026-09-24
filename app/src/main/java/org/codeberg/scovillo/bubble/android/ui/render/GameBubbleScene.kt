@@ -67,8 +67,11 @@ class GameBubbleScene(
     }
     private val fieldFrameOverlay = View(mainActivity).also { overlay ->
         ViewCompat.setBackground(overlay, fieldFrameDrawable)
-        overlay.isClickable = false
-        overlay.isFocusable = false
+        // Consume touches while the finish animation is displayed. The game
+        // scene remains underneath the overlay until the result screen opens.
+        overlay.setOnTouchListener { _, _ -> true }
+        overlay.isClickable = true
+        overlay.isFocusable = true
     }
     private var fieldFramePulseAnimator: ValueAnimator? = null
     private var fieldFramePulseGeneration = 0
@@ -105,7 +108,7 @@ class GameBubbleScene(
     fun getViewportAspectRatio(): Float = engine.viewportAspectRatio
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
-        if (engine.isGameOver) return false
+        if (engine.isGameOver || gameOverQueued) return false
         when (event.action and MotionEvent.ACTION_MASK) {
             MotionEvent.ACTION_DOWN -> {
                 val surfaceWidth = bubbleRenderer.surfaceWidth

@@ -17,6 +17,11 @@ class MatchFinishOverlay(
 ) {
     fun show(onFinished: () -> Unit) {
         val text = TextView(context).apply {
+            // Keep the underlying game surface from receiving taps while the
+            // finish cue is visible.
+            isClickable = true
+            isFocusable = true
+            setOnTouchListener { _, _ -> true }
             gravity = Gravity.CENTER
             setText(R.string.match_finished)
             setTextColor(ContextCompat.getColor(context, R.color.gold))
