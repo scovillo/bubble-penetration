@@ -74,6 +74,7 @@ class GameBubbleScene(
     private var fieldFramePulseGeneration = 0
     private val firstDigitFormat = DecimalFormat("0.0")
     private val combo = Combo(comboText)
+    private val inputQueue = GameInputQueue()
     private var pendingSimulationMs = 0L
 
     init {
@@ -96,6 +97,7 @@ class GameBubbleScene(
     override fun onResume() {
         openGlScene.resetFrameTime()
         pendingSimulationMs = 0L
+        inputQueue.clear()
     }
 
     fun getScore(): Int = engine.score
@@ -105,7 +107,7 @@ class GameBubbleScene(
     fun getViewportAspectRatio(): Float = engine.viewportAspectRatio
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
-        if (engine.isGameOver || gameOverQueued) return false
+        if (gameOverQueued) return false
         when (event.action and MotionEvent.ACTION_MASK) {
             MotionEvent.ACTION_DOWN -> {
                 val surfaceWidth = bubbleRenderer.surfaceWidth
@@ -119,8 +121,8 @@ class GameBubbleScene(
                 val normalizedY = engine.roundCoordinate(
                     (event.y / surfaceHeight).toDouble().coerceIn(0.0, 1.0)
                 )
-                val wasBubbleTouched = engine.submitTap(normalizedX, normalizedY)
-                return wasBubbleTouched
+                inputQueue.enqueue(normalizedX, normalizedY)
+                return true
             }
         }
         return false
@@ -156,14 +158,24 @@ class GameBubbleScene(
                 openGlScene.draw(gl, engine.gameObjects)
                 return
             }
+            processQueuedInputs()
             pendingSimulationMs += openGlScene.elapsedMilliseconds()
             runBlocking {
                 while (pendingSimulationMs >= MATCH_SIMULATION_STEP_MS && !engine.isGameOver) {
                     engine.advance(MATCH_SIMULATION_STEP_SECONDS, ::handleEngineEvent)
                     pendingSimulationMs -= MATCH_SIMULATION_STEP_MS
+                    processQueuedInputs()
                 }
             }
             openGlScene.draw(gl, engine.gameObjects)
+        }
+
+        private fun processQueuedInputs() {
+            inputQueue.drain { input ->
+                if (!engine.isGameOver) {
+                    engine.submitTap(input.normalizedX, input.normalizedY)
+                }
+            }
         }
 
         fun handleEngineEvent(event: MatchEvent) {
