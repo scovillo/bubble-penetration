@@ -67,11 +67,8 @@ class GameBubbleScene(
     }
     private val fieldFrameOverlay = View(mainActivity).also { overlay ->
         ViewCompat.setBackground(overlay, fieldFrameDrawable)
-        // Consume touches while the finish animation is displayed. The game
-        // scene remains underneath the overlay until the result screen opens.
-        overlay.setOnTouchListener { _, _ -> true }
-        overlay.isClickable = true
-        overlay.isFocusable = true
+        overlay.isClickable = false
+        overlay.isFocusable = false
     }
     private var fieldFramePulseAnimator: ValueAnimator? = null
     private var fieldFramePulseGeneration = 0

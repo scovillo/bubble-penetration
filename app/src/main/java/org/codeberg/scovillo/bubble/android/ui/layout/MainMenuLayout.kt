@@ -36,8 +36,13 @@ class MainMenuLayout(private val mainActivity: MainActivity, private val musicPl
         val glSurfaceViewHolder =
             mainActivity.findViewById<View>(R.id.menuGLSurfaceViewHolder) as FrameLayout
         glSurfaceViewHolder.addView(menuGLSurfaceView)
-        (mainActivity.findViewById<View>(R.id.menu_username) as TextView).text =
-            mainActivity.selectedUser.username
+        val usernameView = mainActivity.findViewById<View>(R.id.menu_username) as TextView
+        usernameView.text = mainActivity.selectedUser.username
+        usernameView.setTextColor(
+            mainActivity.getColor(
+                if (mainActivity.selectedUser.isOfflineOnly) R.color.offline_profile else R.color.gold,
+            ),
+        )
         val startButton = mainActivity.findViewById<View>(R.id.start_button) as Button
         startButtonPulse?.cancel()
         startButtonPulse = createStartButtonPulse(startButton).also { it.start() }

@@ -48,6 +48,7 @@ class LocalFileStorage(private val mainActivity: MainActivity) {
                         UserResource(
                             json.getString("username"),
                             if (json.has("credential")) json.getString("credential") else null,
+                            json.optBoolean("offlineOnly", false),
                         ),
                     )
                 }

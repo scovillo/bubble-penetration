@@ -18,6 +18,7 @@
     <string name="match_finished">Fim!</string>
     <string name="game_over_score_label">Sua pontuação:</string>
     <string name="save">Salvar</string>
+    <string name="play_online">Jogar online</string>
     <string name="continue_offline">Jogar offline</string>
     <string name="your_name">Olá! &#x1F44B;</string>
     <string name="choose_nickname">Escolha um apelido para a lista de pontuações</string>

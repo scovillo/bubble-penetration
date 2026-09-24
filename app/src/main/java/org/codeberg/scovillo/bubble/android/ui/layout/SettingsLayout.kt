@@ -110,6 +110,9 @@ class SettingsLayout(
         settingsModel.useOnlineLeaderboard = view.isChecked
         settingsModel.save(mainActivity)
         setBackendSettingsEnabled(view.isChecked)
+        if (view.isChecked) {
+            mainActivity.migrateSelectedLegacyProfileIfNeeded()
+        }
     }
 
     private fun setBackendSettingsEnabled(enabled: Boolean) {

@@ -19,6 +19,7 @@
     <string name="match_finished">Ende!</string>
     <string name="game_over_score_label">Deine Punkte:</string>
     <string name="save">Speichern</string>
+    <string name="play_online">Online spielen</string>
     <string name="continue_offline">Offline spielen</string>
     <string name="your_name">Hallo! &#x1F44B;</string>
     <string name="choose_nickname">Wähle einen Spitznamen für die Highscore-Liste</string>

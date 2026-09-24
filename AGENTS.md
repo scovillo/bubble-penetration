@@ -123,6 +123,8 @@ node scripts/build-website.mjs   # generates static site into _site/
 
 - Keep changes scoped to the project you're touching — don't mix Android,
   backend, and website edits in a way that conflates unrelated build systems.
+- Prefer an object-oriented design: give distinct responsibilities their own
+  focused classes and keep UI, persistence, and business logic separated.
 - License is GPL-3.0; don't introduce dependencies with incompatible licenses.
 - Prefer editing source-of-truth files over generated output (`README.md`
   Android section, `_site/` website output).

@@ -18,6 +18,7 @@
     <string name="match_finished">Terminé !</string>
     <string name="game_over_score_label">Votre score :</string>
     <string name="save">Enregistrer</string>
+    <string name="play_online">Jouer en ligne</string>
     <string name="continue_offline">Jouer hors ligne</string>
     <string name="your_name">Bonjour ! &#x1F44B;</string>
     <string name="choose_nickname">Choisissez un pseudo pour le classement</string>

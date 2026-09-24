@@ -24,7 +24,11 @@ class UsernameListAdapter(
             BubbleFont.applyTo(it)
         }
         val usernameRowTextView = row.findViewById<View>(R.id.username_row_text) as TextView
-        usernameRowTextView.text = users[position].username
+        val user = users[position]
+        usernameRowTextView.text = user.username
+        usernameRowTextView.setTextColor(
+            mainActivity.getColor(if (user.isOfflineOnly) R.color.offline_profile else R.color.gold),
+        )
         return row
     }
 

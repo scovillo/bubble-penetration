@@ -23,6 +23,7 @@ import org.codeberg.scovillo.bubble.android.log.AppLogger
 import org.codeberg.scovillo.bubble.android.persistence.LocalFileStorage
 import org.codeberg.scovillo.bubble.android.persistence.LocalHighscoreStorage
 import org.codeberg.scovillo.bubble.android.persistence.SettingsModel
+import org.codeberg.scovillo.bubble.android.profile.ProfileManagement
 import org.codeberg.scovillo.bubble.android.sound.MusicPlayer
 import org.codeberg.scovillo.bubble.android.sound.SoundEffects
 import org.codeberg.scovillo.bubble.android.ui.BubbleFont
@@ -69,6 +70,7 @@ class MainActivity : ComponentActivity() {
     internal lateinit var soundEffects: SoundEffects
     private val localFileStorage = LocalFileStorage(this)
     val localHighscoreStorage = LocalHighscoreStorage(this)
+    private lateinit var profileManagement: ProfileManagement
 
     private val gameOverScreenLayout = GameOverScreenLayout(this)
     private val usernameSelectionLayout = UsernameSelectionLayout(this)
@@ -77,9 +79,8 @@ class MainActivity : ComponentActivity() {
     private val mainMenuLayout = MainMenuLayout(this, musicPlayer)
     private val settingsLayout = SettingsLayout(this, settingsModel, mainMenuLayout, musicPlayer)
 
-    lateinit var selectedUser: UserResource
-        private set
-    private var users = mutableListOf<UserResource>()
+    val selectedUser: UserResource
+        get() = profileManagement.selectedUser
 
     private var isGameRunning = false
     private var gameSession: GameSession = GameSession.Inactive
@@ -124,8 +125,7 @@ class MainActivity : ComponentActivity() {
         settingsModel.load(this)
         ApiService.setBaseUrl(settingsModel.backendBaseUrl)
         musicPlayer.init()
-        users = localFileStorage.readFromFile()
-
+        profileManagement = ProfileManagement(localFileStorage)
         var restoredScore = 0
         var restoredTimer = -1f
         var restartRunningGame = false
@@ -135,8 +135,13 @@ class MainActivity : ComponentActivity() {
             restartRunningGame = savedInstanceState.getBoolean("restartRunningGame", false)
             val userName = savedInstanceState.getString("selectedUserName")
             if (userName != null) {
-                selectedUser =
-                    UserResource(userName, savedInstanceState.getString("selectedUserCredential"))
+                profileManagement.restoreSelectedProfile(
+                    UserResource(
+                        userName,
+                        savedInstanceState.getString("selectedUserCredential"),
+                        savedInstanceState.getBoolean("selectedUserOfflineOnly", false),
+                    ),
+                )
             }
             restoredScore = savedInstanceState.getInt("savedScore", 0)
             restoredTimer = savedInstanceState.getFloat("savedTimer")
@@ -153,16 +158,17 @@ class MainActivity : ComponentActivity() {
             }
 
             settingsLayout.restore(savedInstanceState) -> Unit
-            ::selectedUser.isInitialized -> {
+            profileManagement.hasSelectedProfile -> {
                 mainMenuLayout.show()
+                migrateSelectedLegacyProfileIfNeeded()
             }
 
-            users.isEmpty() -> {
+            profileManagement.profiles.isEmpty() -> {
                 usernameCreationLayout.showWith(false)
             }
 
             else -> {
-                usernameSelectionLayout.showWith(users)
+                usernameSelectionLayout.showWith(profileManagement.profiles)
             }
         }
     }
@@ -172,9 +178,10 @@ class MainActivity : ComponentActivity() {
         outState.putBoolean("isGameRunning", isGameRunning)
         outState.putBoolean("restartRunningGame", isChangingConfigurations && isGameRunning)
         settingsLayout.saveInstanceState(outState)
-        if (::selectedUser.isInitialized) {
+        if (profileManagement.hasSelectedProfile) {
             outState.putString("selectedUserName", selectedUser.username)
             outState.putString("selectedUserCredential", selectedUser.credential)
+            outState.putBoolean("selectedUserOfflineOnly", selectedUser.isOfflineOnly)
         }
         val currentSession = gameSession
         if (currentSession is GameSession.Active) {
@@ -212,7 +219,7 @@ class MainActivity : ComponentActivity() {
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         setContentView(org.codeberg.scovillo.bubble.R.layout.game_hud)
         applyGameHudInsets()
-        val credential = if (::selectedUser.isInitialized) selectedUser.credential else null
+        val credential = if (profileManagement.hasSelectedProfile) selectedUser.credential else null
         val isOnlineMatch = settingsModel.useOnlineLeaderboard && credential != null && score == 0
                 && timer < 0
         showGamePreparation(launchGeneration) {
@@ -386,8 +393,7 @@ class MainActivity : ComponentActivity() {
             ApiService.validateUsername(value)[6000, TimeUnit.MILLISECONDS]
             val created = ApiService.registerUsername(value)[6000, TimeUnit.MILLISECONDS]
             onBackendRequestSucceeded()
-            users.add(created)
-            localFileStorage.writeToFile(users)
+            profileManagement.addProfile(created)
             this.selectUser(created)
         } catch (exception: Exception) {
             val httpException = exception.findHttpStatusException()
@@ -409,8 +415,7 @@ class MainActivity : ComponentActivity() {
             }
             if (showRateLimitMessage(exception)) return
             val created = UserResource(value)
-            users.add(created)
-            localFileStorage.writeToFile(users)
+            profileManagement.addProfile(created)
             selectUser(created)
             showOfflineFallbackMessageOnce()
         }
@@ -438,23 +443,44 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun createLocalProfile(username: String) {
-        val created = UserResource(username)
-        users.add(created)
-        localFileStorage.writeToFile(users)
+        val created = profileManagement.createOfflineProfile(username)
         selectUser(created)
     }
 
     fun showUsernameSelectionScreen(view: View) {
-        usernameSelectionLayout.showWith(users)
+        usernameSelectionLayout.showWith(profileManagement.profiles)
     }
 
     fun showUsernameCreationScreen(view: View) {
-        usernameCreationLayout.showWith(users.isNotEmpty())
+        usernameCreationLayout.showWith(profileManagement.profiles.isNotEmpty())
     }
 
     fun selectUser(user: UserResource) {
-        this.selectedUser = user
+        profileManagement.selectProfile(user)
         mainMenuLayout.show()
+        migrateSelectedLegacyProfileIfNeeded()
+    }
+
+    fun migrateSelectedLegacyProfileIfNeeded() {
+        profileManagement.registerSelectedUserIfNeeded(
+            settingsModel.useOnlineLeaderboard,
+            postToUi = { action -> runOnUiThread { action() } },
+            onRegistered = {
+                onBackendRequestSucceeded()
+            },
+            onUsernameRejected = {
+                Toast.makeText(
+                    this,
+                    getString(org.codeberg.scovillo.bubble.R.string.error_username_not_allowed),
+                    LENGTH_LONG,
+                ).show()
+            },
+            onFailure = { exception ->
+                if (!showRateLimitMessage(exception)) {
+                    showOfflineFallbackMessageOnce()
+                }
+            },
+        )
     }
 
     @Synchronized
