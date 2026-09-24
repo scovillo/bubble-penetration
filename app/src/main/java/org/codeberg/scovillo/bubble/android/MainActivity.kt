@@ -118,7 +118,7 @@ class MainActivity : ComponentActivity() {
         users = localFileStorage.readFromFile()
 
         var restoredScore = 0
-        var restoredTimer = 25.0f
+        var restoredTimer = -1f
         var restartRunningGame = false
 
         if (savedInstanceState != null) {
@@ -130,7 +130,7 @@ class MainActivity : ComponentActivity() {
                     UserResource(userName, savedInstanceState.getString("selectedUserCredential"))
             }
             restoredScore = savedInstanceState.getInt("savedScore", 0)
-            restoredTimer = savedInstanceState.getFloat("savedTimer", 25.0f)
+            restoredTimer = savedInstanceState.getFloat("savedTimer")
         }
 
         when {
@@ -194,7 +194,7 @@ class MainActivity : ComponentActivity() {
     }
 
     @JvmOverloads
-    fun startGame(view: View?, score: Int = 0, timer: Float = 25.0f) {
+    fun startGame(view: View?, score: Int = 0, timer: Float = -1f) {
         isGameRunning = true
         val launchGeneration = ++gameLaunchGeneration
         lastGameActionLog = emptyList()
@@ -204,27 +204,24 @@ class MainActivity : ComponentActivity() {
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         setContentView(org.codeberg.scovillo.bubble.R.layout.game_hud)
         applyGameHudInsets()
-
         val credential = if (::selectedUser.isInitialized) selectedUser.credential else null
-        val canStartOnlineRound = settingsModel.useOnlineLeaderboard &&
-                credential != null && score == 0 && timer == INITIAL_GAME_TIMER
+        val isOnlineMatch = settingsModel.useOnlineLeaderboard && credential != null && score == 0
+                && timer < 0
         showGamePreparation(launchGeneration) {
-            startMatch(score, timer, credential, canStartOnlineRound, launchGeneration)
+            if (isOnlineMatch) {
+                startOnlineMatch(score, timer, credential, launchGeneration)
+            } else {
+                launchOfflineGameScene(score, timer)
+            }
         }
     }
 
-    private fun startMatch(
+    private fun startOnlineMatch(
         score: Int,
         timer: Float,
-        credential: String?,
-        canStartOnlineRound: Boolean,
+        credential: String,
         launchGeneration: Int,
     ) {
-        if (!canStartOnlineRound || credential == null) {
-            launchGameScene(score, timer, null)
-            return
-        }
-
         val sessionFuture = ApiService.createGameSession(credential)
         THREAD_POOL.execute {
             try {
@@ -232,12 +229,12 @@ class MainActivity : ComponentActivity() {
                 runOnUiThread {
                     if (!isGameRunning || launchGeneration != gameLaunchGeneration) return@runOnUiThread
                     onBackendRequestSucceeded()
-                    launchGameScene(score, timer, session)
+                    launchOnlineGameScene(score, timer, session)
                 }
             } catch (exception: Exception) {
                 runOnUiThread {
                     if (!isGameRunning || launchGeneration != gameLaunchGeneration) return@runOnUiThread
-                    launchGameScene(score, timer, null)
+                    launchOfflineGameScene(score, timer)
                     if (!showRateLimitMessage(exception)) {
                         showOfflineFallbackMessageOnce()
                     }
@@ -259,24 +256,24 @@ class MainActivity : ComponentActivity() {
         )
     }
 
-    private fun launchGameScene(
+    private fun launchOnlineGameScene(
         score: Int,
         timer: Float,
-        onlineSession: OnlineGameSession?,
+        onlineSession: OnlineGameSession,
     ) {
-        val replaySeed = onlineSession?.seed ?: ByteArray(32).also(SecureRandom()::nextBytes)
-            .joinToString("") { "%02x".format(it) }
+        val replaySeed = onlineSession.seed
         val config = MatchEngineConfig(
             replaySeed,
-            onlineSession?.replayVersion ?: MatchEngineConfig.CURRENT_REPLAY_VERSION,
+            onlineSession.replayVersion,
         )
         AppLogger.d("BubbleGame", "Engine config: ${config.summary()}")
-        if (onlineSession != null) {
-            if (onlineSession.replayVersion != config.replayVersion) {
-                throw IllegalStateException("Unsupported replay version ${onlineSession.replayVersion}")
-            }
+        if (onlineSession.replayVersion != config.replayVersion) {
+            throw IllegalStateException("Unsupported replay version ${onlineSession.replayVersion}")
         }
-        val state = MatchState(score = score, timerValueMs = timer)
+        val state = MatchState(
+            score = score,
+            timerValueMs = if (timer < 0) config.initialTimerSeconds else timer
+        )
         val boundaries = Boundaries()
         val scene = GameBubbleScene(
             this,
@@ -288,6 +285,33 @@ class MainActivity : ComponentActivity() {
             ),
             session = onlineSession
         )
+        showGameScene(scene)
+    }
+
+    private fun launchOfflineGameScene(score: Int, timer: Float) {
+        val replaySeed = ByteArray(32).also(SecureRandom()::nextBytes)
+            .joinToString("") { "%02x".format(it) }
+        val config = MatchEngineConfig(replaySeed)
+        AppLogger.d("BubbleGame", "Engine config: ${config.summary()}")
+        val state = MatchState(
+            score = score,
+            timerValueMs = if (timer < 0) config.initialTimerSeconds else timer
+        )
+        val boundaries = Boundaries()
+        val scene = GameBubbleScene(
+            this,
+            matchSettings = settingsModel.toMatchSettings(),
+            engine = DeterministicMatchEngine(
+                config = config,
+                state = state,
+                boundaries = boundaries
+            ),
+            session = null
+        )
+        showGameScene(scene)
+    }
+
+    private fun showGameScene(scene: GameBubbleScene) {
         val bubbleGLSurfaceView = BubbleGLSurfaceView(this, scene)
         gameSession = GameSession.Active(bubbleGLSurfaceView, scene)
         val glSurfaceViewHolder =
@@ -566,7 +590,4 @@ class MainActivity : ComponentActivity() {
         ViewCompat.requestApplyInsets(hud)
     }
 
-    companion object {
-        private const val INITIAL_GAME_TIMER = 25.0f
-    }
 }
