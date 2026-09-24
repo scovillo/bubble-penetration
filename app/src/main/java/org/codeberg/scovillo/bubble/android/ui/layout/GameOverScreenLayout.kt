@@ -6,6 +6,7 @@ import android.text.Spannable
 import android.text.SpannableString
 import android.text.style.RelativeSizeSpan
 import android.widget.TextView
+import android.widget.Toast
 import org.codeberg.scovillo.bubble.R
 import org.codeberg.scovillo.bubble.android.MainActivity
 import org.codeberg.scovillo.bubble.android.THREAD_POOL
@@ -55,8 +56,11 @@ class GameOverScreenLayout(private val mainActivity: MainActivity) {
                     )
                     updateHighscoreResult(isRecord)
                     if (exception.findHttpStatusException()?.statusCode == 400) {
-                        mainActivity.findViewById<TextView>(R.id.highscore_label)?.text =
-                            mainActivity.getString(R.string.score_not_accepted)
+                        Toast.makeText(
+                            mainActivity,
+                            mainActivity.getString(R.string.score_not_accepted),
+                            Toast.LENGTH_LONG,
+                        ).show()
                     } else if (!mainActivity.showRateLimitMessage(exception)) {
                         mainActivity.showOfflineFallbackMessageOnce()
                     }
