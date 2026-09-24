@@ -18,7 +18,7 @@ class MenuBubbleScene(
     private val generator: MatchEngine =
         RandomizedMatchEngine(
             state = state,
-            config = MatchEngineConfig("", -1),
+            config = MatchEngineConfig(""),
             boundaries = boundaries
         )
 ) : BubbleScene {

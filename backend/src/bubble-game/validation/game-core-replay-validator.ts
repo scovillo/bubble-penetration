@@ -9,13 +9,14 @@ const FINISH_TIME_TOLERANCE_MS = 500;
 /** The current replay protocol version, owned by game-core. */
 export const REPLAY_VERSION = replayVersion();
 
-export type ReplayValidationInput = {
+export interface ReplayValidationInput {
   seed: string;
+  version: number;
   score: number;
   durationMs: number;
   viewportAspectRatio: number;
   events: ReplayEvent[];
-};
+}
 
 /**
  * Checks an untrusted score submission by replaying it with the exact shared game
@@ -24,6 +25,7 @@ export type ReplayValidationInput = {
  */
 export async function validateReplay({
   seed,
+  version,
   score,
   durationMs,
   viewportAspectRatio,
@@ -35,6 +37,7 @@ export async function validateReplay({
 
   const result = await simulateMatch({
     seed,
+    version,
     events,
     viewportAspectRatio,
   });

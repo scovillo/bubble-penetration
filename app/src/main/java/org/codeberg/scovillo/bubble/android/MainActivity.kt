@@ -19,18 +19,14 @@ import org.codeberg.scovillo.bubble.android.api.ApiService
 import org.codeberg.scovillo.bubble.android.api.OnlineGameSession
 import org.codeberg.scovillo.bubble.android.api.UserResource
 import org.codeberg.scovillo.bubble.android.api.findHttpStatusException
+import org.codeberg.scovillo.bubble.android.log.AppLogger
 import org.codeberg.scovillo.bubble.android.persistence.LocalFileStorage
 import org.codeberg.scovillo.bubble.android.persistence.LocalHighscoreStorage
 import org.codeberg.scovillo.bubble.android.persistence.SettingsModel
 import org.codeberg.scovillo.bubble.android.sound.MusicPlayer
 import org.codeberg.scovillo.bubble.android.sound.SoundEffects
 import org.codeberg.scovillo.bubble.android.ui.BubbleFont
-import org.codeberg.scovillo.bubble.android.ui.layout.GameOverScreenLayout
-import org.codeberg.scovillo.bubble.android.ui.layout.HighscoreLayout
-import org.codeberg.scovillo.bubble.android.ui.layout.MainMenuLayout
-import org.codeberg.scovillo.bubble.android.ui.layout.SettingsLayout
-import org.codeberg.scovillo.bubble.android.ui.layout.UsernameCreationLayout
-import org.codeberg.scovillo.bubble.android.ui.layout.UsernameSelectionLayout
+import org.codeberg.scovillo.bubble.android.ui.layout.*
 import org.codeberg.scovillo.bubble.android.ui.render.BubbleGLSurfaceView
 import org.codeberg.scovillo.bubble.android.ui.render.GameBubbleScene
 import org.codeberg.scovillo.bubble.game.Boundaries
@@ -239,7 +235,8 @@ class MainActivity : ComponentActivity() {
     ) {
         val replaySeed = onlineSession?.seed ?: ByteArray(32).also(SecureRandom()::nextBytes)
             .joinToString("") { "%02x".format(it) }
-        val config = MatchEngineConfig(replaySeed)
+        val config = MatchEngineConfig(replaySeed, 1)
+        AppLogger.d("BubbleGame", "Engine config: ${config.summary()}")
         if (onlineSession != null) {
             if (onlineSession.replayVersion != config.replayVersion) {
                 throw IllegalStateException("Unsupported replay version ${onlineSession.replayVersion}")
@@ -251,7 +248,7 @@ class MainActivity : ComponentActivity() {
             this,
             matchSettings = settingsModel.toMatchSettings(),
             engine = DeterministicMatchEngine(
-                config = MatchEngineConfig(replaySeed),
+                config = config,
                 state = state,
                 boundaries = boundaries
             ),

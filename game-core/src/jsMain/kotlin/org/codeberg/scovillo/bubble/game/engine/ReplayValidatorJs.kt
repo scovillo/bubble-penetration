@@ -9,11 +9,18 @@ class JsReplayResult(val score: Int, val finishedAtMs: Double)
 @JsExport
 fun replayVersion(): Int = MatchEngineConfig.CURRENT_REPLAY_VERSION
 
+/** Exposes the seed-free engine configuration for startup diagnostics. */
+@OptIn(ExperimentalJsExport::class)
+@JsExport
+fun engineConfigSummary(): String =
+    MatchEngineConfig("", MatchEngineConfig.CURRENT_REPLAY_VERSION).summary()
+
 /** Promise-based Node/browser facade for the common replay validator. */
 @OptIn(ExperimentalJsExport::class)
 @JsExport
 suspend fun simulateMatch(
     seed: String,
+    version: Int,
     objectIds: Array<String>,
     timestampsMs: DoubleArray,
     xs: DoubleArray,
@@ -31,6 +38,7 @@ suspend fun simulateMatch(
             ys[index],
         )
     }
-    val result = DeterministicMatch(seed).replay(MatchInput(events, viewportAspectRatio))
+    val result = DeterministicMatch(seed, version)
+        .replay(MatchInput(events, viewportAspectRatio))
     return JsReplayResult(result.score, result.finishedAtMs.toDouble())
 }

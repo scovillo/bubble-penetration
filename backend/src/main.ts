@@ -5,12 +5,14 @@ import { AppModule } from './app.module';
 import { AppLogger } from './common/app-logger.service';
 import { parseAllowedOrigins } from './config/allowed-origins';
 import { resolveLogLevel } from './config/log-level';
+import { engineConfigSummary } from '@bubble/game-core';
 
 async function bootstrap() {
   const logger = new AppLogger({
     logLevels: [resolveLogLevel(process.env.LOG_LEVEL, process.env.NODE_ENV)],
   });
   const app = await NestFactory.create(AppModule, { logger });
+  logger.log(`Engine config: ${engineConfigSummary()}`);
   app.useGlobalPipes(
     new ValidationPipe({
       transform: true,

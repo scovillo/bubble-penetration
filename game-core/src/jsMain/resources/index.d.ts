@@ -7,6 +7,7 @@ export type ReplayEvent = {
 
 export type MatchInput = {
   seed: string;
+  version: number;
   events: ReplayEvent[];
   viewportAspectRatio: number;
 };
@@ -17,4 +18,5 @@ export type ReplayResult = {
 };
 
 export function replayVersion(): number;
+export function engineConfigSummary(): string;
 export function simulateMatch(input: MatchInput): Promise<ReplayResult>;

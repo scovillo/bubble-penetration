@@ -179,6 +179,7 @@ export class BubbleGameService {
       );
       const replayInput: ReplayValidationInput = {
         seed: session.seed,
+        version: session.replayVersion,
         score: dto.score,
         durationMs: dto.durationMs,
         viewportAspectRatio: dto.viewportAspectRatio,

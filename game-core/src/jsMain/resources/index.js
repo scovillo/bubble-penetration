@@ -4,8 +4,11 @@ const simulateCoreMatch =
   kotlinCore.org.codeberg.scovillo.bubble.game.engine.simulateMatch;
 const coreReplayVersion =
   kotlinCore.org.codeberg.scovillo.bubble.game.engine.replayVersion;
+const coreEngineConfigSummary =
+  kotlinCore.org.codeberg.scovillo.bubble.game.engine.engineConfigSummary;
 
 exports.replayVersion = () => coreReplayVersion();
+exports.engineConfigSummary = () => coreEngineConfigSummary();
 
 /**
  * Validates an authoritative deterministic replay.
@@ -15,11 +18,13 @@ exports.replayVersion = () => coreReplayVersion();
  */
 exports.simulateMatch = async ({
   seed,
+  version,
   events,
   viewportAspectRatio,
 }) =>
   simulateCoreMatch(
     seed,
+    version,
     events.map((event) => event.objectId),
     Float64Array.from(events.map((event) => event.timestampMs)),
     Float64Array.from(events.map((event) => event.x)),

@@ -5,14 +5,17 @@ import org.codeberg.scovillo.bubble.game.GameActionEvent
 import org.codeberg.scovillo.bubble.game.MatchState
 
 /** Headless convenience API around the actual [DeterministicMatchEngine]. */
-class DeterministicMatch(private val seed: String) {
+class DeterministicMatch(private val seed: String, private val version: Int) {
     suspend fun replay(input: MatchInput): MatchResult {
         require(input.viewportAspectRatio > 0) { "invalid viewport aspect ratio" }
         val boundaries = Boundaries().apply {
-            update(if (input.viewportAspectRatio > 1) 10f else 10f / input.viewportAspectRatio.toFloat(), input.viewportAspectRatio.toFloat())
+            update(
+                if (input.viewportAspectRatio > 1) 10f else 10f / input.viewportAspectRatio.toFloat(),
+                input.viewportAspectRatio.toFloat()
+            )
         }
         val state = MatchState(timerValueMs = INITIAL_TIMER_SECONDS)
-        val engine = DeterministicMatchEngine(boundaries, MatchEngineConfig(seed), state)
+        val engine = DeterministicMatchEngine(boundaries, MatchEngineConfig(seed, version), state)
         input.events.forEachIndexed { index, event ->
             require(event.timestampMs % MATCH_SIMULATION_STEP_MS == 0L) {
                 "event timestamp is not aligned to the simulation step"
@@ -29,7 +32,11 @@ class DeterministicMatch(private val seed: String) {
         return MatchResult(engine.score, engine.durationMs)
     }
 
-    private fun requireResolvedEvent(engine: DeterministicMatchEngine, events: List<GameActionEvent>, index: Int) {
+    private fun requireResolvedEvent(
+        engine: DeterministicMatchEngine,
+        events: List<GameActionEvent>,
+        index: Int
+    ) {
         if (index < 0) return
         require(engine.log.getOrNull(index)?.objectId == events[index].objectId) {
             "tap does not match declared object"
