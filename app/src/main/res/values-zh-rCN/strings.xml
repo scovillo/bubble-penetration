@@ -54,6 +54,7 @@
         <item quantity="other">操作太快了。请在 %d 秒后重试。</item>
     </plurals>
     <string name="rate_limit_retry_minutes">操作太快了。请在 %1$d 分 %2$d 秒后重试。</string>
+    <string name="rate_limit_profile_retry">此连接创建的在线个人资料过多。你现在可以离线游玩，或在 %1$d 分钟后重试。</string>
     <string name="error_empty_username">用户名不能为空！</string>
     <string name="error_username_too_long">最多 12 个字符！</string>
     <string name="error_username_exists">该名称已被使用。</string>

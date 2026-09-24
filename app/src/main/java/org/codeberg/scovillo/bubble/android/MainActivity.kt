@@ -413,7 +413,7 @@ class MainActivity : ComponentActivity() {
                 ).show()
                 return
             }
-            if (showRateLimitMessage(exception)) return
+            if (showProfileRegistrationRateLimitMessage(exception)) return
             val created = UserResource(value)
             profileManagement.addProfile(created)
             selectUser(created)
@@ -476,7 +476,7 @@ class MainActivity : ComponentActivity() {
                 ).show()
             },
             onFailure = { exception ->
-                if (!showRateLimitMessage(exception)) {
+                if (!showProfileRegistrationRateLimitMessage(exception)) {
                     showOfflineFallbackMessageOnce()
                 }
             },
@@ -519,6 +519,25 @@ class MainActivity : ComponentActivity() {
                 )
             }
             Toast.makeText(this, message, LENGTH_LONG).show()
+        }
+        return true
+    }
+
+    fun showProfileRegistrationRateLimitMessage(exception: Throwable): Boolean {
+        val httpException = exception.findHttpStatusException()
+        if (httpException?.statusCode != 429) return false
+
+        val seconds = httpException.retryAfterSeconds?.coerceAtLeast(1) ?: 60
+        val minutes = (seconds + 59) / 60
+        runOnUiThread {
+            Toast.makeText(
+                this,
+                getString(
+                    org.codeberg.scovillo.bubble.R.string.rate_limit_profile_retry,
+                    minutes,
+                ),
+                LENGTH_LONG,
+            ).show()
         }
         return true
     }

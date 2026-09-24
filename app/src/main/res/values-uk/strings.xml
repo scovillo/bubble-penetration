@@ -57,6 +57,7 @@
         <item quantity="other">Занадто швидко. Спробуйте знову через %d секунди.</item>
     </plurals>
     <string name="rate_limit_retry_minutes">Занадто швидко. Спробуйте знову через %1$d хв. %2$d с.</string>
+    <string name="rate_limit_profile_retry">Із цього підключення створено забагато онлайн-профілів. Ви можете грати офлайн або повторити спробу через %1$d хв.</string>
     <string name="error_empty_username">Ім’я користувача не може бути порожнім!</string>
     <string name="error_username_too_long">Максимум 12 символів!</string>
     <string name="error_username_exists">Це ім’я вже використовується.</string>

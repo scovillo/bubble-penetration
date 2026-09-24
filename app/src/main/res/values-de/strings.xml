@@ -55,6 +55,7 @@
         <item quantity="other">Das ging etwas zu schnell. Bitte versuche es in %d Sekunden erneut.</item>
     </plurals>
     <string name="rate_limit_retry_minutes">Das ging etwas zu schnell. Bitte versuche es in %1$d Min. %2$d Sek. erneut.</string>
+    <string name="rate_limit_profile_retry">Zu viele Online-Profile von dieser Verbindung. Du kannst jetzt offline spielen oder es in %1$d Min. erneut versuchen.</string>
     <string name="error_empty_username">Sorry, der Benutzername darf nicht leer sein!</string>
     <string name="error_username_too_short">Bitte gib mindestens 2 Zeichen ein!</string>
     <string name="error_username_too_long">Sorry, maximal 12 Zeichen!</string>

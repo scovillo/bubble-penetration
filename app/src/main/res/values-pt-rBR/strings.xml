@@ -55,6 +55,7 @@
         <item quantity="other">Foi rápido demais. Tente novamente em %d segundos.</item>
     </plurals>
     <string name="rate_limit_retry_minutes">Foi rápido demais. Tente novamente em %1$d min %2$d s.</string>
+    <string name="rate_limit_profile_retry">Há perfis online demais nesta conexão. Você pode jogar offline agora ou tentar novamente em %1$d min.</string>
     <string name="error_empty_username">O nome de usuário não pode ficar vazio!</string>
     <string name="error_username_too_long">Máximo de 12 caracteres!</string>
     <string name="error_username_exists">O nome já está em uso.</string>
