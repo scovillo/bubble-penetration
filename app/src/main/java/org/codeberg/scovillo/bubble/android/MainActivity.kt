@@ -84,7 +84,6 @@ class MainActivity : ComponentActivity() {
     private var isGameRunning = false
     private var gameSession: GameSession = GameSession.Inactive
     private var isUsingOfflineFallback = false
-    private val credentialRegistrationsInProgress = mutableSetOf<String>()
 
     var lastGameActionLog: List<GameActionEvent> = emptyList()
         private set
@@ -156,7 +155,6 @@ class MainActivity : ComponentActivity() {
             settingsLayout.restore(savedInstanceState) -> Unit
             ::selectedUser.isInitialized -> {
                 mainMenuLayout.show()
-                registerSelectedUserIfNeeded()
             }
 
             users.isEmpty() -> {
@@ -378,29 +376,10 @@ class MainActivity : ComponentActivity() {
     }
 
     fun saveUsername(view: View) {
-        val value =
-            (findViewById<View>(org.codeberg.scovillo.bubble.R.id.username_field) as EditText).text.toString()
-        if (value.isBlank()) {
-            Toast.makeText(
-                this,
-                getString(org.codeberg.scovillo.bubble.R.string.error_empty_username),
-                LENGTH_SHORT
-            ).show()
-            return
-        }
-        if (value.length > 12) {
-            Toast.makeText(
-                this,
-                getString(org.codeberg.scovillo.bubble.R.string.error_username_too_long),
-                LENGTH_SHORT
-            ).show()
-            return
-        }
+        val value = usernameFromInput()
+        if (!isLocallyValidUsername(value)) return
         if (!settingsModel.useOnlineLeaderboard) {
-            val created = UserResource(value)
-            users.add(created)
-            localFileStorage.writeToFile(users)
-            selectUser(created)
+            createLocalProfile(value)
             return
         }
         try {
@@ -437,6 +416,34 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    /** Creates a profile without consuming an online-registration attempt. */
+    fun saveUsernameOffline(view: View) {
+        val value = usernameFromInput()
+        if (!isLocallyValidUsername(value)) return
+        createLocalProfile(value)
+    }
+
+    private fun usernameFromInput(): String =
+        (findViewById<View>(org.codeberg.scovillo.bubble.R.id.username_field) as EditText).text.toString()
+
+    private fun isLocallyValidUsername(value: String): Boolean {
+        val error = when {
+            value.isBlank() -> org.codeberg.scovillo.bubble.R.string.error_empty_username
+            value.length < 2 -> org.codeberg.scovillo.bubble.R.string.error_username_too_short
+            value.length > 12 -> org.codeberg.scovillo.bubble.R.string.error_username_too_long
+            else -> return true
+        }
+        Toast.makeText(this, getString(error), LENGTH_SHORT).show()
+        return false
+    }
+
+    private fun createLocalProfile(username: String) {
+        val created = UserResource(username)
+        users.add(created)
+        localFileStorage.writeToFile(users)
+        selectUser(created)
+    }
+
     fun showUsernameSelectionScreen(view: View) {
         usernameSelectionLayout.showWith(users)
     }
@@ -448,71 +455,6 @@ class MainActivity : ComponentActivity() {
     fun selectUser(user: UserResource) {
         this.selectedUser = user
         mainMenuLayout.show()
-        registerSelectedUserIfNeeded()
-    }
-
-    /**
-     * Tries to turn a locally-created profile into an online profile. A 409 simply means that
-     * somebody else already owns this name, so the local profile remains usable offline.
-     */
-    fun registerSelectedUserIfNeeded() {
-        if (!settingsModel.useOnlineLeaderboard || !::selectedUser.isInitialized) return
-
-        val user = selectedUser
-        if (user.credential != null) return
-        synchronized(credentialRegistrationsInProgress) {
-            if (!credentialRegistrationsInProgress.add(user.username)) return
-        }
-
-        val registration = ApiService.registerUsername(user.username)
-        THREAD_POOL.execute {
-            try {
-                val registeredUser = registration[6000, TimeUnit.MILLISECONDS]
-                runOnUiThread {
-                    synchronized(credentialRegistrationsInProgress) {
-                        credentialRegistrationsInProgress.remove(user.username)
-                    }
-                    replaceCredentiallessUser(user, registeredUser)
-                    onBackendRequestSucceeded()
-                }
-            } catch (exception: Exception) {
-                runOnUiThread {
-                    synchronized(credentialRegistrationsInProgress) {
-                        credentialRegistrationsInProgress.remove(user.username)
-                    }
-                    if (exception.findHttpStatusException()?.statusCode == 409) {
-                        Toast.makeText(
-                            this,
-                            getString(
-                                org.codeberg.scovillo.bubble.R.string
-                                    .profile_name_taken_available_offline
-                            ),
-                            LENGTH_LONG,
-                        ).show()
-                    } else if (!showRateLimitMessage(exception)) {
-                        showOfflineFallbackMessageOnce()
-                    }
-                }
-                exception.printStackTrace()
-            }
-        }
-    }
-
-    private fun replaceCredentiallessUser(previous: UserResource, registered: UserResource) {
-        val userIndex = users.indexOfFirst { it === previous }
-            .takeIf { it >= 0 }
-            ?: users.indexOfFirst {
-                it.username == previous.username && it.credential == null
-            }.takeIf { it >= 0 }
-            ?: return
-
-        users[userIndex] = registered
-        if (::selectedUser.isInitialized && selectedUser.credential == null &&
-            selectedUser.username == previous.username
-        ) {
-            selectedUser = registered
-        }
-        localFileStorage.writeToFile(users)
     }
 
     @Synchronized

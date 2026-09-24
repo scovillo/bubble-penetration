@@ -18,6 +18,7 @@
     <string name="match_finished">Конец!</string>
     <string name="game_over_score_label">Ваш счёт:</string>
     <string name="save">Сохранить</string>
+    <string name="continue_offline">Играть офлайн</string>
     <string name="your_name">Привет! &#x1F44B;</string>
     <string name="choose_nickname">Выберите имя для таблицы рекордов</string>
     <string name="username_hint">Имя</string>

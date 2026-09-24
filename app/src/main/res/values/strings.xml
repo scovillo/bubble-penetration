@@ -18,6 +18,7 @@
     <string name="match_finished">Finished!</string>
     <string name="game_over_score_label">Your score:</string>
     <string name="save">Save</string>
+    <string name="continue_offline">Play offline</string>
     <string name="your_name">Hello! &#x1F44B;</string>
     <string name="choose_nickname">Choose a nickname for the high score list</string>
     <string name="username_hint">Name</string>
@@ -54,6 +55,7 @@
     </plurals>
     <string name="rate_limit_retry_minutes">That was a little too fast. Please try again in %1$d min %2$d sec.</string>
     <string name="error_empty_username">Sorry, username cannot be empty!</string>
+    <string name="error_username_too_short">Sorry, enter at least 2 characters!</string>
     <string name="error_username_too_long">Sorry, maximum 12 characters!</string>
     <string name="error_username_exists">Name is already in use.</string>
     <string name="error_username_not_allowed">This username is not allowed. Please choose another.</string>

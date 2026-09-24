@@ -18,6 +18,7 @@
     <string name="match_finished">終了！</string>
     <string name="game_over_score_label">あなたのスコア:</string>
     <string name="save">保存</string>
+    <string name="continue_offline">オフラインで遊ぶ</string>
     <string name="your_name">こんにちは! &#x1F44B;</string>
     <string name="choose_nickname">ハイスコア一覧のニックネームを選んでください</string>
     <string name="username_hint">名前</string>

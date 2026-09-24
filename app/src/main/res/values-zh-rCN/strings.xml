@@ -18,6 +18,7 @@
     <string name="match_finished">结束！</string>
     <string name="game_over_score_label">你的分数：</string>
     <string name="save">保存</string>
+    <string name="continue_offline">离线游玩</string>
     <string name="your_name">你好！&#x1F44B;</string>
     <string name="choose_nickname">为排行榜选择一个昵称</string>
     <string name="username_hint">名称</string>
