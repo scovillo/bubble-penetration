@@ -59,6 +59,10 @@ private sealed interface GameSession {
 
 class MainActivity : ComponentActivity() {
 
+    private companion object {
+        const val SCREEN_TRANSITION_DURATION_MS = 800L
+    }
+
     val settingsModel = SettingsModel()
 
     private val musicPlayer = MusicPlayer(this)
@@ -92,10 +96,16 @@ class MainActivity : ComponentActivity() {
 
     override fun setContentView(layoutResID: Int) {
         super.setContentView(layoutResID)
+        val content = findViewById<View>(R.id.content)
         BubbleFont.applyTo(
-            findViewById(R.id.content),
+            content,
             scaleNonButtonText = layoutResID != org.codeberg.scovillo.bubble.R.layout.highscores,
         )
+        content.alpha = 0f
+        content.animate()
+            .alpha(1f)
+            .setDuration(SCREEN_TRANSITION_DURATION_MS)
+            .start()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
