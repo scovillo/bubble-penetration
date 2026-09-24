@@ -34,6 +34,9 @@ kotlin {
 }
 
 tasks.named("jsNodeProductionLibraryDistribution") {
+    // The generated package.json is required by backend tests and must be
+    // recreated even when Gradle considers the distribution up to date.
+    outputs.upToDateWhen { false }
     doLast {
         file("build/dist/js/productionLibrary/package.json").writeText(
             """{
