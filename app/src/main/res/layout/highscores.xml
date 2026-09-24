@@ -20,6 +20,7 @@
                 android:enabled="true"
                 android:gravity="start|center_vertical"
                 android:maxLines="1"
+                android:minEms="4"
                 android:paddingLeft="12dp"
                 android:paddingStart="12dp"/>
         <TextView
@@ -45,6 +46,7 @@
                 android:enabled="true"
                 android:gravity="end|center_vertical"
                 android:maxLines="1"
+                android:minEms="4"
                 android:paddingEnd="12dp"
                 android:paddingRight="12dp"/>
     </LinearLayout>
