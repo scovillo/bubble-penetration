@@ -214,6 +214,9 @@ export class BubbleGameService {
       confirmedAt: now,
     });
 
+    player.lastActiveAt = now;
+    session.player.lastActiveAt = now;
+
     await this.highscores.getEntityManager().persist(highscore).flush();
 
     this.logger.log(

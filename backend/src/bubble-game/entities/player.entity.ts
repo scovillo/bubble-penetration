@@ -20,4 +20,7 @@ export class Player {
 
   @Property({ fieldName: 'blocked_at', nullable: true })
   blockedAt?: Date;
+
+  @Property({ fieldName: 'last_active_at', nullable: true })
+  lastActiveAt?: Date;
 }
