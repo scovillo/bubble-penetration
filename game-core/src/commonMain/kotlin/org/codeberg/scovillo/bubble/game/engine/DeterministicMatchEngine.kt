@@ -128,7 +128,7 @@ class DeterministicMatchEngine(
             else -> doubleArrayOf(-radiusX / 2, start, 1 + radiusX / 2, end)
         }
         val speedFactor = bytes.uint16(8) / 65535.0
-        val baseSpeed = 1 + 6 * ln(.00125 * score + 1) / ln(2.0)
+        val baseSpeed = 1 + 4 * ln(.00125 * score + 1) / ln(2.0)
         val speed =
             baseSpeed * if (type == GameObjectType.STAR) .85 + speedFactor * .15 else .75 + speedFactor * .25
         val spawnAt = index.toLong() * config.spawnIntervalMs

@@ -43,16 +43,17 @@ class MatchEngineConfig(
             1 -> {
                 maxObjectsOnField = 20
                 spawnIntervalMs = 100L
-                baseTravelDurationMs = 12_000.0f
+                baseTravelDurationMs = 10_000.0f
                 targetChangeBaseMs = 6_000L
                 minBubbleScale = 0.75f
                 bubbleScaleRange = 0.15f
                 starScale = 0.85f
-                maxSpawnDelayMs = 100L
+                maxSpawnDelayMs = 150L
                 minSpawnDistance = 1.5f
                 minReactionMs = 100L
                 minEventGapMs = 30L
             }
+
             else -> error("Unsupported replay version: $replayVersion")
         }
     }
