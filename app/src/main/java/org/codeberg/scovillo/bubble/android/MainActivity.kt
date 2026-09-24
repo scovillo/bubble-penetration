@@ -415,7 +415,7 @@ class MainActivity : ComponentActivity() {
                 return
             }
             if (showProfileRegistrationRateLimitMessage(exception)) return
-            val created = profileManagement.createOfflineProfile(value)
+            val created = profileManagement.createPendingOnlineProfile(value)
             selectUser(created)
             if (httpException == null || httpException.statusCode >= 500) {
                 Toast.makeText(
@@ -436,12 +436,16 @@ class MainActivity : ComponentActivity() {
         return when {
             "at most 12 characters" in response ->
                 org.codeberg.scovillo.bubble.R.string.error_username_too_long
+
             "invalid characters" in response || "invalid start" in response ->
                 org.codeberg.scovillo.bubble.R.string.error_username_invalid_format
+
             "at least one letter" in response ->
                 org.codeberg.scovillo.bubble.R.string.error_username_no_letter
+
             "content filter" in response ->
                 org.codeberg.scovillo.bubble.R.string.error_username_inappropriate
+
             else -> org.codeberg.scovillo.bubble.R.string.error_username_not_allowed
         }
     }
@@ -486,7 +490,7 @@ class MainActivity : ComponentActivity() {
     }
 
     fun migrateSelectedLegacyProfileIfNeeded() {
-        profileManagement.registerSelectedUserIfNeeded(
+        profileManagement.registerSelectedUser(
             settingsModel.useOnlineLeaderboard,
             postToUi = { action -> runOnUiThread { action() } },
             onRegistered = {

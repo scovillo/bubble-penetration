@@ -32,6 +32,10 @@ class ProfileManagement(private val storage: LocalFileStorage) {
     fun createOfflineProfile(username: String): UserResource =
         UserResource(username, isOfflineOnly = true).also(::addProfile)
 
+    /** Creates a profile that should be registered online when the backend is available. */
+    fun createPendingOnlineProfile(username: String): UserResource =
+        UserResource(username).also(::addProfile)
+
     fun addProfile(profile: UserResource) {
         profiles.add(profile)
         persist()
@@ -42,7 +46,7 @@ class ProfileManagement(private val storage: LocalFileStorage) {
             isOnlineLeaderboardEnabled && it.credential == null && !it.isOfflineOnly
         }
 
-    fun registerSelectedUserIfNeeded(
+    fun registerSelectedUser(
         isOnlineLeaderboardEnabled: Boolean,
         postToUi: ((() -> Unit) -> Unit),
         onRegistered: () -> Unit,
@@ -60,7 +64,7 @@ class ProfileManagement(private val storage: LocalFileStorage) {
                 val registeredProfile =
                     ApiService.registerUsername(profile.username)[6000, TimeUnit.MILLISECONDS]
                 postToUi {
-                    replaceLegacyProfile(profile, registeredProfile)
+                    convertToOnlineProfile(profile, registeredProfile)
                     onRegistered()
                 }
             } catch (exception: Exception) {
@@ -80,7 +84,7 @@ class ProfileManagement(private val storage: LocalFileStorage) {
         }
     }
 
-    fun replaceLegacyProfile(previous: UserResource, registered: UserResource) {
+    fun convertToOnlineProfile(previous: UserResource, registered: UserResource) {
         val profileIndex = profiles.indexOfFirst { it === previous }
             .takeIf { it >= 0 }
             ?: profiles.indexOfFirst {
@@ -91,8 +95,8 @@ class ProfileManagement(private val storage: LocalFileStorage) {
         profiles[profileIndex] = registered
         if (selectedProfile === previous ||
             (selectedProfile?.username == previous.username &&
-                selectedProfile?.credential == null &&
-                selectedProfile?.isOfflineOnly == false)
+                    selectedProfile?.credential == null &&
+                    selectedProfile?.isOfflineOnly == false)
         ) {
             selectedProfile = registered
         }
@@ -100,7 +104,7 @@ class ProfileManagement(private val storage: LocalFileStorage) {
     }
 
     private fun markProfileOfflineOnly(profile: UserResource) {
-        replaceLegacyProfile(
+        convertToOnlineProfile(
             profile,
             UserResource(profile.username, profile.credential, isOfflineOnly = true),
         )
