@@ -1,0 +1,6 @@
+Neu in Version 1.4:
+- Es können Offline-Profile erstellt werden.
+- Klare Hinweise bei der Profilerstellung und verständliche Meldungen zu Namen.
+- Neuer Countdown und flüssigere Animationen beim Start und Ende einer Runde.
+- Layout-Optimierungen im Spiel und in der Bestenliste.
+- Verbesserter Schutz gegen manipulierte Spielstände und unfaire Einträge in der Bestenliste.

@@ -1,0 +1,6 @@
+Novedades de la versión 1.4:
+- Ahora puedes crear perfiles sin conexión.
+- Indicaciones claras al crear perfiles y mensajes fáciles de entender sobre los nombres.
+- Nueva cuenta atrás y animaciones más fluidas al comenzar y terminar una partida.
+- Mejoras de diseño en el juego y en la clasificación.
+- Mayor protección contra puntuaciones manipuladas y entradas injustas en la clasificación.

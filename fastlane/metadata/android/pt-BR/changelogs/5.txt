@@ -1,0 +1,6 @@
+Novidades da versão 1.4:
+- Agora você pode criar perfis offline.
+- Orientações claras ao criar perfis e mensagens fáceis de entender sobre os nomes.
+- Nova contagem regressiva e animações mais fluidas no início e no fim da partida.
+- Melhorias de layout no jogo e no ranking.
+- Melhor proteção contra pontuações manipuladas e entradas injustas no ranking.

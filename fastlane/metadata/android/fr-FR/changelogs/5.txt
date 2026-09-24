@@ -1,0 +1,6 @@
+Nouveautés de la version 1.4 :
+- Vous pouvez désormais créer des profils hors ligne.
+- Des indications claires lors de la création d’un profil et des messages faciles à comprendre concernant les noms.
+- Nouveau compte à rebours et animations plus fluides au début et à la fin d’une partie.
+- Améliorations de la mise en page dans le jeu et le classement.
+- Protection renforcée contre les scores manipulés et les entrées injustes dans le classement.

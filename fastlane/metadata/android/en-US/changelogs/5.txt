@@ -1,0 +1,6 @@
+New in version 1.4:
+- You can now create offline profiles.
+- Clear guidance during profile creation and easy-to-understand name messages.
+- New countdown and smoother animations at the start and end of a round.
+- Layout improvements in the game and leaderboard.
+- Improved protection against manipulated scores and unfair leaderboard entries.

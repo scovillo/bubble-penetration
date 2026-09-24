@@ -6,7 +6,7 @@ metadata:
   labels:
     app: bubble-backend
 data:
-  LOG_LEVEL: 'INFO'
+  LOG_LEVEL: 'LOG'
   NODE_ENV: 'production'
   TRUST_PROXY_HOPS: '1'
   INAPPROPRIATE_USERNAME_API_URL: 'http://inappropriate-usernames-api'
@@ -33,7 +33,7 @@ spec:
       containers:
         - name: api
           image: codeberg.org/scovillo/inappropriate-usernames:latest
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Always
           ports:
             - name: http
               containerPort: 8080
@@ -219,7 +219,7 @@ spec:
       containers:
         - name: bubble-backend
           image: codeberg.org/scovillo/bubble-penetration-backend:$IMAGE_TAG
-          imagePullPolicy: 'IfNotPresent'
+          imagePullPolicy: 'Always'
           ports:
             - containerPort: 3000
           readinessProbe:
@@ -268,7 +268,7 @@ spec:
           containers:
             - name: reset-highscores
               image: codeberg.org/scovillo/bubble-penetration-backend:$IMAGE_TAG
-              imagePullPolicy: 'IfNotPresent'
+              imagePullPolicy: 'Always'
               command: ['npm', 'run', 'reset-highscores']
               envFrom:
                 - configMapRef:
