@@ -58,11 +58,11 @@
     <string name="error_empty_username">ユーザー名は空にできません!</string>
     <string name="error_username_too_long">最大 10 文字です!</string>
     <string name="error_username_exists">この名前はすでに使われています。</string>
-    <string name="error_username_not_allowed">このユーザー名は使用できません。別の名前を選んでください。</string>
-    <string name="error_username_invalid_format">使用できる文字を使い、文字、数字、記号、絵文字で始めて終えてください。</string>
-    <string name="error_username_no_letter">ユーザー名には少なくとも1文字の文字を含めてください。</string>
-    <string name="error_username_inappropriate">このユーザー名はコンテンツフィルターで拒否されました。</string>
-    <string name="error_username_validation_unavailable">名前の確認を利用できません。プロフィールをオフラインで作成しました。</string>
+    <string name="error_username_not_allowed">使用できない名前です。</string>
+    <string name="error_username_invalid_format">使用できない文字です。</string>
+    <string name="error_username_no_letter">少なくとも1文字を含めてください。</string>
+    <string name="error_username_inappropriate">この名前は使用できません。</string>
+    <string name="error_username_validation_unavailable">サーバーに接続できません。オフラインで作成しました。</string>
     <string name="profile_name_taken_available_offline">この名前はすでに使われています。プロフィールはローカルで使用されます。</string>
     <string name="error_market_app_not_found">アプリストアが見つかりません。</string>
     <string name="msg_new_rank">&#x1F3C6;\n\nすばらしい!\n新しい順位を確認しましょう!</string>

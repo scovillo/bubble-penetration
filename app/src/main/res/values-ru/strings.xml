@@ -61,11 +61,11 @@
     <string name="error_empty_username">Имя пользователя не может быть пустым!</string>
     <string name="error_username_too_long">Максимум 12 символов!</string>
     <string name="error_username_exists">Это имя уже используется.</string>
-    <string name="error_username_not_allowed">Это имя пользователя не разрешено. Пожалуйста, выберите другое.</string>
-    <string name="error_username_invalid_format">Используйте разрешённые символы и начинайте и заканчивайте буквой, цифрой, знаком или эмодзи.</string>
-    <string name="error_username_no_letter">Имя пользователя должно содержать хотя бы одну букву.</string>
-    <string name="error_username_inappropriate">Это имя пользователя отклонено фильтром содержимого.</string>
-    <string name="error_username_validation_unavailable">Проверка имени недоступна. Профиль создан офлайн.</string>
+    <string name="error_username_not_allowed">Имя не разрешено.</string>
+    <string name="error_username_invalid_format">Недопустимые символы.</string>
+    <string name="error_username_no_letter">Требуется хотя бы одна буква.</string>
+    <string name="error_username_inappropriate">Это имя не разрешено.</string>
+    <string name="error_username_validation_unavailable">Сервер недоступен, профиль создан офлайн.</string>
     <string name="profile_name_taken_available_offline">Это имя уже используется; профиль будет использоваться локально.</string>
     <string name="error_market_app_not_found">Не удалось найти магазин приложений.</string>
     <string name="msg_new_rank">&#x1F3C6;\n\nОтлично!\nПосмотрите своё новое место!</string>

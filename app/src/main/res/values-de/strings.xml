@@ -59,11 +59,11 @@
     <string name="error_empty_username">Sorry, der Benutzername darf nicht leer sein!</string>
     <string name="error_username_too_long">Sorry, maximal 12 Zeichen!</string>
     <string name="error_username_exists">Name wird bereits verwendet.</string>
-    <string name="error_username_not_allowed">Dieser Benutzername ist nicht erlaubt, bitte wähle einen anderen</string>
-    <string name="error_username_invalid_format">Verwende erlaubte Zeichen und beginne und ende mit einem Buchstaben, einer Zahl, einem Zeichen oder Emoji.</string>
-    <string name="error_username_no_letter">Der Benutzername muss mindestens einen Buchstaben enthalten.</string>
-    <string name="error_username_inappropriate">Dieser Benutzername wurde vom Inhaltsfilter abgelehnt.</string>
-    <string name="error_username_validation_unavailable">Die Namensprüfung ist nicht erreichbar. Das Profil wurde offline erstellt.</string>
+    <string name="error_username_not_allowed">Name nicht erlaubt.</string>
+    <string name="error_username_invalid_format">Ungültige Zeichen.</string>
+    <string name="error_username_no_letter">Mindestens ein Buchstabe erforderlich.</string>
+    <string name="error_username_inappropriate">Dieser Name ist nicht erlaubt.</string>
+    <string name="error_username_validation_unavailable">Server nicht erreichbar, Profil offline erstellt.</string>
     <string name="profile_name_taken_available_offline">Name wird bereits verwendet, das Profil wird lokal genutzt.</string>
     <string name="error_market_app_not_found">App Store konnte nicht gefunden werden.</string>
     <string name="msg_new_rank">&#x1F3C6;\n\nSuper!\nSieh dir deinen neuen Rang an!</string>

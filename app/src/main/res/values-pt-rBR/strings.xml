@@ -59,11 +59,11 @@
     <string name="error_empty_username">O nome de usuário não pode ficar vazio!</string>
     <string name="error_username_too_long">Máximo de 12 caracteres!</string>
     <string name="error_username_exists">O nome já está em uso.</string>
-    <string name="error_username_not_allowed">Este nome de usuário não é permitido. Escolha outro.</string>
-    <string name="error_username_invalid_format">Use caracteres permitidos e comece e termine com uma letra, número, marca ou emoji.</string>
-    <string name="error_username_no_letter">O nome de usuário deve conter pelo menos uma letra.</string>
-    <string name="error_username_inappropriate">Este nome de usuário foi rejeitado pelo filtro de conteúdo.</string>
-    <string name="error_username_validation_unavailable">A validação do nome está indisponível. O perfil foi criado offline.</string>
+    <string name="error_username_not_allowed">Nome não permitido.</string>
+    <string name="error_username_invalid_format">Caracteres inválidos.</string>
+    <string name="error_username_no_letter">É necessária pelo menos uma letra.</string>
+    <string name="error_username_inappropriate">Este nome não é permitido.</string>
+    <string name="error_username_validation_unavailable">Servidor indisponível, perfil criado offline.</string>
     <string name="profile_name_taken_available_offline">O nome já está em uso; o perfil será usado localmente.</string>
     <string name="error_market_app_not_found">Não foi possível encontrar a loja de apps.</string>
     <string name="msg_new_rank">&#x1F3C6;\n\nÓtimo!\nConfira sua nova posição!</string>

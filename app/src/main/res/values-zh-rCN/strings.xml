@@ -58,11 +58,11 @@
     <string name="error_empty_username">用户名不能为空！</string>
     <string name="error_username_too_long">最多 12 个字符！</string>
     <string name="error_username_exists">该名称已被使用。</string>
-    <string name="error_username_not_allowed">此用户名不允许使用，请选择其他用户名。</string>
-    <string name="error_username_invalid_format">请使用允许的字符，并以字母、数字、标记或表情符号开头和结尾。</string>
-    <string name="error_username_no_letter">用户名必须至少包含一个字母。</string>
-    <string name="error_username_inappropriate">此用户名被内容过滤器拒绝。</string>
-    <string name="error_username_validation_unavailable">无法验证用户名。个人资料已离线创建。</string>
+    <string name="error_username_not_allowed">名称不可用。</string>
+    <string name="error_username_invalid_format">包含无效字符。</string>
+    <string name="error_username_no_letter">至少需要一个字母。</string>
+    <string name="error_username_inappropriate">此名称不可用。</string>
+    <string name="error_username_validation_unavailable">服务器不可用，个人资料已离线创建。</string>
     <string name="profile_name_taken_available_offline">该名称已被使用；此配置文件将仅在本地使用。</string>
     <string name="error_market_app_not_found">未找到应用商店。</string>
     <string name="msg_new_rank">&#x1F3C6;\n\n太棒了！\n查看你的新排名！</string>

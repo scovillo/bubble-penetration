@@ -15,6 +15,8 @@ describe('UsernameValidationService', () => {
   );
 
   it.each([
+    '!codex!',
+    '-codex-',
     'BubbleFan! ❤️',
     'Sternenfunke',
     'Wolkenpfad',
