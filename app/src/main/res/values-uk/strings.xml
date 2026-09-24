@@ -71,6 +71,7 @@
     <string name="msg_new_rank">&#x1F3C6;\n\nЧудово!\nПерегляньте своє нове місце!</string>
     <string name="msg_try_again">Раніше ви грали краще… спробуйте ще раз!</string>
     <string name="msg_your_score">Ваш рахунок</string>
+    <string name="score_not_accepted">Ваш рахунок не прийнято до таблиці лідерів.</string>
     <string name="combo_build">ЗБЕРІТЬ КОМБО</string>
     <string name="combo">КОМБО</string>
     <string name="combo_hot_streak">ВАУ!</string>

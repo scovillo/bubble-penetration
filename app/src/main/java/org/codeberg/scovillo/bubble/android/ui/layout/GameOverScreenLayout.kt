@@ -11,6 +11,7 @@ import org.codeberg.scovillo.bubble.android.MainActivity
 import org.codeberg.scovillo.bubble.android.THREAD_POOL
 import org.codeberg.scovillo.bubble.android.api.ApiService
 import org.codeberg.scovillo.bubble.android.api.OnlineGameSession
+import org.codeberg.scovillo.bubble.android.api.findHttpStatusException
 import java.util.concurrent.TimeUnit
 
 class GameOverScreenLayout(private val mainActivity: MainActivity) {
@@ -53,7 +54,10 @@ class GameOverScreenLayout(private val mainActivity: MainActivity) {
                         score.toInt(),
                     )
                     updateHighscoreResult(isRecord)
-                    if (!mainActivity.showRateLimitMessage(exception)) {
+                    if (exception.findHttpStatusException()?.statusCode == 400) {
+                        mainActivity.findViewById<TextView>(R.id.highscore_label)?.text =
+                            mainActivity.getString(R.string.score_not_accepted)
+                    } else if (!mainActivity.showRateLimitMessage(exception)) {
                         mainActivity.showOfflineFallbackMessageOnce()
                     }
                 }

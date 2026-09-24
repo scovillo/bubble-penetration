@@ -69,6 +69,7 @@
     <string name="msg_new_rank">&#x1F3C6;\n\nGreat!\nCheck your new rank!</string>
     <string name="msg_try_again">You were better… try again!</string>
     <string name="msg_your_score">Your score</string>
+    <string name="score_not_accepted">Your score was not accepted for the leaderboard.</string>
     <string name="combo_build">BUILD COMBO</string>
     <string name="combo">COMBO</string>
     <string name="combo_hot_streak">WOW</string>

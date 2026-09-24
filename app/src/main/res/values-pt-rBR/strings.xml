@@ -69,6 +69,7 @@
     <string name="msg_new_rank">&#x1F3C6;\n\nÓtimo!\nConfira sua nova posição!</string>
     <string name="msg_try_again">Você já jogou melhor… tente novamente!</string>
     <string name="msg_your_score">Sua pontuação</string>
+    <string name="score_not_accepted">Sua pontuação não foi aceita no placar.</string>
     <string name="combo_build">MONTE O COMBO</string>
     <string name="combo">COMBO</string>
     <string name="combo_hot_streak">UAU!</string>
