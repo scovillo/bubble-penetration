@@ -27,6 +27,7 @@ import org.codeberg.scovillo.bubble.android.sound.MusicPlayer
 import org.codeberg.scovillo.bubble.android.sound.SoundEffects
 import org.codeberg.scovillo.bubble.android.ui.BubbleFont
 import org.codeberg.scovillo.bubble.android.ui.hud.GamePreparationOverlay
+import org.codeberg.scovillo.bubble.android.ui.hud.MatchFinishOverlay
 import org.codeberg.scovillo.bubble.android.ui.layout.GameOverScreenLayout
 import org.codeberg.scovillo.bubble.android.ui.layout.HighscoreLayout
 import org.codeberg.scovillo.bubble.android.ui.layout.MainMenuLayout
@@ -297,6 +298,7 @@ class MainActivity : ComponentActivity() {
 
     fun showGameOverScreen(score: String, session: OnlineGameSession?) {
         isGameRunning = false
+        val finishGeneration = ++gameLaunchGeneration
         val finishedSession = gameSession
         lastGameActionLog =
             (finishedSession as? GameSession.Active)?.scene?.getActionLog() ?: emptyList()
@@ -306,8 +308,16 @@ class MainActivity : ComponentActivity() {
         gameSession = GameSession.Inactive
         val glSurfaceViewHolder =
             this.findViewById<View>(org.codeberg.scovillo.bubble.R.id.GLSurfaceViewHolder) as FrameLayout?
-        glSurfaceViewHolder?.removeAllViews()
-        gameOverScreenLayout.show(score, session)
+        if (glSurfaceViewHolder == null) {
+            gameOverScreenLayout.show(score, session)
+            return
+        }
+        MatchFinishOverlay(this, glSurfaceViewHolder).show {
+            if (finishGeneration == gameLaunchGeneration) {
+                glSurfaceViewHolder.removeAllViews()
+                gameOverScreenLayout.show(score, session)
+            }
+        }
     }
 
     fun showHighscores(view: View) {

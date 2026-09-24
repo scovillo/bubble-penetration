@@ -15,6 +15,7 @@
     <string name="score_postfix_value">+%1$d</string>
     <string name="initial_score">0</string>
     <string name="game_over_text">Fim de jogo</string>
+    <string name="match_finished">Fim!</string>
     <string name="game_over_score_label">Sua pontuação:</string>
     <string name="save">Salvar</string>
     <string name="your_name">Olá! &#x1F44B;</string>

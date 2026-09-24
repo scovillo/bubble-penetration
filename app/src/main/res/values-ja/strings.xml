@@ -15,6 +15,7 @@
     <string name="score_postfix_value">+%1$d</string>
     <string name="initial_score">0</string>
     <string name="game_over_text">ゲームオーバー</string>
+    <string name="match_finished">終了！</string>
     <string name="game_over_score_label">あなたのスコア:</string>
     <string name="save">保存</string>
     <string name="your_name">こんにちは! &#x1F44B;</string>

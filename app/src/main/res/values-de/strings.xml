@@ -16,6 +16,7 @@
     <string name="score_text">Punkte</string>
     <string name="timer_text">Zeit</string>
     <string name="game_over_text">Spiel vorbei</string>
+    <string name="match_finished">Ende!</string>
     <string name="game_over_score_label">Deine Punkte:</string>
     <string name="save">Speichern</string>
     <string name="your_name">Hallo! &#x1F44B;</string>
