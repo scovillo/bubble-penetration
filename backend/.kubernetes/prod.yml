@@ -32,7 +32,7 @@ spec:
     spec:
       containers:
         - name: api
-          image: registry.codeberg.org/scovillo/inappropriate-usernames:latest
+          image: codeberg.org/scovillo/inappropriate-usernames:latest
           imagePullPolicy: IfNotPresent
           ports:
             - name: http

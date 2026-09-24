@@ -19,29 +19,11 @@ env:
 
 jobs:
   test-build-deploy:
-    runs-on: codeberg-medium
-    container:
-      image: docker.io/library/node:22-bookworm-slim
+    runs-on: codeberg-kubernetes-runner
 
     steps:
       - name: Checkout code
-        uses: https://data.forgejo.org/actions/checkout@v6
-
-      - name: Install container build tools
-        shell: bash
-        run: |
-          apt-get update
-          apt-get install --yes --no-install-recommends buildah ca-certificates
-          rm -rf /var/lib/apt/lists/*
-          printf '[storage]\ndriver="vfs"\nrunroot="/run/containers/storage"\ngraphroot="/var/lib/containers/storage"\n' \
-            > /etc/containers/storage.conf
-
-      - name: Set up Node.js
-        uses: https://data.forgejo.org/actions/setup-node@v6
-        with:
-          node-version: 22
-          cache: npm
-          cache-dependency-path: backend/package-lock.json
+        uses: actions/checkout@v4
 
       - name: Install dependencies
         working-directory: backend
@@ -55,25 +37,26 @@ jobs:
         working-directory: backend
         run: npm run build
 
+      - name: Log in to Codeberg container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ secrets.REGISTRY_USERNAME }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
+
+      - name: Set up Buildx
+        uses: https://github.com/docker/setup-buildx-action@v3
+        with:
+          driver: remote
+          endpoint: tcp://buildkitd.codeberg-runner.svc:1234
+
       - name: Build and push dev image
-        shell: bash
-        env:
-          BUILDAH_ISOLATION: chroot
-        run: |
-          IMAGE_DEV="${REGISTRY}/${IMAGE_NAME}:dev"
-          IMAGE_SHA="${REGISTRY}/${IMAGE_NAME}:dev-${{ forge.sha }}"
-
-          printf '%s' "${{ secrets.REGISTRY_PASSWORD }}" | \
-            buildah login \
-              --username "${{ secrets.REGISTRY_USERNAME }}" \
-              --password-stdin \
-              "$REGISTRY"
-
-          buildah build \
-            --isolation chroot \
-            --file backend/Dockerfile \
-            --tag "$IMAGE_DEV" \
-            --tag "$IMAGE_SHA" \
-            .
-          buildah push "$IMAGE_DEV" "docker://$IMAGE_DEV"
-          buildah push "$IMAGE_SHA" "docker://$IMAGE_SHA"
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: backend/Dockerfile
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:dev
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:dev-${{ forge.sha }}

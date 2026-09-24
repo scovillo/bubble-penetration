@@ -13,25 +13,14 @@ env:
 
 jobs:
   test-build-push:
-    runs-on: codeberg-medium
-    container:
-      image: docker.io/library/node:22-bookworm-slim
+    runs-on: codeberg-kubernetes-runner
 
     steps:
       - name: Checkout code
-        uses: https://data.forgejo.org/actions/checkout@v6
-
-      - name: Install container build tools
-        shell: bash
-        run: |
-          apt-get update
-          apt-get install --yes --no-install-recommends buildah ca-certificates
-          rm -rf /var/lib/apt/lists/*
-          printf '[storage]\ndriver="vfs"\nrunroot="/run/containers/storage"\ngraphroot="/var/lib/containers/storage"\n' \
-            > /etc/containers/storage.conf
+        uses: actions/checkout@v4
 
       - name: Set up Node.js
-        uses: https://data.forgejo.org/actions/setup-node@v6
+        uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
@@ -58,25 +47,26 @@ jobs:
           echo "BACKEND_VERSION=$VERSION" >> "$FORGEJO_ENV"
           echo "Releasing backend image version $VERSION"
 
+      - name: Log in to Codeberg container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ secrets.REGISTRY_USERNAME }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
+
+      - name: Set up Buildx
+        uses: https://github.com/docker/setup-buildx-action@v3
+        with:
+          driver: remote
+          endpoint: tcp://buildkitd.codeberg-runner.svc:1234
+
       - name: Build and push release image
-        shell: bash
-        env:
-          BUILDAH_ISOLATION: chroot
-        run: |
-          IMAGE_VERSION="${REGISTRY}/${IMAGE_NAME}:${BACKEND_VERSION}"
-          IMAGE_LATEST="${REGISTRY}/${IMAGE_NAME}:latest"
-
-          printf '%s' "${{ secrets.REGISTRY_PASSWORD }}" | \
-            buildah login \
-              --username "${{ secrets.REGISTRY_USERNAME }}" \
-              --password-stdin \
-              "$REGISTRY"
-
-          buildah build \
-            --isolation chroot \
-            --file backend/Dockerfile \
-            --tag "$IMAGE_VERSION" \
-            --tag "$IMAGE_LATEST" \
-            .
-          buildah push "$IMAGE_VERSION" "docker://$IMAGE_VERSION"
-          buildah push "$IMAGE_LATEST" "docker://$IMAGE_LATEST"
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: backend/Dockerfile
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.BACKEND_VERSION }}
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
