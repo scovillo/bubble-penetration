@@ -1,4 +1,6 @@
-FROM eclipse-temurin:17-jdk AS game-core-builder
+# game-core produces platform-independent Kotlin/JS. Build it once on the
+# builder host instead of compiling it independently for amd64 and arm64.
+FROM --platform=$BUILDPLATFORM eclipse-temurin:17-jdk AS game-core-builder
 WORKDIR /workspace
 
 COPY gradlew build.gradle settings.gradle gradle.properties ./
