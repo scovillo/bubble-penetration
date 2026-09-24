@@ -52,7 +52,7 @@
     </plurals>
     <string name="rate_limit_retry_minutes">Занадто швидко. Спробуйте знову через %1$d хв. %2$d с.</string>
     <string name="error_empty_username">Ім’я користувача не може бути порожнім!</string>
-    <string name="error_username_too_long">Максимум 10 символів!</string>
+    <string name="error_username_too_long">Максимум 12 символів!</string>
     <string name="error_username_exists">Це ім’я вже використовується.</string>
     <string name="error_username_not_allowed">Це ім’я користувача заборонене. Будь ласка, виберіть інше.</string>
     <string name="profile_name_taken_available_offline">Це ім’я вже використовується; профіль використовуватиметься локально.</string>

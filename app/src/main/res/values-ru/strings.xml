@@ -52,7 +52,7 @@
     </plurals>
     <string name="rate_limit_retry_minutes">Слишком быстро. Повторите через %1$d мин. %2$d сек.</string>
     <string name="error_empty_username">Имя пользователя не может быть пустым!</string>
-    <string name="error_username_too_long">Максимум 10 символов!</string>
+    <string name="error_username_too_long">Максимум 12 символов!</string>
     <string name="error_username_exists">Это имя уже используется.</string>
     <string name="error_username_not_allowed">Это имя пользователя не разрешено. Пожалуйста, выберите другое.</string>
     <string name="profile_name_taken_available_offline">Это имя уже используется; профиль будет использоваться локально.</string>

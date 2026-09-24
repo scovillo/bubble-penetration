@@ -44,7 +44,7 @@
                     android:hint="@string/username_hint"
                     android:background="@drawable/input_background"
                     android:ems="10"
-                    android:maxLength="10"
+                    android:maxLength="12"
                     android:id="@+id/username_field"
                     android:layout_gravity="center_horizontal"
                     android:textSize="36sp"

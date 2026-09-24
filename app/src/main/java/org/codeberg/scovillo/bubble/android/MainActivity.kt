@@ -314,7 +314,7 @@ class MainActivity : ComponentActivity() {
             ).show()
             return
         }
-        if (value.length > 10) {
+        if (value.length > 12) {
             Toast.makeText(
                 this,
                 getString(org.codeberg.scovillo.bubble.R.string.error_username_too_long),

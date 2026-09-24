@@ -50,7 +50,7 @@
     </plurals>
     <string name="rate_limit_retry_minutes">Foi rápido demais. Tente novamente em %1$d min %2$d s.</string>
     <string name="error_empty_username">O nome de usuário não pode ficar vazio!</string>
-    <string name="error_username_too_long">Máximo de 10 caracteres!</string>
+    <string name="error_username_too_long">Máximo de 12 caracteres!</string>
     <string name="error_username_exists">O nome já está em uso.</string>
     <string name="error_username_not_allowed">Este nome de usuário não é permitido. Escolha outro.</string>
     <string name="profile_name_taken_available_offline">O nome já está em uso; o perfil será usado localmente.</string>

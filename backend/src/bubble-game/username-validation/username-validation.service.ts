@@ -1,4 +1,3 @@
-/* eslint-disable no-misleading-character-class -- The allowed username character set intentionally permits a ZWJ/variation-selector sequence. */
 import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 
 type CustomUsernameRule = {
@@ -6,21 +5,37 @@ type CustomUsernameRule = {
   mustMatch: boolean;
 };
 
+const EMOJI_SEQUENCE_PATTERN = String.raw`\p{Extended_Pictographic}(?:\uFE0F)?(?:\u200D\p{Extended_Pictographic}(?:\uFE0F)?)*`;
+const USERNAME_CHARACTER_PATTERN = String.raw`(?:[\p{L}\p{N}\p{M} _!\-]|${EMOJI_SEQUENCE_PATTERN})`;
+const USERNAME_END_CHARACTER_PATTERN = String.raw`(?:[\p{L}\p{N}\p{M}]|${EMOJI_SEQUENCE_PATTERN})`;
+const USERNAME_FORMAT_REGEX = new RegExp(
+  String.raw`^[\p{L}\p{N}](?:${USERNAME_CHARACTER_PATTERN}*${USERNAME_END_CHARACTER_PATTERN})?$`,
+  'u',
+);
+
 const CUSTOM_USERNAME_RULES: readonly CustomUsernameRule[] = [
   {
-    regex:
-      /^[\p{L}\p{N}](?:[\p{L}\p{N}\p{M} _!\-\p{Extended_Pictographic}\u200D\uFE0F]*[\p{L}\p{N}\p{M}\p{Extended_Pictographic}\uFE0F])?$/u,
+    // Allow Unicode letters/numbers, combining marks, spaces, !, -, and emoji.
+    // Names must start and end with a letter, number, mark, or emoji; ZWJ and
+    // variation selectors are handled as part of complete emoji sequences.
+    regex: USERNAME_FORMAT_REGEX,
     mustMatch: true,
   },
+  // Require at least one Unicode letter; numbers or emoji alone are rejected.
   { regex: /\p{L}/u, mustMatch: true },
-  { regex: /[\u534D\u5350]/u, mustMatch: false },
 ];
 
-type InappropriateUsernameResponse = {
+interface InappropriateUsernameResponse {
+  username: string;
   inappropriate: boolean;
-};
-
-const INAPPROPRIATE_USERNAME_API_TIMEOUT_MS = 3_000;
+  classification: 'inappropriate' | 'clean';
+  probability: number;
+  confidence: number;
+  margin: number;
+  threshold_distance: number;
+  threshold: number;
+  model_version: string;
+}
 
 @Injectable()
 export class UsernameValidationService {
@@ -45,7 +60,7 @@ export class UsernameValidationService {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ username }),
-            signal: AbortSignal.timeout(INAPPROPRIATE_USERNAME_API_TIMEOUT_MS),
+            signal: AbortSignal.timeout(3_000),
           },
         );
         if (!response.ok) {
@@ -53,19 +68,13 @@ export class UsernameValidationService {
             `Inappropriate username API returned HTTP ${response.status}.`,
           );
         }
-
         const result = (await response.json()) as InappropriateUsernameResponse;
-        if (typeof result.inappropriate !== 'boolean') {
-          throw new Error(
-            'Inappropriate username API returned an invalid response.',
-          );
-        }
+        const logMessage = `Username classification: ${JSON.stringify(result)}`;
         if (result.inappropriate) {
-          this.logger.warn(
-            `Inappropriate username "${username}" detected by classifier.`,
-          );
+          this.logger.warn(logMessage);
           throw new BadRequestException('This username is not allowed.');
         }
+        this.logger.log(logMessage);
       }
     });
   }
