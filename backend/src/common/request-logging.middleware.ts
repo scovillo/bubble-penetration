@@ -5,6 +5,7 @@ import { runWithRequestContext } from './request-context';
 
 export const REQUEST_ID_HEADER = 'x-request-id';
 const REQUEST_ID_PATTERN = /^[A-Za-z0-9_-]{1,64}$/;
+const HEALTH_CHECK_PATH_PATTERN = /(?:^|\/)health(?:\/|$)/;
 
 @Injectable()
 export class RequestLoggingMiddleware implements NestMiddleware {
@@ -56,8 +57,7 @@ export class RequestLoggingMiddleware implements NestMiddleware {
   }
 
   private isHealthCheck(request: Request): boolean {
-    return (
-      request.path === '/health/live' || request.path === '/health/ready'
-    );
+    const path = request.originalUrl.split('?', 1)[0];
+    return HEALTH_CHECK_PATH_PATTERN.test(path);
   }
 }
