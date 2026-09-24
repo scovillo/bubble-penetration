@@ -81,7 +81,9 @@ class HighscoreLayout(private val mainActivity: MainActivity) {
         startRank: Int? = null,
         prepend: Boolean = false,
     ) {
-        if (!mainActivity.settingsModel.useOnlineLeaderboard) {
+        if (!mainActivity.settingsModel.useOnlineLeaderboard ||
+            mainActivity.selectedUser.isOfflineOnly
+        ) {
             addLocalHighscores()
             return
         }

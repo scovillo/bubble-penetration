@@ -84,7 +84,9 @@ class MainMenuLayout(private val mainActivity: MainActivity, private val musicPl
     }
 
     private fun loadCurrentChampionAsync() {
-        if (!mainActivity.settingsModel.useOnlineLeaderboard) {
+        if (!mainActivity.settingsModel.useOnlineLeaderboard ||
+            mainActivity.selectedUser.isOfflineOnly
+        ) {
             showLocalChampion()
             return
         }
