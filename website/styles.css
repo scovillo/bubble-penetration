@@ -542,6 +542,21 @@ footer div {
 footer a {
   text-decoration: none;
 }
+.tech-blog-link {
+  color: var(--gold);
+  font-weight: 700;
+  transition: color 0.2s, transform 0.2s;
+}
+.tech-blog-link span {
+  display: inline-block;
+  transition: transform 0.2s;
+}
+.tech-blog-link:hover {
+  color: #fff;
+}
+.tech-blog-link:hover span {
+  transform: translate(2px, -2px);
+}
 .cta-downloads {
   display: flex;
   flex-direction: column;

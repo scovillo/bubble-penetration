@@ -167,6 +167,7 @@ for (const [key, copy] of Object.entries(translations)) {
     READY: copy.ready,
     CTA_TITLE: copy.ctaTitle,
     CTA_TEXT: copy.ctaText,
+    TECH_BLOG: copy.techBlog,
     PRIVACY: copy.privacy,
     PRIVACY_HREF: 'privacy/',
     CLIENT_I18N: JSON.stringify({

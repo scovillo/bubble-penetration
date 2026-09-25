@@ -11,6 +11,7 @@ data:
   TRUST_PROXY_HOPS: '1'
   INAPPROPRIATE_USERNAME_API_URL: 'http://inappropriate-usernames-api'
   REDIS_URL: 'redis://bubble-redis-service:6379'
+  ALLOWED_APP_ORIGINS: ''
 ---
 apiVersion: apps/v1
 kind: Deployment

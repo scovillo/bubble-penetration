@@ -1,6 +1,6 @@
 {
   "name": "bubble-penetration-backend",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "Backend to exchange Bubble Penetration highscores globally",
   "author": "Lukas Scheerer",
   "private": false,

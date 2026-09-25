@@ -9,6 +9,7 @@ data:
   LOG_LEVEL: 'DEBUG'
   NODE_ENV: 'development'
   INAPPROPRIATE_USERNAME_API_URL: 'http://inappropriate-usernames-api'
+  ALLOWED_APP_ORIGINS: ''
 ---
 apiVersion: apps/v1
 kind: Deployment

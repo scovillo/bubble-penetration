@@ -98,7 +98,9 @@ export class BubbleGameService {
 
     await this.gameSessions.getEntityManager().persist(session).flush();
 
-    this.logger.debug(`Created session ${session.id} for player ${player.id}.`);
+    this.logger.log(
+      `Created session ${session.id} for player ${player.id} ("${player.username}").`,
+    );
 
     return {
       sessionId: session.id,
@@ -175,7 +177,7 @@ export class BubbleGameService {
 
     try {
       this.logger.log(
-        `Validating replay for player ${player.id}, session ${session.id}.`,
+        `Validating replay for player ${player.id} ("${player.username}"), session ${session.id}.`,
       );
       const replayInput: ReplayValidationInput = {
         seed: session.seed,
@@ -193,7 +195,7 @@ export class BubbleGameService {
           ? error.message
           : 'unexpected replay validation failure';
       this.logger.warn(
-        `Rejected score submission for player ${player.id}, session ${session.id}: ` +
+        `Rejected score submission for player ${player.id} ("${player.username}"), session ${session.id}: ` +
           reason,
       );
       throw new BadRequestException('The submitted replay is not plausible.');
