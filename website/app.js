@@ -43,7 +43,7 @@
     status.textContent = config.loading;
     try {
       const response = await fetch(
-        'https://bubble.lukas-scheerer.de/api/v1/highscores?startRank=1',
+        'https://bubble.lukas-scheerer.de/api/v2/bubble-game/highscores?startRank=1&limit=10',
         { headers: { Accept: 'application/json' } },
       );
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
