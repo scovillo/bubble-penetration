@@ -256,6 +256,10 @@ describe('BubbleGameService', () => {
         expect.stringContaining('where username = ?'),
         ['alice'],
       );
+      expect(execute.mock.calls[0][1]).toEqual(['alice']);
+      expect(execute.mock.calls[0][0]).toEqual(
+        expect.stringContaining('where h.score > 0'),
+      );
       expect(execute).toHaveBeenNthCalledWith(
         2,
         expect.stringContaining('order by rank asc limit ? offset ?'),

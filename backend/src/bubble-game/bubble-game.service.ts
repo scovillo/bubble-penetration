@@ -247,6 +247,7 @@ export class BubbleGameService {
       with best_per_player as (
         select distinct on (h.player_id) h.player_id, h.score, h.confirmed_at
         from bubble_game_highscores h
+        where h.score > 0
         order by h.player_id, h.score desc, h.confirmed_at asc
       ),
       ranked as (
