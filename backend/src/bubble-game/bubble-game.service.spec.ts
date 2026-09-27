@@ -263,7 +263,7 @@ describe('BubbleGameService', () => {
       expect(execute).toHaveBeenNthCalledWith(
         2,
         expect.stringContaining('order by rank asc limit ? offset ?'),
-        [20, 4],
+        [50, 4],
       );
       expect(result.highscores[0]).toMatchObject({
         rank: 25,
@@ -296,7 +296,7 @@ describe('BubbleGameService', () => {
       expect(execute).toHaveBeenNthCalledWith(
         2,
         expect.stringContaining('order by rank asc limit ? offset ?'),
-        [20, 0],
+        [50, 0],
       );
       expect(result.highscores[0]).toMatchObject({
         rank: 1,
