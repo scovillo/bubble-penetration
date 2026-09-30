@@ -27,7 +27,7 @@ import { RedisModule } from './redis/redis.module';
         throttlers: [
           {
             ttl: seconds(60),
-            limit: 30,
+            limit: 20,
           },
         ],
         ...(redisClient.isEnabled()

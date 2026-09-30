@@ -4,8 +4,8 @@ import { OriginAllowlistGuard } from '../../common/origin-allowlist.guard';
 import type { CreatedPlayer, PlayerProfile } from '../bubble-game.service';
 import { CreatePlayerDto } from '../dto/create-player.dto';
 import { Player } from '../entities/player.entity';
-import { UsernameValidationService } from '../username-validation/username-validation.service';
 import { UsernameAvailabilityService } from '../username-validation/username-availability.service';
+import { UsernameValidationService } from '../username-validation/username-validation.service';
 import { CurrentPlayer } from './current-player.decorator';
 import { PlayerCredentialGuard } from './player-credential.guard';
 import { PlayerService } from './player.service';
@@ -41,6 +41,7 @@ export class PlayerController {
   }
 
   @UseGuards(PlayerCredentialGuard)
+  @Throttle({ default: { limit: 10, ttl: minutes(1) } })
   @Get('me')
   getCurrentPlayer(@CurrentPlayer() player: Player): PlayerProfile {
     return this.playerService.getPlayerProfile(player);

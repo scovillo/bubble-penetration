@@ -233,7 +233,7 @@ spec:
     - host: $HOST
       http:
         paths:
-          - path: /
+          - path: /api
             pathType: Prefix
             backend:
               service:

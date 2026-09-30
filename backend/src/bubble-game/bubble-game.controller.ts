@@ -48,6 +48,7 @@ export class BubbleGameController {
   }
 
   @Get('highscores')
+  @Throttle({ default: { limit: 30, ttl: minutes(1) } })
   getHighscorePage(
     @Query('username') username?: string,
     @Query('startRank') startRank?: string,

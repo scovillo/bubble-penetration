@@ -1,6 +1,7 @@
 import { MikroOrmModule } from '@mikro-orm/nestjs';
 import { Module } from '@nestjs/common';
 import { OriginAllowlistGuard } from '../common/origin-allowlist.guard';
+import { NotFoundController } from '../common/not-found.controller';
 import { BubbleGameController } from './bubble-game.controller';
 import { BubbleGameService } from './bubble-game.service';
 import { GameSession } from './entities/game-session.entity';
@@ -22,6 +23,6 @@ import { UsernameValidationModule } from './username-validation/username-validat
     PlayerService,
     OriginAllowlistGuard,
   ],
-  controllers: [BubbleGameController, PlayerController],
+  controllers: [BubbleGameController, PlayerController, NotFoundController],
 })
 export class BubbleGameModule {}
