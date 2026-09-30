@@ -1,6 +1,6 @@
 import { Injectable, Logger, NestMiddleware } from '@nestjs/common';
 import type { NextFunction, Request, Response } from 'express';
-import { randomUUID } from 'node:crypto';
+import { createHash, randomUUID } from 'node:crypto';
 import { runWithRequestContext } from './request-context';
 
 export const REQUEST_ID_HEADER = 'x-request-id';
@@ -14,13 +14,22 @@ export class RequestLoggingMiddleware implements NestMiddleware {
   use(request: Request, response: Response, next: NextFunction): void {
     const healthCheck = this.isHealthCheck(request);
     const requestId = this.resolveRequestId(request);
+    const clientIpHash = this.hashClientIp(request);
+    const proxyPeerHash = this.hashAddress(
+      request.socket?.remoteAddress ?? 'unknown',
+    );
+    const proxyChainLength = request.ips?.length ?? 0;
+    const userAgent = this.resolveUserAgent(request);
+    const securityContext = `clientIpHash=${clientIpHash} proxyPeerHash=${proxyPeerHash} proxyChainLength=${proxyChainLength} userAgent=${JSON.stringify(userAgent)}`;
     response.setHeader('X-Request-Id', requestId);
 
     runWithRequestContext({ requestId }, () => {
       const startedAt = process.hrtime.bigint();
 
       if (!healthCheck) {
-        this.logger.log(`=> ${request.method} ${request.originalUrl}`);
+        this.logger.log(
+          `=> ${request.method} ${request.originalUrl} ${securityContext}`,
+        );
       }
 
       response.on('finish', () => {
@@ -31,7 +40,7 @@ export class RequestLoggingMiddleware implements NestMiddleware {
         const durationMs =
           Number(process.hrtime.bigint() - startedAt) / 1_000_000;
         this.logger.log(
-          `<= ${request.method} ${request.originalUrl} ${response.statusCode} ${durationMs.toFixed(1)}ms`,
+          `<= ${request.method} ${request.originalUrl} ${response.statusCode} ${durationMs.toFixed(1)}ms ${securityContext}`,
         );
       });
 
@@ -54,6 +63,32 @@ export class RequestLoggingMiddleware implements NestMiddleware {
       );
     }
     return generated;
+  }
+
+  private hashClientIp(request: Request): string {
+    const clientIp = request.ip ?? request.socket?.remoteAddress ?? 'unknown';
+    return this.hashAddress(clientIp);
+  }
+
+  private hashAddress(address: string): string {
+    return createHash('sha256').update(address).digest('hex').slice(0, 16);
+  }
+
+  private resolveUserAgent(request: Request): string {
+    const header: unknown = request.headers['user-agent'];
+    const userAgent =
+      typeof header === 'string'
+        ? header
+        : Array.isArray(header) && typeof header[0] === 'string'
+          ? header[0]
+          : 'unknown';
+
+    return Array.from(userAgent, (character) => {
+      const codePoint = character.charCodeAt(0);
+      return codePoint <= 0x1f || codePoint === 0x7f ? '?' : character;
+    })
+      .join('')
+      .slice(0, 256);
   }
 
   private isHealthCheck(request: Request): boolean {
