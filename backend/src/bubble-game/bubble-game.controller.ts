@@ -16,6 +16,7 @@ import type {
   SubmittedHighscore,
 } from './bubble-game.service';
 import { BubbleGameService } from './bubble-game.service';
+import { HighscorePageQueryDto } from './dto/highscore-page-query.dto';
 import { SubmitScoreDto } from './dto/submit-score.dto';
 import { Player } from './entities/player.entity';
 import { CurrentPlayer } from './player/current-player.decorator';
@@ -50,14 +51,8 @@ export class BubbleGameController {
   @Get('highscores')
   @Throttle({ default: { limit: 30, ttl: minutes(1) } })
   getHighscorePage(
-    @Query('username') username?: string,
-    @Query('startRank') startRank?: string,
-    @Query('limit') limit?: string,
+    @Query() query: HighscorePageQueryDto,
   ): Promise<HighscorePage> {
-    return this.bubbleGameService.getHighscorePage({
-      username,
-      startRank: startRank ? Number.parseInt(startRank, 10) : undefined,
-      limit: limit ? Number.parseInt(limit, 10) : undefined,
-    });
+    return this.bubbleGameService.getHighscorePage(query);
   }
 }

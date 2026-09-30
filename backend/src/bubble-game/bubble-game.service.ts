@@ -61,10 +61,6 @@ export type HighscorePage = {
 const SESSION_MAX_DURATION_MS = 20 * 60 * 1000;
 const SUBMISSION_CLOCK_TOLERANCE_MS = 1_000;
 
-const DEFAULT_LEADERBOARD_LIMIT = 50;
-const MAX_LEADERBOARD_LIMIT = 100;
-const PRECEDING_RANKS = 20;
-
 @Injectable()
 export class BubbleGameService {
   private readonly logger = new Logger(BubbleGameService.name);
@@ -238,10 +234,7 @@ export class BubbleGameService {
     startRank?: number;
     limit?: number;
   }): Promise<HighscorePage> {
-    const limit = Math.min(
-      Math.max(query.limit ?? DEFAULT_LEADERBOARD_LIMIT, 1),
-      MAX_LEADERBOARD_LIMIT,
-    );
+    const limit = query.limit ?? 50;
     let startRank = Math.max(query.startRank ?? 1, 1);
     const connection = this.highscores.getEntityManager().getConnection();
 
@@ -278,7 +271,7 @@ export class BubbleGameService {
         [query.username],
       );
       if (userRow) {
-        startRank = Math.max(1, userRow.rank - PRECEDING_RANKS);
+        startRank = Math.max(1, userRow.rank - 20);
       }
     }
 
